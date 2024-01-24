@@ -1,0 +1,2 @@
+"use strict";Object.defineProperty(exports, "__esModule", {value: true});require('./chunk-X2O3ZEK6.js');var _tsyringe = require('tsyringe');exports.inj = _tsyringe.inject; exports.injectable = _tsyringe.injectable;
+//# sourceMappingURL=di.js.map

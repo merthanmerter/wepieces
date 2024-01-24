@@ -1,0 +1,1 @@
+{"version":3,"sources":["../src/di.ts"],"sourcesContent":["import { injectable, inject } from 'tsyringe'\r\nexport { injectable, inject as inj }\r\n"],"mappings":"6BAAA,OAASA,cAAAA,EAAYC,UAAAA,MAAc","names":["injectable","inject"]}

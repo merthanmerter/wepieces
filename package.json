@@ -1,5 +1,5 @@
 {
-	"name": "wepiece",
+	"name": "wepieces",
 	"version": "1.0.0",
 	"description": "A journey into creating a simple meta-framework.",
 	"main": "./dist/injex.js",
@@ -7,7 +7,7 @@
 	"types": "./dist/index.d.ts",
 	"homepage": "https://whetherwepieces.com/",
 	"repository": {
-		"url": "git+https://github.com/merthanmerter/wepiece.git"
+		"url": "git+https://github.com/merthanmerter/wepieces.git"
 	},
 	"scripts": {
 		"build": "tsup"
@@ -32,6 +32,6 @@
 		"typescript": "^5.3.3"
 	},
 	"bugs": {
-		"url": "https://github.com/merthanmerter/wepiece/issues"
+		"url": "https://github.com/merthanmerter/wepieces/issues"
 	}
 }
