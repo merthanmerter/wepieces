@@ -3,7 +3,7 @@ import { defineConfig } from 'tsup'
 export default defineConfig({
 	format: ['cjs', 'esm'],
 	outDir: 'core',
-	entryPoints: ['src/index.ts', 'src/di.ts', 'src/utils.ts'],
+	entryPoints: ['src/index.ts'],
 	dts: true,
 	sourcemap: true,
 	clean: true,

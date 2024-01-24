@@ -1,4 +1,5 @@
 import { InjectionToken } from 'tsyringe';
+export { inject as inj, injectable } from 'tsyringe';
 import pino from 'pino';
 export { FastifyReply as Rep, FastifyRequest as Req } from 'fastify';
 
@@ -63,4 +64,12 @@ declare class App {
     boot(): void;
 }
 
-export { App, call, core, http, send };
+declare const rsc: {
+    OK: number;
+    CREATED: number;
+    BAD_REQUEST: number;
+    NOT_FOUND: number;
+    INTERNAL_SERVER_ERROR: number;
+};
+
+export { App, call, core, http, rsc, send };
