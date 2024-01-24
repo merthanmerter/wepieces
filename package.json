@@ -5,6 +5,10 @@
 	"main": "./dist/injex.js",
 	"module": "./dist/index.mjs",
 	"types": "./dist/index.d.ts",
+	"homepage": "https://stimpack.app/",
+	"repository": {
+		"url": "https://github.com/merthanmerter/stimpack"
+	},
 	"scripts": {
 		"build": "tsup"
 	},
