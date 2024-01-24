@@ -23,7 +23,8 @@
 		"fastify": "^4.25.2",
 		"pino": "^8.17.2",
 		"reflect-metadata": "^0.2.1",
-		"tsyringe": "^4.8.0"
+		"tsyringe": "^4.8.0",
+		"@stimpack": "file:../stimpack/dist"
 	},
 	"devDependencies": {
 		"@types/node": "^20.11.6",
