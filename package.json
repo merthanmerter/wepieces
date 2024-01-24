@@ -1,5 +1,5 @@
 {
-	"name": "stimpack",
+	"name": "stimpack-js",
 	"version": "1.0.0",
 	"description": "A journey into creating a simple meta-framework.",
 	"main": "./dist/injex.js",
@@ -23,8 +23,7 @@
 		"fastify": "^4.25.2",
 		"pino": "^8.17.2",
 		"reflect-metadata": "^0.2.1",
-		"tsyringe": "^4.8.0",
-		"@stimpack": "file:../stimpack/dist"
+		"tsyringe": "^4.8.0"
 	},
 	"devDependencies": {
 		"@types/node": "^20.11.6",
