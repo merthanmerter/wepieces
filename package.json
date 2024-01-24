@@ -1,0 +1,30 @@
+{
+	"name": "stimpack",
+	"version": "1.0.0",
+	"description": "A journey into creating a simple meta-framework.",
+	"main": "./dist/injex.js",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
+	"scripts": {
+		"build": "tsup"
+	},
+	"keywords": [
+		"dependency injection",
+		"framework",
+		"meta-framework"
+	],
+	"author": "merthanm",
+	"license": "MIT",
+	"dependencies": {
+		"fastify": "^4.25.2",
+		"pino": "^8.17.2",
+		"reflect-metadata": "^0.2.1",
+		"tsyringe": "^4.8.0"
+	},
+	"devDependencies": {
+		"@types/node": "^20.11.6",
+		"ts-node": "^10.9.2",
+		"tsup": "^8.0.1",
+		"typescript": "^5.3.3"
+	}
+}
