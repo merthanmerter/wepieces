@@ -1,13 +1,13 @@
 {
-	"name": "stimpack-js",
+	"name": "wepiece",
 	"version": "1.0.0",
 	"description": "A journey into creating a simple meta-framework.",
 	"main": "./dist/injex.js",
 	"module": "./dist/index.mjs",
 	"types": "./dist/index.d.ts",
-	"homepage": "https://stimpack.app/",
+	"homepage": "https://whetherwepieces.com/",
 	"repository": {
-		"url": "https://github.com/merthanmerter/stimpack"
+		"url": "git+https://github.com/merthanmerter/wepiece.git"
 	},
 	"scripts": {
 		"build": "tsup"
@@ -30,5 +30,8 @@
 		"ts-node": "^10.9.2",
 		"tsup": "^8.0.1",
 		"typescript": "^5.3.3"
+	},
+	"bugs": {
+		"url": "https://github.com/merthanmerter/wepiece/issues"
 	}
 }
