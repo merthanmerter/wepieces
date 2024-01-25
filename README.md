@@ -5,7 +5,7 @@
 </div>
 
 ```ts
-import { App } from 'wepieces/src'
+import { App } from 'wepieces/core'
 import { BondController } from './controller/bond-controller'
 import { MoneypennyController } from './controller/moneypenny-controller'
 import { BondService } from './service/bond-service'
@@ -49,7 +49,7 @@ new App({
 ```
 
 ```ts
-import { call, core, http, inj, rsc, send } from 'wepieces/src'
+import { call, core, http, inj, rsc, send } from 'wepieces/core'
 import { BondService } from '../service/bond-service'
 
 @core.controller('/bond')
