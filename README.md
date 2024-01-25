@@ -4,7 +4,7 @@
 
 </div>
 
-```
+```ts
 import { App } from 'wepieces/src'
 import { BondController } from './controller/bond-controller'
 import { MoneypennyController } from './controller/moneypenny-controller'
@@ -48,7 +48,7 @@ new App({
 	.boot()
 ```
 
-```
+```ts
 import { call, core, http, inj, rsc, send } from 'wepieces/src'
 import { BondService } from '../service/bond-service'
 
@@ -71,5 +71,4 @@ export class BondController {
 		return this.service.postBond()
 	}
 }
-
 ```
