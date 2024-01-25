@@ -4,6 +4,7 @@ import 'reflect-metadata'
 import { InjectionToken, container, delay, injectable, registry } from 'tsyringe'
 import { AppConfig, Resolver, Route } from './types'
 import { ApplicationHook, LifecycleHook } from 'fastify/types/hooks'
+import { StatusCodes, rsc } from './utils'
 
 export { FastifyReply as Rep, FastifyRequest as Req }
 
@@ -140,6 +141,71 @@ export const http = {
 				path,
 			})
 		},
+}
+
+export class err extends Error {
+	statusCode: number = rsc.INTERNAL_SERVER_ERROR
+
+	constructor(message: string) {
+		super(message)
+	}
+
+	/**
+	 * @description sets the status code to 400
+	 * @returns {"statusCode": 400,"error": "Bad Request","message": "..."}
+	 */
+	public br(): this {
+		this.statusCode = rsc.BAD_REQUEST
+		return this
+	}
+	/**
+	 * @description sets the status code to 401
+	 * @returns {"statusCode": 401,"error": "Unauthorized","message": "..."}
+	 */
+	public ua(): this {
+		this.statusCode = rsc.UNAUTHORIZED
+		return this
+	}
+	/**
+	 * @description sets the status code to 403
+	 * @returns {"statusCode": 403,"error": "Forbidden","message": "..."}
+	 */
+	public fb(): this {
+		this.statusCode = rsc.FORBIDDEN
+		return this
+	}
+	/**
+	 * @description sets the status code to 404
+	 * @returns {"statusCode": 404,"error": "Not Found","message": "..."}
+	 */
+	public nf(): this {
+		this.statusCode = rsc.NOT_FOUND
+		return this
+	}
+	/**
+	 * @description sets the status code to 400
+	 * @returns {"statusCode": 500,"error": "Internal Server Error","message": "..."}
+	 */
+	public ise(): this {
+		this.statusCode = rsc.INTERNAL_SERVER_ERROR
+		return this
+	}
+	/**
+	 * @description sets the status code to 501
+	 * @returns {"statusCode": 501,"error": "Not Implemented","message": "..."}
+	 */
+	public ni(): this {
+		this.statusCode = rsc.NOT_IMPLEMENTED
+		return this
+	}
+	/**
+	 * @description sets the status code to 502
+	 * @returns {"statusCode": 502,"error": "Bad Gateway","message": "..."}
+	 */
+	public bg(): this {
+		this.statusCode = rsc.BAD_GATEWAY
+		return this
+	}
 }
 
 export class App {
