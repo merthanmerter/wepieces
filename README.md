@@ -5,6 +5,7 @@
 </div>
 
 ```ts
+// ./src/app.ts
 import { App } from 'wepieces/core'
 import { BondController } from './controller/bond-controller'
 import { MoneypennyController } from './controller/moneypenny-controller'
@@ -49,6 +50,7 @@ new App({
 ```
 
 ```ts
+// ./src/controller/bond-controller.ts
 import { call, core, http, inj, rsc, send } from 'wepieces/core'
 import { BondService } from '../service/bond-service'
 
@@ -69,6 +71,23 @@ export class BondController {
 	@send.code(rsc.CREATED)
 	async postBond() {
 		return this.service.postBond()
+	}
+}
+```
+
+```ts
+// ./src/service/bond-service.ts
+import { core } from 'wepieces/src'
+import { aan } from '../helper/a-an'
+
+@core.provider()
+export class BondService {
+	public async getBond(name: string, id: string, gun: string, car: string) {
+		return `Hello ${name}! Your id is ${id} and you have ${aan(gun)} and ${aan(car)}.`
+	}
+
+	public async postBond() {
+		return 'post from bond service'
 	}
 }
 ```
