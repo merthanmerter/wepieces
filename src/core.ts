@@ -251,7 +251,7 @@ export class App {
 				this.logger.error(err)
 				process.exit(1)
 			}
-			this.logger.info(`Server listening on ${address}`)
+			// this.logger.info(`Server listening on ${address}`)
 		})
 	}
 }
