@@ -1,6 +1,6 @@
 {
 	"name": "wepieces",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "A journey into creating a simple meta-framework.",
 	"main": "./dist/injex.js",
 	"module": "./dist/index.mjs",
