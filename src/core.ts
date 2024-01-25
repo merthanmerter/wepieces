@@ -1,8 +1,9 @@
-import fastify, { FastifyReply, FastifyRequest, HTTPMethods } from 'fastify'
+import fastify, { FastifyInstance, FastifyReply, FastifyRequest, HTTPMethods } from 'fastify'
 import pino from 'pino'
 import 'reflect-metadata'
 import { InjectionToken, container, delay, injectable, registry } from 'tsyringe'
 import { AppConfig, Resolver, Route } from './types'
+import { ApplicationHook, LifecycleHook } from 'fastify/types/hooks'
 
 export { FastifyReply as Rep, FastifyRequest as Req }
 
@@ -147,6 +148,7 @@ export class App {
 	private readonly providers: InjectionToken<object>[]
 	private readonly logger: pino.Logger | Console
 	private readonly routes: Route[] = []
+	private readonly plugins: ((app: FastifyInstance) => void)[] = []
 
 	constructor({
 		config,
@@ -160,7 +162,22 @@ export class App {
 		this.config = config
 		this.controllers = controllers
 		this.providers = providers
-		this.logger = config.logger || pino()
+		this.logger =
+			config.logger ||
+			pino({
+				base: null,
+				level: 'info',
+				transport:
+					this.config.env === 'production'
+						? undefined
+						: {
+								target: 'pino-pretty',
+								options: {
+									colorize: true,
+									ignore: 'pid,hostname',
+								},
+						  },
+			})
 	}
 
 	/**
@@ -178,7 +195,12 @@ export class App {
 		}) as Resolver
 	}
 
-	private build(controllers: Resolver) {
+	public plugin(plugin: (app: FastifyInstance) => void) {
+		this.plugins.push(plugin)
+		return this
+	}
+
+	private async build(controllers: Resolver) {
 		for (const controller of controllers) {
 			const { path, metadata } = controller
 
@@ -238,20 +260,36 @@ export class App {
 		}
 	}
 
-	public boot() {
+	public async boot() {
 		const app = fastify()
+		/* register the plugins */
 
+		/* resolve the providers */
 		this.resolver(this.providers)
-		this.build(this.resolver(this.controllers))
+		/* build the routes */
+		await this.build(this.resolver(this.controllers))
 
-		this.routes.forEach(({ method, url, handler }) => app.route({ method, url, handler }))
+		for (const plugin of this.plugins) {
+			plugin(app)
+		}
+
+		for (const options of this.routes) {
+			this.logger.info(`Registering route ${options.method} ${options.url}`)
+			await app.register(
+				function (app, _, done) {
+					app.route(options)
+					done()
+				},
+				{ prefix: this.config.prefix }
+			)
+		}
 
 		app.listen({ port: this.config.port }, (err, address) => {
 			if (err) {
 				this.logger.error(err)
 				process.exit(1)
 			}
-			// this.logger.info(`Server listening on ${address}`)
+			this.logger.info(`Server listening on ${address}`)
 		})
 	}
 }

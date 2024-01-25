@@ -10,7 +10,8 @@
 		"url": "git+https://github.com/merthanmerter/wepieces.git"
 	},
 	"scripts": {
-		"build": "tsup"
+		"build": "tsup",
+		"up": "tsup && git stash && npm version patch && git stash pop && npm publish"
 	},
 	"keywords": [
 		"dependency injection",
@@ -27,6 +28,7 @@
 	},
 	"devDependencies": {
 		"@types/node": "^20.11.6",
+		"pino-pretty": "^10.3.1",
 		"ts-node": "^10.9.2",
 		"tsup": "^8.0.1",
 		"typescript": "^5.3.3"

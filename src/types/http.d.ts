@@ -11,6 +11,7 @@ export declare class AppConfig {
 	env: 'production' | 'development'
 	port: number
 	logger?: pino.Logger | Console
+	prefix?: string
 }
 export interface Route {
 	method: HTTPMethods
