@@ -2,6 +2,8 @@
 
 <h3 align="center">Wepieces v1.0.0</h3>
 
+</div>
+
 ```
 import { App } from 'wepieces/src'
 import { BondController } from './controller/bond-controller'
@@ -71,5 +73,3 @@ export class BondController {
 }
 
 ```
-
-</div>
