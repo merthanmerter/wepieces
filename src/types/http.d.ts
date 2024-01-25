@@ -1,3 +1,4 @@
+import { FastifyReply, FastifyRequest, HTTPMethods } from 'fastify'
 import pino from 'pino'
 
 export type HttpMetadata = {
@@ -10,4 +11,9 @@ export declare class AppConfig {
 	env: 'production' | 'development'
 	port: number
 	logger?: pino.Logger | Console
+}
+export interface Route {
+	method: HTTPMethods
+	url: string
+	handler: (req: FastifyRequest, res: FastifyReply) => void
 }

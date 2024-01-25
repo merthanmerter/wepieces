@@ -1,10 +1,10 @@
+import fastify, { FastifyReply, FastifyRequest, HTTPMethods } from 'fastify'
 import pino from 'pino'
 import 'reflect-metadata'
 import { InjectionToken, container, delay, injectable, registry } from 'tsyringe'
-import { AppConfig, Resolver } from './types'
-import fastify, { FastifyReply, FastifyRequest } from 'fastify'
+import { AppConfig, Resolver, Route } from './types'
 
-export { FastifyRequest as Req, FastifyReply as Rep }
+export { FastifyReply as Rep, FastifyRequest as Req }
 
 export const core = {
 	controller: (path: string) => (target: any) => {
@@ -146,6 +146,7 @@ export class App {
 	private readonly controllers: InjectionToken<object>[]
 	private readonly providers: InjectionToken<object>[]
 	private readonly logger: pino.Logger | Console
+	private readonly routes: Route[] = []
 
 	constructor({
 		config,
@@ -177,22 +178,7 @@ export class App {
 		}) as Resolver
 	}
 
-	/**
-	 * @description
-	 * This function is used to  extract route parameters from the URL.
-	 * @param url The URL to extract parameters from
-	 * @param pathTemplate The path template to use for extracting parameters
-	 * @returns an object containing the route parameters
-	 * @example const params = extractor('/first/James/007', '/first/:name/:id')
-	 * @example console.log(params) // { name: 'James', id: '007' }
-	 */
-
-	public boot() {
-		const app = fastify()
-
-		const controllers = this.resolver(this.controllers)
-		this.resolver(this.providers)
-
+	private build(controllers: Resolver) {
 		for (const controller of controllers) {
 			const { path, metadata } = controller
 
@@ -202,10 +188,10 @@ export class App {
 			for (const { key, method, path: pathTemplate } of metadata) {
 				/* if path is '/' or undefined or '' then we don't need to append the method path */
 				const url = pathTemplate === '/' || !pathTemplate ? controllerPath : `${controllerPath}${pathTemplate}`
-				app.route({
+				this.routes.push({
 					method,
 					url,
-					handler: async (req, res) => {
+					handler: async (req: FastifyRequest, res: FastifyReply) => {
 						const params = req.params || null
 						const body = req.body || null
 						const query = req.query || null
@@ -250,18 +236,22 @@ export class App {
 				})
 			}
 		}
+	}
 
-		app.listen(
-			{
-				port: this.config.port,
-			},
-			(err, address) => {
-				if (err) {
-					this.logger.error(err)
-					process.exit(1)
-				}
-				this.logger.info(`Server listening on ${address}`)
+	public boot() {
+		const app = fastify()
+
+		this.resolver(this.providers)
+		this.build(this.resolver(this.controllers))
+
+		this.routes.forEach(({ method, url, handler }) => app.route({ method, url, handler }))
+
+		app.listen({ port: this.config.port }, (err, address) => {
+			if (err) {
+				this.logger.error(err)
+				process.exit(1)
 			}
-		)
+			this.logger.info(`Server listening on ${address}`)
+		})
 	}
 }
