@@ -1,0 +1,25 @@
+{
+  "name": "@app",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "up": "docker-compose up -d",
+    "build": "docker-compose up -d --build --force-recreate",
+    "migrate": "cd apps/server && bun run db:generate && bun run db:migrate",
+    "dev": "concurrently \"cd apps/server && bun run dev -w\" \"cd apps/client && bun run dev\"",
+    "clean": "rm bun.lockb && bun install"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "workspaces": [
+    "apps/*"
+  ],
+  "dependencies": {
+    "concurrently": "^9.0.1"
+  }
+}
