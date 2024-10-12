@@ -63,13 +63,20 @@ services:
       timeout: 5s
       retries: 5
 
-  adminer:
-    image: adminer
+  pgadmin:
+    image: dpage/pgadmin4
+    env_file: .env
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${SUPERADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${SUPERADMIN_PASSWORD}
     restart: always
+    ports:
+      - "5050:80"
     depends_on:
       - database
-    ports:
-      - 5000:8080
+    volumes:
+      - pgadmin:/var/lib/pgadmin
 
 volumes:
   database:
+  pgadmin:
