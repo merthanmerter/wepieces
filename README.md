@@ -1,7 +1,97 @@
-# workspace
+# WEPIECES
 
-To install dependencies:
+## Getting Started
+
+### About
+
+WEPIECES is a highly inspired application starter kit based on
+[create-t3-app](https://create.t3.gg/). It’s 100% production ready and built
+with technologies like Bun, Hono, Træfik, Docker, React, tRPC, Drizzle, Jotai,
+Zod, Tailwind, Jose, and more. The goal of this project is to provide a modern
+web application framework that doesn't require features like server-side
+rendering (SSR) or search engine optimization (SEO). It’s an ideal choice for
+fast and simple deployment using Docker or even Bun executables, requiring
+little to no configuration.
+
+### Features
+
+- 🔥 Full-stack development with Hono, tRPC and React.
+- 📦 Modular architecture with a separation of concerns
+- 🔐 Authentication with Jose
+- 🐘 PostgreSQL database with Drizzle
+- 🐋 100% Production Ready with Docker
+- 🚢 Ready to deploy to any VPS or Cloud provider
+
+### Technologies
+
+- Bun
+- Hono
+- tRPC
+- Træfik
+- Docker
+- React
+- Vite
+- Tanstack
+- Jotai
+- Drizzle
+- PostgreSQL
+- Zod
+- Jose
+- Tailwind
+- ShadcnUI
+
+### Prerequisites
+
+- Bun 1.x or higher
+- Docker
+
+### Installation
+
+1. Clone the repository:
 
 ```bash
+git clone https://github.com/wepieces/wepieces.git
+```
+
+2. Install dependencies:
+
+```bash
+cd wepieces
 bun install
 ```
+
+3. Create a `.env` file based on the `.env.example` file:
+
+```bash
+cp .env.example .env
+```
+
+4. Start the development server:
+
+```bash
+bun run dev
+```
+
+5. Open your browser and navigate to `http://localhost:4000`.
+
+## Deployment
+
+To deploy the application to a production environment, follow these steps:
+
+1. Build the application for production:
+
+```bash
+bun run build
+```
+
+2. Migrate the database:
+
+```bash
+bun run db:migrate
+```
+
+3. Open your browser and navigate to `http://localhost`.
+
+## Contributing
+
+Contributions are welcome!
