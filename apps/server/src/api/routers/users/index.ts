@@ -19,6 +19,7 @@ import {
   not,
   sql,
 } from "drizzle-orm";
+import postgres from "postgres";
 import { hashPassword } from "../../../lib/auth";
 import {
   userInsertSchema,
@@ -93,51 +94,36 @@ export const usersRouter = createTRPCRouter({
   create: adminProcedure
     .input(userInsertSchema)
     .mutation(async ({ ctx, input }) => {
-      const password = await hashPassword(input.password!);
+      try {
+        const password = await hashPassword(input.password!);
 
-      return await ctx.db
-        .insert(users)
-        .values({
-          username: input.username,
-          email: input.email,
-          role: input.role,
-          password,
-        })
-        .returning()
-        .execute()
-        .then(([res]) => {
-          return { action: "insert", id: res.id };
-        })
-        .catch((e) => {
-          if (e.code === "ER_DUP_ENTRY")
-            throw new TRPCError({
-              code: "CONFLICT",
-              message: MESSAGES.exists("user"),
-            });
-          throw e;
-        });
+        const [res] = await ctx.db
+          .insert(users)
+          .values({
+            username: input.username,
+            email: input.email,
+            role: input.role,
+            password,
+          })
+          .returning()
+          .execute();
+
+        return { action: "insert", id: res.id };
+      } catch (err) {
+        if (err instanceof postgres.PostgresError && err.code === "23505") {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: MESSAGES.exists("user"),
+          });
+        }
+        throw err;
+      }
     }),
 
   update: adminProcedure
     .input(userUpdateSchema)
     .mutation(async ({ ctx, input }) => {
-      if (ctx.session.role === "user") {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: MESSAGES.notAdmin,
-        });
-      }
-
-      if (ctx.session.role === "admin") {
-        if (input.role === "superadmin") {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: MESSAGES.notAdmin,
-          });
-        }
-      }
-
-      return await ctx.db
+      const [res] = await ctx.db
         .update(users)
         .set({
           username: input.username,
@@ -146,32 +132,13 @@ export const usersRouter = createTRPCRouter({
         })
         .where(eq(users.id, input.id))
         .returning()
-        .execute()
-        .then(([res]) => {
-          return { action: "update", id: res.id };
-        })
-        .catch((e) => {
-          throw e;
-        });
+        .execute();
+
+      return { action: "update", id: res.id };
     }),
 
   delete: adminProcedure.input(idSchema).mutation(async ({ ctx, input }) => {
-    if (ctx.session.role !== "superadmin") {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: MESSAGES.notAdmin,
-      });
-    }
-
-    await ctx.db
-      .delete(users)
-      .where(eq(users.id, input.id))
-      .execute()
-      .then(() => {
-        return { action: "delete" };
-      })
-      .catch((e) => {
-        throw e;
-      });
+    await ctx.db.delete(users).where(eq(users.id, input.id)).execute();
+    return { action: "delete" };
   }),
 });

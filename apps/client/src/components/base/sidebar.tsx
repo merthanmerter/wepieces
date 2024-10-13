@@ -33,15 +33,26 @@ export default function Sidebar({ className }: { className?: string }) {
               </Item>
             )}
           </Link>
-          <Link to='/hub/users'>
+          <Link to='/hub/posts'>
             {(props) => (
               <Item
-                name='users'
+                name='posts'
                 isActive={props.isActive}>
-                Users
+                Posts
               </Item>
             )}
           </Link>
+          {auth?.role !== "user" && (
+            <Link to='/hub/users'>
+              {(props) => (
+                <Item
+                  name='users'
+                  isActive={props.isActive}>
+                  Users
+                </Item>
+              )}
+            </Link>
+          )}
         </div>
         <div className='mt-auto text-xs w-full flex items-center w-full'>
           <Link

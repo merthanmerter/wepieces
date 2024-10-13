@@ -7,6 +7,7 @@ import { useParentRoute } from "@/hooks";
 import { useMutation } from "@tanstack/react-query";
 import { ChevronsUpDownIcon } from "lucide-react";
 import React from "react";
+import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
@@ -41,7 +42,8 @@ export default function DangerZone({
   const mutation = useMutation({
     mutationFn,
     onSuccess: () => navigateToParent({ invalidate: true }),
-    // onSuccess: () => window.history.back(),
+    // onSuccess: () => window.history.back()
+    onError: () => toast.error("error"),
   });
 
   return (

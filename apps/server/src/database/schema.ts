@@ -12,8 +12,14 @@ const customId = t
 
 export const baseSchema = {
   id: customId,
-  createdBy: t.text("created_by").default("system").notNull(),
-  updatedBy: t.text("updated_by").default("system").notNull(),
+  createdBy: t
+    .text("created_by")
+    .references(() => users.id)
+    .notNull(),
+  updatedBy: t
+    .text("updated_by")
+    .references(() => users.id)
+    .notNull(),
   createdAt: t.timestamp("created_at").notNull().defaultNow(),
   updatedAt: t
     .timestamp("updated_at")
@@ -34,6 +40,7 @@ export const users = pgTable("users", {
 
 export type InsertUser = typeof users.$inferInsert;
 export type SelectUser = typeof users.$inferSelect;
+export type SelectUserWithoutPassword = Omit<SelectUser, "password">;
 
 export const posts = pgTable("posts", {
   ...baseSchema,
@@ -43,3 +50,7 @@ export const posts = pgTable("posts", {
 
 export type InsertPost = typeof posts.$inferInsert;
 export type SelectPost = typeof posts.$inferSelect;
+export type SelectPostWithUser = Omit<SelectPost, "createdBy" | "updatedBy"> & {
+  createdBy: SelectUserWithoutPassword;
+  updatedBy: SelectUserWithoutPassword;
+};

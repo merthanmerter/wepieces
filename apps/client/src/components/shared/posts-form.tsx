@@ -17,12 +17,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useRootContext } from "@/hooks";
 import {
-  userInsertSchema,
-  userUpdateSchema,
-} from "@app/server/src/api/routers/users/definitions";
-import { SelectUserWithoutPassword } from "@app/server/src/database/schema";
+  postInsertSchema,
+  postUpdateSchema,
+} from "@app/server/src/api/routers/posts/definitions";
+import { SelectPostWithUser } from "@app/server/src/database/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
@@ -30,30 +31,21 @@ import { Loader2Icon, PencilIcon, PlusIcon } from "lucide-react";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 
-export default function UsersForm({
+export default function PostsForm({
   initialValues,
 }: {
-  initialValues?: SelectUserWithoutPassword;
+  initialValues?: SelectPostWithUser;
 }) {
   const router = useRouter();
   const context = useRootContext();
   const [open, setOpen] = useState(false);
 
   const form = useForm({
-    resolver: zodResolver(initialValues ? userUpdateSchema : userInsertSchema),
+    resolver: zodResolver(initialValues ? postUpdateSchema : postInsertSchema),
     values: initialValues ?? {
-      username: "",
-      email: "",
-      role: "user" as const,
-      password: "",
+      title: "",
+      content: "",
     },
   });
 
@@ -61,9 +53,9 @@ export default function UsersForm({
     mutationFn: () => {
       if (initialValues) {
         const values = { ...form.getValues(), id: initialValues.id };
-        return context.proxy.users.update.mutate(values);
+        return context.proxy.posts.update.mutate(values);
       }
-      return context.proxy.users.create.mutate(form.getValues());
+      return context.proxy.posts.create.mutate(form.getValues());
     },
     onSuccess: () => {
       setOpen(false);
@@ -114,10 +106,10 @@ export default function UsersForm({
             className='space-y-3'>
             <FormField
               control={form.control}
-              name='username'
+              name='title'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Title</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -128,57 +120,13 @@ export default function UsersForm({
 
             <FormField
               control={form.control}
-              name='email'
+              name='content'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Content</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Textarea {...field} />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {!initialValues && (
-              <FormField
-                control={form.control}
-                name='password'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        type='password'
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-            <FormField
-              control={form.control}
-              name='role'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Role</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder='Select a role' />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value='user'>User</SelectItem>
-                      <SelectItem value='admin'>Admin</SelectItem>
-                      <SelectItem value='superadmin'>Superadmin</SelectItem>
-                    </SelectContent>
-                  </Select>
-
                   <FormMessage />
                 </FormItem>
               )}

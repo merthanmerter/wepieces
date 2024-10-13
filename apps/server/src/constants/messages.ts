@@ -20,8 +20,8 @@ export const MESSAGES = {
   notFound: (name: string) => `${name} not found!`,
   unauthorized: "unauthorized",
   unknownError: "unknown error",
-  notUser: "Only users can access this page.",
-  notAdmin: "Only admins can access this page.",
+  notUser: "Only users can perform this action.",
+  notAdmin: "Only admins can perform this action.",
   password:
     "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
   invalidCredentials: "Invalid credentials.",

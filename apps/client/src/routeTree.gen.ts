@@ -19,7 +19,9 @@ import { Route as IndexImport } from './routes/index'
 import { Route as HubRootImport } from './routes/hub._root'
 import { Route as HubRootIndexImport } from './routes/hub._root.index'
 import { Route as HubRootUsersImport } from './routes/hub._root.users'
+import { Route as HubRootPostsImport } from './routes/hub._root.posts'
 import { Route as HubRootUsersPidImport } from './routes/hub._root.users_.$pid'
+import { Route as HubRootPostsPidImport } from './routes/hub._root.posts_.$pid'
 
 // Create Virtual Routes
 
@@ -62,8 +64,18 @@ const HubRootUsersRoute = HubRootUsersImport.update({
   getParentRoute: () => HubRootRoute,
 } as any)
 
+const HubRootPostsRoute = HubRootPostsImport.update({
+  path: '/posts',
+  getParentRoute: () => HubRootRoute,
+} as any)
+
 const HubRootUsersPidRoute = HubRootUsersPidImport.update({
   path: '/users/$pid',
+  getParentRoute: () => HubRootRoute,
+} as any)
+
+const HubRootPostsPidRoute = HubRootPostsPidImport.update({
+  path: '/posts/$pid',
   getParentRoute: () => HubRootRoute,
 } as any)
 
@@ -106,6 +118,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HubRootImport
       parentRoute: typeof HubRoute
     }
+    '/hub/_root/posts': {
+      id: '/hub/_root/posts'
+      path: '/posts'
+      fullPath: '/hub/posts'
+      preLoaderRoute: typeof HubRootPostsImport
+      parentRoute: typeof HubRootImport
+    }
     '/hub/_root/users': {
       id: '/hub/_root/users'
       path: '/users'
@@ -118,6 +137,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/hub/'
       preLoaderRoute: typeof HubRootIndexImport
+      parentRoute: typeof HubRootImport
+    }
+    '/hub/_root/posts/$pid': {
+      id: '/hub/_root/posts/$pid'
+      path: '/posts/$pid'
+      fullPath: '/hub/posts/$pid'
+      preLoaderRoute: typeof HubRootPostsPidImport
       parentRoute: typeof HubRootImport
     }
     '/hub/_root/users/$pid': {
@@ -133,14 +159,18 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface HubRootRouteChildren {
+  HubRootPostsRoute: typeof HubRootPostsRoute
   HubRootUsersRoute: typeof HubRootUsersRoute
   HubRootIndexRoute: typeof HubRootIndexRoute
+  HubRootPostsPidRoute: typeof HubRootPostsPidRoute
   HubRootUsersPidRoute: typeof HubRootUsersPidRoute
 }
 
 const HubRootRouteChildren: HubRootRouteChildren = {
+  HubRootPostsRoute: HubRootPostsRoute,
   HubRootUsersRoute: HubRootUsersRoute,
   HubRootIndexRoute: HubRootIndexRoute,
+  HubRootPostsPidRoute: HubRootPostsPidRoute,
   HubRootUsersPidRoute: HubRootUsersPidRoute,
 }
 
@@ -162,8 +192,10 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/me': typeof MeRoute
   '/hub': typeof HubRootRouteWithChildren
+  '/hub/posts': typeof HubRootPostsRoute
   '/hub/users': typeof HubRootUsersRoute
   '/hub/': typeof HubRootIndexRoute
+  '/hub/posts/$pid': typeof HubRootPostsPidRoute
   '/hub/users/$pid': typeof HubRootUsersPidRoute
 }
 
@@ -172,7 +204,9 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/me': typeof MeRoute
   '/hub': typeof HubRootIndexRoute
+  '/hub/posts': typeof HubRootPostsRoute
   '/hub/users': typeof HubRootUsersRoute
+  '/hub/posts/$pid': typeof HubRootPostsPidRoute
   '/hub/users/$pid': typeof HubRootUsersPidRoute
 }
 
@@ -183,8 +217,10 @@ export interface FileRoutesById {
   '/me': typeof MeRoute
   '/hub': typeof HubRouteWithChildren
   '/hub/_root': typeof HubRootRouteWithChildren
+  '/hub/_root/posts': typeof HubRootPostsRoute
   '/hub/_root/users': typeof HubRootUsersRoute
   '/hub/_root/': typeof HubRootIndexRoute
+  '/hub/_root/posts/$pid': typeof HubRootPostsPidRoute
   '/hub/_root/users/$pid': typeof HubRootUsersPidRoute
 }
 
@@ -195,11 +231,21 @@ export interface FileRouteTypes {
     | '/login'
     | '/me'
     | '/hub'
+    | '/hub/posts'
     | '/hub/users'
     | '/hub/'
+    | '/hub/posts/$pid'
     | '/hub/users/$pid'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/me' | '/hub' | '/hub/users' | '/hub/users/$pid'
+  to:
+    | '/'
+    | '/login'
+    | '/me'
+    | '/hub'
+    | '/hub/posts'
+    | '/hub/users'
+    | '/hub/posts/$pid'
+    | '/hub/users/$pid'
   id:
     | '__root__'
     | '/'
@@ -207,8 +253,10 @@ export interface FileRouteTypes {
     | '/me'
     | '/hub'
     | '/hub/_root'
+    | '/hub/_root/posts'
     | '/hub/_root/users'
     | '/hub/_root/'
+    | '/hub/_root/posts/$pid'
     | '/hub/_root/users/$pid'
   fileRoutesById: FileRoutesById
 }
@@ -264,10 +312,16 @@ export const routeTree = rootRoute
       "filePath": "hub._root.tsx",
       "parent": "/hub",
       "children": [
+        "/hub/_root/posts",
         "/hub/_root/users",
         "/hub/_root/",
+        "/hub/_root/posts/$pid",
         "/hub/_root/users/$pid"
       ]
+    },
+    "/hub/_root/posts": {
+      "filePath": "hub._root.posts.tsx",
+      "parent": "/hub/_root"
     },
     "/hub/_root/users": {
       "filePath": "hub._root.users.tsx",
@@ -275,6 +329,10 @@ export const routeTree = rootRoute
     },
     "/hub/_root/": {
       "filePath": "hub._root.index.tsx",
+      "parent": "/hub/_root"
+    },
+    "/hub/_root/posts/$pid": {
+      "filePath": "hub._root.posts_.$pid.tsx",
       "parent": "/hub/_root"
     },
     "/hub/_root/users/$pid": {
