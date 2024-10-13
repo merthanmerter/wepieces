@@ -1,6 +1,8 @@
+import Helmet from "@/components/base/helmet";
 import DangerZone from "@/components/shared/danger-zone";
 import PostsForm from "@/components/shared/posts-form";
 import { useRootContext } from "@/hooks";
+import { strops } from "@/lib";
 import { createFileRoute, useLoaderData } from "@tanstack/react-router";
 import React from "react";
 
@@ -20,6 +22,12 @@ function Page() {
 
   return (
     <React.Fragment>
+      <Helmet
+        meta={{
+          title: data.title,
+          description: strops(data.content).truncate(150),
+        }}
+      />
       <div className='flex mb-4 items-center justify-between gap-2 h-8'>
         <h1 className='font-bold text-xl'>{data.title}</h1>
         <div className='ml-auto space-x-2 h-8'>

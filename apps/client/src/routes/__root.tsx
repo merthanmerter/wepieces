@@ -1,3 +1,4 @@
+import Helmet from "@/components/base/helmet";
 import { Button } from "@/components/ui/button";
 import { useParentRoute } from "@/hooks";
 import { JotaiStore } from "@/store";
@@ -9,6 +10,7 @@ import {
 } from "@tanstack/react-router";
 import { TRPCClientError } from "@trpc/client";
 import { AlertTriangleIcon } from "lucide-react";
+import React from "react";
 
 export type RootContext = {
   proxy: TRPCProxyClient;
@@ -23,9 +25,12 @@ export const Route = createRootRouteWithContext<RootContext>()({
 
 export default function Root() {
   return (
-    <div className='flex flex-col w-full relative h-screen overflow-hidden'>
-      <Outlet />
-    </div>
+    <React.Fragment>
+      <Helmet />
+      <div className='flex flex-col w-full relative h-screen overflow-hidden'>
+        <Outlet />
+      </div>
+    </React.Fragment>
   );
 }
 
