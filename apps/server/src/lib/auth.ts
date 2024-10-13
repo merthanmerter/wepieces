@@ -89,3 +89,13 @@ export const revokeAuthSession = async (c: Context) => {
     expires: new Date(0),
   });
 };
+
+export const hashPassword = async (password: string) => {
+  const hash = await Bun.password.hash(password);
+  return hash;
+};
+
+export const verifyPassword = async (password: string, hash: string) => {
+  const isValid = await Bun.password.verify(password, hash);
+  return isValid;
+};

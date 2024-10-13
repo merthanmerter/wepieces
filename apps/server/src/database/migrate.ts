@@ -1,5 +1,6 @@
 import { migrate as drizzle_migrate } from "drizzle-orm/postgres-js/migrator";
 import { env } from "../../env";
+import { hashPassword } from "../lib/auth";
 import { db } from "./";
 import { users } from "./schema";
 
@@ -16,6 +17,7 @@ export const migrate = async () => {
           username: env.SUPERADMIN_USERNAME,
           email: env.SUPERADMIN_EMAIL,
           role: "superadmin",
+          password: await hashPassword(env.SUPERADMIN_PASSWORD),
         })
         .execute();
     } catch (error) {}

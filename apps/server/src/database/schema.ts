@@ -29,6 +29,7 @@ export const users = pgTable("users", {
     .varchar("role", { enum: ["user", "admin", "superadmin"] })
     .default("user")
     .notNull(),
+  password: t.varchar("password", { length: 512 }).notNull(),
 });
 
 export type InsertUser = typeof users.$inferInsert;

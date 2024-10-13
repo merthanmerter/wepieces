@@ -11,7 +11,11 @@ export const authLoginSchema = createInsertSchema(users, {
     })
     .min(2, MESSAGES.min(2))
     .max(50, MESSAGES.max(50)),
+  password: z.string({
+    message: MESSAGES.string,
+  }),
 }).pick({
   id: true,
   username: true,
+  password: true,
 });

@@ -13,6 +13,7 @@ import {
   revokeAuthSession,
   serializeSession,
   sessionKey,
+  verifyPassword,
 } from "@app/server/src/lib/auth";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
@@ -32,7 +33,7 @@ export const authRouter = createTRPCRouter({
             username: users.username,
             email: users.email,
             role: users.role,
-            // password: users.password,
+            password: users.password,
           })
           .from(users)
           .where(eq(users.username, username))
@@ -41,7 +42,16 @@ export const authRouter = createTRPCRouter({
         if (!user) {
           throw new TRPCError({
             code: "UNAUTHORIZED",
-            message: MESSAGES.notFound("User"),
+            message: MESSAGES.invalidCredentials,
+          });
+        }
+
+        const isValid = await verifyPassword(input.password, user.password);
+
+        if (!isValid) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: MESSAGES.invalidCredentials,
           });
         }
 

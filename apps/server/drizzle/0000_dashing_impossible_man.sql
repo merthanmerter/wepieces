@@ -13,5 +13,6 @@ CREATE TABLE IF NOT EXISTS "wepieces_users" (
 	"username" varchar(255) NOT NULL,
 	"email" varchar(255) NOT NULL,
 	"role" varchar DEFAULT 'user' NOT NULL,
+	"password" varchar(512) NOT NULL,
 	CONSTRAINT "wepieces_users_email_unique" UNIQUE("email")
 );

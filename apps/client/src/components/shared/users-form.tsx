@@ -18,7 +18,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useRootContext } from "@/hooks";
-import { userInsertSchema } from "@app/server/src/api/routers/users/definitions";
+import {
+  userInsertSchema,
+  userUpdateSchema,
+} from "@app/server/src/api/routers/users/definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
@@ -37,27 +40,29 @@ import {
 export default function UsersForm({
   initialValues,
 }: {
-  initialValues?: z.infer<typeof userInsertSchema>;
+  initialValues?: z.infer<typeof userUpdateSchema>;
 }) {
   const router = useRouter();
   const context = useRootContext();
   const [open, setOpen] = useState(false);
 
   const form = useForm({
-    resolver: zodResolver(userInsertSchema),
+    resolver: zodResolver(initialValues ? userUpdateSchema : userInsertSchema),
     values: initialValues ?? {
       username: "",
       email: "",
       role: "user" as const,
+      password: undefined,
     },
   });
 
   const mutation = useMutation({
     mutationFn: () => {
-      return context.proxy.users[initialValues ? "update" : "create"].mutate({
-        id: initialValues?.id!,
-        ...form.getValues(),
-      });
+      if (initialValues) {
+        const values = { ...form.getValues(), id: initialValues.id };
+        return context.proxy.users.update.mutate(values);
+      }
+      return context.proxy.users.create.mutate(form.getValues());
     },
     onSuccess: () => {
       setOpen(false);
@@ -118,6 +123,7 @@ export default function UsersForm({
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name='email'
@@ -132,6 +138,24 @@ export default function UsersForm({
               )}
             />
 
+            {!initialValues && (
+              <FormField
+                control={form.control}
+                name='password'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type='password'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <FormField
               control={form.control}
               name='role'
@@ -149,6 +173,7 @@ export default function UsersForm({
                     <SelectContent>
                       <SelectItem value='user'>User</SelectItem>
                       <SelectItem value='admin'>Admin</SelectItem>
+                      <SelectItem value='superadmin'>Superadmin</SelectItem>
                     </SelectContent>
                   </Select>
 

@@ -22,4 +22,7 @@ export const MESSAGES = {
   unknownError: "unknown error",
   notUser: "Only users can access this page.",
   notAdmin: "Only admins can access this page.",
+  password:
+    "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+  invalidCredentials: "Invalid credentials.",
 } as const;

@@ -19,8 +19,12 @@ import {
   not,
   sql,
 } from "drizzle-orm";
-import { z } from "zod";
-import { userInsertSchema, userQuerySchema } from "./definitions";
+import { hashPassword } from "../../../lib/auth";
+import {
+  userInsertSchema,
+  userQuerySchema,
+  userUpdateSchema,
+} from "./definitions";
 
 export const usersRouter = createTRPCRouter({
   list: adminProcedure.input(userQuerySchema).query(async ({ ctx, input }) => {
@@ -59,7 +63,12 @@ export const usersRouter = createTRPCRouter({
 
   find: adminProcedure.input(paramsSchema).query(async ({ ctx, input }) => {
     const [res] = await ctx.db
-      .select()
+      .select({
+        id: users.id,
+        username: users.username,
+        email: users.email,
+        role: users.role,
+      })
       .from(users)
       .where((r) => {
         const args = [];
@@ -84,16 +93,22 @@ export const usersRouter = createTRPCRouter({
   create: adminProcedure
     .input(userInsertSchema)
     .mutation(async ({ ctx, input }) => {
+      const password = await hashPassword(input.password!);
+
       return await ctx.db
         .insert(users)
-        .values(input)
+        .values({
+          username: input.username,
+          email: input.email,
+          role: input.role,
+          password,
+        })
         .returning()
         .execute()
         .then(([res]) => {
           return { action: "insert", id: res.id };
         })
         .catch((e) => {
-          console.log("error is", e);
           if (e.code === "ER_DUP_ENTRY")
             throw new TRPCError({
               code: "CONFLICT",
@@ -104,11 +119,31 @@ export const usersRouter = createTRPCRouter({
     }),
 
   update: adminProcedure
-    .input(userInsertSchema.extend({ id: z.string() }))
+    .input(userUpdateSchema)
     .mutation(async ({ ctx, input }) => {
+      if (ctx.session.role === "user") {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: MESSAGES.notAdmin,
+        });
+      }
+
+      if (ctx.session.role === "admin") {
+        if (input.role === "superadmin") {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: MESSAGES.notAdmin,
+          });
+        }
+      }
+
       return await ctx.db
         .update(users)
-        .set(input)
+        .set({
+          username: input.username,
+          email: input.email,
+          role: input.role,
+        })
         .where(eq(users.id, input.id))
         .returning()
         .execute()
@@ -121,6 +156,13 @@ export const usersRouter = createTRPCRouter({
     }),
 
   delete: adminProcedure.input(idSchema).mutation(async ({ ctx, input }) => {
+    if (ctx.session.role !== "superadmin") {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: MESSAGES.notAdmin,
+      });
+    }
+
     await ctx.db
       .delete(users)
       .where(eq(users.id, input.id))

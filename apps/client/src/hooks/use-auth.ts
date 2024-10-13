@@ -18,9 +18,9 @@ export default function useAuth() {
   const setAuthRevalidate = useSetAtom(authRevalidateIntervalStore);
 
   const loginMutation = useMutation({
-    mutationFn: async (data: Partial<Credentials>) => {
+    mutationFn: async (data: Partial<Credentials> & { password: string }) => {
       return await context.proxy.auth.login
-        .query({ username: data?.username! })
+        .query({ username: data?.username!, password: data?.password! })
         .catch((err) => {
           throw err;
         });

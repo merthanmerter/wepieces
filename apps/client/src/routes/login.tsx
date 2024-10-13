@@ -33,8 +33,9 @@ export default function Login() {
         if (auth) return;
         const formData = new FormData(e.currentTarget);
         const username = formData.get("username") as string;
-        // const password = formData.get("password") as string;
-        login.mutate({ username });
+        const password = formData.get("password") as string;
+        console.log("password", password);
+        login.mutate({ username, password });
       }}
       className='flex flex-col gap-4 items-center justify-center w-full h-screen mx-auto max-w-xs'>
       <h1 className='text-center text-xl font-bold'>Login</h1>
@@ -44,6 +45,8 @@ export default function Login() {
         className='w-full bg-background'
       />
       <Input
+        name='password'
+        type='password'
         placeholder='Password'
         className='w-full bg-background'
       />
