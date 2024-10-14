@@ -78,7 +78,7 @@ cp .env.example .env
 4. Start the development server:
 
 ```bash
-bun run dev
+bun index.ts
 ```
 
 5. Open your browser and navigate to `http://localhost:4000`.
