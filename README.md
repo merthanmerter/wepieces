@@ -44,8 +44,8 @@ requiring little to no configuration.
 ### Roadmap
 
 - CLI integration for better project scaffolding and DX.
-- ~~Improve authentication and authorization. Add database sessions and
-  permissions.~~
+- Improve authentication and authorization. Add ~~database sessions~~ and
+  permissions.
 - Integrate image uploads and storage management. Image optimization and
   compression with sharp.
 
