@@ -6,18 +6,17 @@ import {
 import { MESSAGES } from "@app/server/src/constants";
 import { users } from "@app/server/src/database/schema";
 import {
-  authCookieOpts,
+  AUTH_COOKIE_OPTS,
   decrypt,
   encrypt,
   getAuthSession,
   revokeAuthSession,
   serializeSession,
-  sessionKey,
+  storeAuthSession,
   verifyPassword,
 } from "@app/server/src/lib/auth";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
-import { setCookie } from "hono/cookie";
 import { z } from "zod";
 import { authLoginSchema } from "./definitions";
 
@@ -59,14 +58,12 @@ export const authRouter = createTRPCRouter({
           id: user.id,
           username: user.username,
           role: user.role,
-          exp: authCookieOpts.expires.getTime() / 1000,
+          exp: AUTH_COOKIE_OPTS.expires.getTime() / 1000,
         };
 
         const session = await encrypt(payload);
 
-        setCookie(ctx.appContext, sessionKey, session, {
-          ...authCookieOpts,
-        });
+        await storeAuthSession(ctx.appContext, session);
 
         const parsed = await decrypt(session);
 
@@ -111,11 +108,10 @@ export const authRouter = createTRPCRouter({
         session.role = user.role;
       }
 
-      session.exp = authCookieOpts.expires.getTime() / 1000;
+      session.exp = AUTH_COOKIE_OPTS.expires.getTime() / 1000;
 
-      setCookie(ctx.appContext, sessionKey, await encrypt(session), {
-        ...authCookieOpts,
-      });
+      await storeAuthSession(ctx.appContext, await encrypt(session), "refresh");
+
       return { success: true, credentials: serializeSession(session) };
     }),
 

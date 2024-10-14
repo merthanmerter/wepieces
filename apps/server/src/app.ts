@@ -7,10 +7,12 @@ import { createMiddleware } from "hono/factory";
 import { appRouter } from "./api/root";
 import { createContext } from "./api/trpc";
 import { db } from "./database";
+import { df } from "./database/dragonfly";
 
 declare module "hono" {
   interface ContextVariableMap {
     db: typeof db;
+    df: typeof df;
   }
 }
 
@@ -23,7 +25,15 @@ const app = new Hono();
  */
 app.use(
   createMiddleware(async (c, next) => {
-    c.set("db", db);
+    c.set("db", db); // Set the postgres database to the context
+    c.set("df", df); // Set the dragonfly database to the context
+
+    /**
+     * List all sessions
+     */
+    // const sessions = await df.keys("*_session:*");
+    // console.log("Active sessions:", sessions.length);
+
     await next();
   }),
 );

@@ -77,6 +77,16 @@ services:
     volumes:
       - pgadmin:/var/lib/pgadmin
 
+  dragonfly:
+    image: "docker.dragonflydb.io/dragonflydb/dragonfly"
+    ulimits:
+      memlock: -1
+    ports:
+      - "6379:6379"
+    volumes:
+      - dragonflydata:/data
+
 volumes:
   database:
   pgadmin:
+  dragonflydata:
