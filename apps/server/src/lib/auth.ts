@@ -50,7 +50,9 @@ export type Credentials = {
   exp: number;
 } | null;
 
-export const serializeSession = (session: JWTPayload | null): Credentials => {
+export const secureSessionToCredentials = (
+  session: JWTPayload | null,
+): Credentials => {
   if (
     session &&
     "id" in session &&
@@ -118,7 +120,7 @@ export const getAuthSession = async (c: Context) => {
   }
 
   const payload = await decrypt(session);
-  return serializeSession(payload);
+  return secureSessionToCredentials(payload);
 };
 
 export const revokeAuthSession = async (c: Context) => {

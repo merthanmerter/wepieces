@@ -11,7 +11,7 @@ import {
   encrypt,
   getAuthSession,
   revokeAuthSession,
-  serializeSession,
+  secureSessionToCredentials,
   storeAuthSession,
   verifyPassword,
 } from "@app/server/src/lib/auth";
@@ -69,14 +69,14 @@ export const authRouter = createTRPCRouter({
 
         return {
           success: true,
-          credentials: serializeSession(parsed),
+          credentials: secureSessionToCredentials(parsed),
         };
       });
     }),
 
   me: userProcedure.query(async ({ ctx }) => {
     const session = await getAuthSession(ctx.appContext);
-    return { success: true, credentials: serializeSession(session) };
+    return { success: true, credentials: secureSessionToCredentials(session) };
   }),
 
   refresh: userProcedure
@@ -112,7 +112,10 @@ export const authRouter = createTRPCRouter({
 
       await storeAuthSession(ctx.appContext, await encrypt(session), "refresh");
 
-      return { success: true, credentials: serializeSession(session) };
+      return {
+        success: true,
+        credentials: secureSessionToCredentials(session),
+      };
     }),
 
   logout: userProcedure.query(async ({ ctx }) => {
