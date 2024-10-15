@@ -5,8 +5,9 @@ import { z } from "zod";
 
 export const postQuerySchema = paginationSchema.extend({
   title: z.string().optional(),
-  content: z.string().optional(),
-  orderBy: z.enum(["title"]).optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  orderBy: z.enum(["title", "createdAt", "updatedAt"]).optional(),
 });
 
 export const postInsertSchema = createInsertSchema(posts, {

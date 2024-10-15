@@ -243,6 +243,9 @@ function date(date: Date) {
     value: function () {
       return date;
     },
+    toYYYYMMDD: function () {
+      return date.toISOString().split("T")[0];
+    },
   };
 }
 

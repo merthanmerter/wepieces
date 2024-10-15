@@ -24,6 +24,7 @@
     "typescript": "^5.6.3"
   },
   "dependencies": {
+    "@app/utils": "workspace:*",
     "@hono/trpc-server": "^0.3.2",
     "@hono/zod-validator": "^0.2.2",
     "@t3-oss/env-nextjs": "^0.11.1",

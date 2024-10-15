@@ -2,7 +2,7 @@ import Helmet from "@/components/base/helmet";
 import DangerZone from "@/components/shared/danger-zone";
 import PostsForm from "@/components/shared/posts-form";
 import { useRootContext } from "@/hooks";
-import { helpers } from "@/lib";
+import { helpers } from "@app/utils";
 import { createFileRoute, useLoaderData } from "@tanstack/react-router";
 import React from "react";
 

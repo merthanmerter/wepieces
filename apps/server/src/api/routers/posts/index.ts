@@ -11,6 +11,7 @@ import {
   serializePaginationProps,
   serializeSearchParams,
 } from "@app/server/src/lib/utils";
+import { helpers } from "@app/utils";
 import { TRPCError } from "@trpc/server";
 import { and, asc, desc, eq, getTableColumns, like, sql } from "drizzle-orm";
 import { userAlias } from "../../../database/utils";
@@ -34,6 +35,23 @@ export const postsRouter = createTRPCRouter({
       .where((r) => {
         const args = [];
         if (rest.title) args.push(like(r.title, `%${rest.title}%`));
+        if (rest.createdAt) {
+          args.push(
+            eq(
+              sql`DATE(${r.createdAt})`,
+              helpers.date(rest.createdAt!).toYYYYMMDD(),
+            ),
+          );
+        }
+        if (rest.updatedAt) {
+          args.push(
+            eq(
+              sql`DATE(${r.updatedAt})`,
+              helpers.date(rest.updatedAt!).toYYYYMMDD(),
+            ),
+          );
+        }
+
         return and(...args);
       })
       .limit(limit)

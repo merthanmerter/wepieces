@@ -1,7 +1,7 @@
 import DataTable from "@/components/base/data-table";
 import Helmet from "@/components/base/helmet";
 import PostsForm from "@/components/shared/posts-form";
-import { helpers } from "@/lib";
+import { helpers } from "@app/utils";
 import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router";
 import { EllipsisIcon } from "lucide-react";
 import React from "react";
@@ -50,19 +50,13 @@ function Page() {
           {
             accessorKey: "content",
             header: "Content",
-            meta: {
-              type: "text",
-              name: "content",
-              placeholder: "Content",
-              sortable: true,
-            },
             cell: ({ row }) => helpers.str(row.original.content).truncate(60),
           },
           {
             accessorKey: "createdAt",
             header: "Created At",
             meta: {
-              type: "text",
+              type: "date",
               name: "createdAt",
               placeholder: "Created At",
               sortable: true,
@@ -73,7 +67,7 @@ function Page() {
             accessorKey: "updatedAt",
             header: "Updated At",
             meta: {
-              type: "text",
+              type: "date",
               name: "updatedAt",
               placeholder: "Updated At",
               sortable: true,

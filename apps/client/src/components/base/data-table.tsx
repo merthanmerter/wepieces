@@ -670,6 +670,39 @@ export function DataTableFilters<TData, TValue>({
                   </div>
                 );
               }
+
+              if (filter.meta.type === "date") {
+                return (
+                  <div
+                    className='flex gap-1.5 items-center justify-between'
+                    key={filter.meta.name}>
+                    <Input
+                      name={filter.meta.name}
+                      placeholder={filter.meta.placeholder}
+                      type='date'
+                      value={defaultValues[filter.meta.name]?.toString() ?? ""}
+                      onChange={handleChange}
+                      className='col-span-3'
+                    />
+                    {defaultValues[filter.meta.name] && (
+                      <Button
+                        type='button'
+                        name={filter.meta.name?.toString()}
+                        onClick={handleRemove}
+                        variant='outline'
+                        size='icon'
+                        className='col-span-1 flex-shrink-0'>
+                        <XIcon className='h-4 w-4' />
+                      </Button>
+                    )}
+                    <SortMenu
+                      defaultValues={defaultValues}
+                      handleSort={handleSort}
+                      filter={filter}
+                    />
+                  </div>
+                );
+              }
             })}
           </div>
           <DialogFooter className='mt-2'>
@@ -820,7 +853,13 @@ type SelectMeta = BaseMeta & {
   sortable?: boolean;
 };
 
-type ColumnMeta = TextMeta | RangeMeta | SelectMeta | BaseMeta;
+type DateMeta = BaseMeta & {
+  type: "date";
+  name: string;
+  placeholder: string;
+  sortable?: boolean;
+};
+type ColumnMeta = TextMeta | RangeMeta | SelectMeta | DateMeta | BaseMeta;
 
 type BaseColumn<T, V> = ColumnDef<T, V> & {
   accessorKey: keyof T;
