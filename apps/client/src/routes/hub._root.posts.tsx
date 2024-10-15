@@ -1,7 +1,7 @@
 import DataTable from "@/components/base/data-table";
 import Helmet from "@/components/base/helmet";
 import PostsForm from "@/components/shared/posts-form";
-import { strops } from "@/lib";
+import { helpers } from "@/lib";
 import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router";
 import { EllipsisIcon } from "lucide-react";
 import React from "react";
@@ -56,7 +56,7 @@ function Page() {
               placeholder: "Content",
               sortable: true,
             },
-            cell: ({ row }) => strops(row.original.content).truncate(60),
+            cell: ({ row }) => helpers.str(row.original.content).truncate(60),
           },
           {
             accessorKey: "createdAt",

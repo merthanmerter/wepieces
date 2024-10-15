@@ -1,1 +1,1 @@
-export { default as strops } from "./strops";
+export { default as helpers } from "./helpers";

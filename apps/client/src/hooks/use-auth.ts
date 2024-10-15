@@ -1,5 +1,5 @@
 import { useRootContext } from "@/hooks";
-import { strops } from "@/lib";
+import { helpers } from "@/lib";
 import { authAtom, authRevalidateIntervalStore } from "@/store/auth";
 import { MESSAGES } from "@app/server/src/constants";
 import { Credentials } from "@app/server/src/lib/auth";
@@ -82,7 +82,7 @@ export default function useAuth() {
     onError: (err) => {
       setAuth(null);
       toast.error(
-        err?.message ?? strops(MESSAGES.unknownError).capitalizeFirst(),
+        err?.message ?? helpers.str(MESSAGES.unknownError).capitalizeFirst(),
       );
     },
   });
