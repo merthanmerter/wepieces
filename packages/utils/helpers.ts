@@ -126,7 +126,10 @@ function arr(arr: any[]) {
       return [...new Set(arr)];
     },
     flatten: function () {
-      return arr.reduce((acc, val) => acc.concat(val), []);
+      return arr.flat();
+    },
+    flattenDeep: function () {
+      return arr.flat(Infinity);
     },
     chunk: function (size: number) {
       const chunks: any[][] = [];
@@ -134,6 +137,21 @@ function arr(arr: any[]) {
         chunks.push(arr.slice(i, i + size));
       }
       return chunks;
+    },
+    compact: function () {
+      return arr.filter((x) => !!x);
+    },
+    difference: function (arr2: any[]) {
+      return arr.filter((x) => !arr2.includes(x));
+    },
+    differenceBy: function (arr2: any[], key: string) {
+      return arr.filter((x) => !arr2.find((y) => y[key] === x[key]));
+    },
+    drop: function (n: number) {
+      return arr.slice(n);
+    },
+    findIndex: function (fn: Function) {
+      return arr.findIndex((x) => fn(x));
     },
     value: function () {
       return arr;

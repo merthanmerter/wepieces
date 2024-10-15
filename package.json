@@ -8,7 +8,7 @@
     "build": "docker-compose up -d --build --force-recreate",
     "dev": "bun run --filter '*' dev",
     "migrate": "cd apps/server && bun run db:generate && bun run db:migrate",
-    "clean": "rm bun.lockb && bun install"
+    "clean": "rm -f bun.lockb && bun install"
   },
   "devDependencies": {
     "@types/bun": "latest"
