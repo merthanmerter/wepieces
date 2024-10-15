@@ -81,7 +81,7 @@ export const storeAuthSession = async (
   session: string,
   type?: "login" | "refresh",
 ) => {
-  const df = c.get("df"); // Get the DragonflyDB instance from the context
+  const redis = c.get("redis"); // Get the RedisDB instance from the context
   const sessionKey = SESSION_KEY(session); // Create a unique key for the session
 
   /**
@@ -92,12 +92,12 @@ export const storeAuthSession = async (
   const oldSession = getCookie(c, SESSION_PREFIX);
   if (oldSession) {
     const oldSessionKey = SESSION_KEY(oldSession);
-    await df.del(oldSessionKey);
+    await redis.del(oldSessionKey);
   }
 
-  // Store the new session token in DragonflyDB
-  await df.set(sessionKey, session);
-  await df.expire(sessionKey, SESSION_EXPIRY); // Set the expiration time for the session
+  // Store the new session token in RedisDB
+  await redis.set(sessionKey, session);
+  await redis.expire(sessionKey, SESSION_EXPIRY); // Set the expiration time for the session
 
   // Update the cookie with the new session token
   setCookie(c, SESSION_PREFIX, session, {
@@ -106,13 +106,13 @@ export const storeAuthSession = async (
 };
 
 export const getAuthSession = async (c: Context) => {
-  const df = c.get("df"); // Get the dragonfly database from the context
+  const redis = c.get("redis"); // Get the redis database from the context
 
   const token = getCookie(c, SESSION_PREFIX);
   if (!token) return null;
 
   const sessionKey = SESSION_KEY(token); // Create a unique key for the session
-  const session = await df.get(sessionKey); // Get the session data from dragonfly
+  const session = await redis.get(sessionKey); // Get the session data from redis
 
   if (!session) {
     await revokeAuthSession(c);
@@ -124,14 +124,14 @@ export const getAuthSession = async (c: Context) => {
 };
 
 export const revokeAuthSession = async (c: Context) => {
-  const df = c.get("df"); // Get the dragonfly database from the context
+  const redis = c.get("redis"); // Get the redis database from the context
 
   const token = getCookie(c, SESSION_PREFIX);
   if (!token) return;
 
   const sessionKey = SESSION_KEY(token); // Create a unique key for the session
-  await df.del(sessionKey); // Delete the session from dragonfly
-  // await df.expire(sessionKey, 0); // Set the expiry time for the session
+  await redis.del(sessionKey); // Delete the session from redis
+  // await redis.expire(sessionKey, 0); // Set the expiry time for the session
 
   setCookie(c, SESSION_PREFIX, "", {
     ...AUTH_COOKIE_OPTS,

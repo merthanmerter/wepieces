@@ -12,8 +12,8 @@ export const env = createEnv({
     DATABASE_PASSWORD: z.string(),
     DATABASE_SCHEMA: z.string(),
     DATABASE_PORT: z.coerce.number().min(1).max(65535),
-    DRAGONFLY_HOST: z.string(),
-    DRAGONFLY_PORT: z.coerce.number().min(1).max(65535),
+    REDIS_HOST: z.string(),
+    REDIS_PORT: z.coerce.number().min(1).max(65535),
   },
   runtimeEnv: {
     // Server settings
@@ -31,9 +31,9 @@ export const env = createEnv({
     DATABASE_SCHEMA: Bun.env.DATABASE_SCHEMA,
     DATABASE_PORT: Bun.env.DATABASE_PORT,
 
-    // Dragonfly settings
-    DRAGONFLY_HOST: Bun.env.DRAGONFLY_HOST,
-    DRAGONFLY_PORT: Bun.env.DRAGONFLY_PORT,
+    // Redis settings
+    REDIS_HOST: Bun.env.REDIS_HOST,
+    REDIS_PORT: Bun.env.REDIS_PORT,
   },
   skipValidation: !!Bun.env.SKIP_ENV_VALIDATION,
   emptyStringAsUndefined: true,

@@ -26,8 +26,8 @@ services:
     build: .
     env_file: .env
     environment:
-      - DATABASE_HOST=database
-      - DRAGONFLY_HOST=dragonfly
+      DATABASE_HOST: database
+      REDIS_HOST: redis
     expose:
       - 5000
     deploy:
@@ -42,7 +42,7 @@ services:
     restart: always
     depends_on:
       - database
-      - dragonfly
+      - redis
 
   database:
     image: postgres
@@ -79,22 +79,15 @@ services:
     volumes:
       - pgadmin:/var/lib/pgadmin
 
-  dragonfly:
-    image: "docker.dragonflydb.io/dragonflydb/dragonfly"
-    ulimits:
-      memlock: -1
+  redis:
+    image: "redis:6-alpine"
     ports:
       - "6379:6379"
     volumes:
-      - dragonflydata:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - redisdata:/data
     restart: always
 
 volumes:
   database:
   pgadmin:
-  dragonflydata:
+  redisdata:

@@ -6,12 +6,12 @@
 
 WEPIECES is a highly inspired application starter kit based on
 [create-t3-app](https://create.t3.gg/). It’s 100% production ready and built
-with technologies like Bun, Hono, Træfik, Dragonfly, Docker, React, tRPC,
-Drizzle, Jotai, Zod, Tailwind, Jose, and more. The goal of this project is to
-provide a modern web application framework that doesn't require features like
-server-side rendering (SSR) or search engine optimization (SEO). It’s an ideal
-choice for fast and simple deployment using Docker or even Bun executables,
-requiring little to no configuration.
+with technologies like Bun, Hono, Træfik, Redis, Docker, React, tRPC, Drizzle,
+Jotai, Zod, Tailwind, Jose, and more. The goal of this project is to provide a
+modern web application framework that doesn't require features like server-side
+rendering (SSR) or search engine optimization (SEO). It’s an ideal choice for
+fast and simple deployment using Docker or even Bun executables, requiring
+little to no configuration.
 
 ### Features
 
@@ -28,7 +28,7 @@ requiring little to no configuration.
 - Hono
 - tRPC
 - Træfik
-- Dragonfly
+- Redis
 - Docker
 - React
 - Vite
