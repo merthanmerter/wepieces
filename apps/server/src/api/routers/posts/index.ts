@@ -5,6 +5,7 @@ import {
 } from "@app/server/src/api/trpc";
 import { MESSAGES } from "@app/server/src/constants";
 import { posts } from "@app/server/src/database/schema";
+import { usersAlias } from "@app/server/src/database/utils";
 import {
   idSchema,
   paramsSchema,
@@ -14,7 +15,6 @@ import {
 import { helpers } from "@app/utils";
 import { TRPCError } from "@trpc/server";
 import { and, asc, desc, eq, getTableColumns, like, sql } from "drizzle-orm";
-import { userAlias } from "../../../database/utils";
 import {
   postInsertSchema,
   postQuerySchema,
@@ -26,10 +26,14 @@ export const postsRouter = createTRPCRouter({
     const { page, limit, offset, orderBy, orderDir, ...rest } =
       serializeSearchParams(input);
 
+    const { users, createdBy, updatedBy } = usersAlias();
+
     const records = await ctx.db
       .select({
         ...getTableColumns(posts),
         total: sql<number>`count(*) over ()`,
+        createdBy,
+        updatedBy,
       })
       .from(posts)
       .where((r) => {
@@ -54,6 +58,8 @@ export const postsRouter = createTRPCRouter({
 
         return and(...args);
       })
+      .innerJoin(users.createdBy, eq(posts.createdBy, users.createdBy.id))
+      .innerJoin(users.updatedBy, eq(posts.updatedBy, users.updatedBy.id))
       .limit(limit)
       .offset(offset)
       .orderBy(() => {
@@ -70,17 +76,17 @@ export const postsRouter = createTRPCRouter({
   }),
 
   find: userProcedure.input(paramsSchema).query(async ({ ctx, input }) => {
-    const { alias, createdBy, updatedBy } = userAlias();
+    const { users, createdBy, updatedBy } = usersAlias();
 
     const [res] = await ctx.db
       .select({
         ...getTableColumns(posts),
-        createdBy: createdBy,
-        updatedBy: updatedBy,
+        createdBy,
+        updatedBy,
       })
       .from(posts)
-      .innerJoin(alias.createdBy, eq(posts.createdBy, alias.createdBy.id))
-      .innerJoin(alias.updatedBy, eq(posts.updatedBy, alias.updatedBy.id))
+      .innerJoin(users.createdBy, eq(posts.createdBy, users.createdBy.id))
+      .innerJoin(users.updatedBy, eq(posts.updatedBy, users.updatedBy.id))
       .where(eq(posts.id, input.id))
       .execute();
 

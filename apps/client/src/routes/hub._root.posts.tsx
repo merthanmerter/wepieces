@@ -23,6 +23,12 @@ function Page() {
         nav={<PostsForm />}
         data={data.records}
         meta={data.meta}
+        options={{
+          columnVisibility: {
+            createdAt: false,
+            createdBy: false,
+          },
+        }}
         columns={[
           {
             id: "action",
@@ -51,6 +57,28 @@ function Page() {
             accessorKey: "content",
             header: "Content",
             cell: ({ row }) => helpers.str(row.original.content).truncate(60),
+          },
+          {
+            accessorKey: "createdBy",
+            header: "Created By",
+            meta: {
+              type: "text",
+              name: "createdBy",
+              placeholder: "Created By",
+              sortable: true,
+            },
+            cell: ({ row }) => row.original.createdBy.username,
+          },
+          {
+            accessorKey: "updatedBy",
+            header: "Updated By",
+            meta: {
+              type: "text",
+              name: "updatedBy",
+              placeholder: "Updated By",
+              sortable: true,
+            },
+            cell: ({ row }) => row.original.updatedBy.username,
           },
           {
             accessorKey: "createdAt",

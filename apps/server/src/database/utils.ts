@@ -19,14 +19,14 @@ function getSafeUserColumns(userAlias: typeof users) {
  * This utility function joins the user table with the relation tables.
  * It returns an object with the aliased tables and the safe columns.
  */
-export function userAlias() {
+export function usersAlias() {
   const createdByAlias = aliasedTable(users, "createdByUser");
   const updatedByAlias = aliasedTable(users, "updatedByUser");
 
   return {
     createdBy: getSafeUserColumns(createdByAlias),
     updatedBy: getSafeUserColumns(updatedByAlias),
-    alias: {
+    users: {
       createdBy: createdByAlias,
       updatedBy: updatedByAlias,
     },

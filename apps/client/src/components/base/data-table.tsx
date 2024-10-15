@@ -46,7 +46,9 @@ import { useLocation, useNavigate } from "@tanstack/react-router";
 import {
   flexRender,
   getCoreRowModel,
+  TableOptions,
   useReactTable,
+  VisibilityState,
   type ColumnDef,
 } from "@tanstack/react-table";
 import {
@@ -76,6 +78,9 @@ export interface DataTableProps<TData, TValue> {
   title?: React.ReactNode;
   nav?: React.ReactNode;
   meta?: DataTablePaginationProps;
+  options?: {
+    columnVisibility?: Partial<Record<keyof TData, boolean>>;
+  };
 }
 
 export default function DataTable<TData, TValue>({
@@ -84,11 +89,23 @@ export default function DataTable<TData, TValue>({
   title,
   nav,
   meta,
+  options,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
+    getCoreRowModel: getCoreRowModel<TData>(),
+    initialState: {
+      columnVisibility: options?.columnVisibility as VisibilityState,
+      // may add more features here
+    },
+    // rowCount: meta?.total,
+    // state: {
+    //   pagination: {
+    //     pageSize: meta?.limit ? +meta.limit : +DEFAULT_PAGINATION_LIMIT,
+    //     pageIndex: meta?.page ? +meta.page - 1 : 0,
+    //   },
+    // },
   });
 
   return (
@@ -865,6 +882,7 @@ type BaseColumn<T, V> = ColumnDef<T, V> & {
   accessorKey: keyof T;
   header: string;
   meta?: ColumnMeta;
+  initialState?: TableOptions<T>["initialState"];
 };
 
 export type DataTableColumnProps<T, V = unknown> = BaseColumn<T, V> & {
