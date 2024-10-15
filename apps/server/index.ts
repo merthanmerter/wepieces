@@ -2,9 +2,6 @@ import pkg from "./package.json";
 import app from "./src/app";
 import { redis } from "./src/database/redis";
 
-import.meta.require("@app/utils");
-import.meta.resolve("@app/utils");
-
 const port = 5000;
 Bun.serve({ port, fetch: app.fetch });
 
