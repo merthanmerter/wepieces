@@ -238,16 +238,16 @@ function Index() {
         </div>
 
         <div className='flex gap-4 items-center justify-center text-muted-foreground'>
-          <Link
-            hash=''
+          <a
+            href='https://github.com/merthanmerter/wepieces'
             className='flex items-center gap-1 text-sm hover:text-foreground'>
             <GithubIcon className='h-4 w-4' /> Github
-          </Link>
-          <Link
-            hash=''
+          </a>
+          <a
+            href='https://github.com/merthanmerter/wepieces'
             className='flex items-center gap-1 text-sm hover:text-foreground'>
             <BookTextIcon className='h-4 w-4' /> Docs
-          </Link>
+          </a>
         </div>
       </div>
     </div>
