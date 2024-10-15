@@ -34,7 +34,6 @@ export default function Login() {
         const formData = new FormData(e.currentTarget);
         const username = formData.get("username") as string;
         const password = formData.get("password") as string;
-        console.log("password", password);
         login.mutate({ username, password });
       }}
       className='flex flex-col gap-4 items-center justify-center w-full h-screen mx-auto max-w-xs'>

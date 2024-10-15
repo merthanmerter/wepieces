@@ -6,6 +6,7 @@ import { Provider } from "jotai/react";
 import nprogress from "nprogress";
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
+import { HelmetProvider } from "react-helmet-async";
 import "unfonts.css";
 import "./assets/styles/index.css";
 import { Toaster } from "./components/ui/sonner";
@@ -46,7 +47,9 @@ if (!rootElement.innerHTML) {
       <Provider store={store}>
         <QueryClientProvider client={queryClient}>
           <TooltipProvider>
-            <RouterProvider router={router} />
+            <HelmetProvider>
+              <RouterProvider router={router} />
+            </HelmetProvider>
             <Toaster closeButton />
           </TooltipProvider>
         </QueryClientProvider>

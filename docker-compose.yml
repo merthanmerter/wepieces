@@ -27,6 +27,7 @@ services:
     env_file: .env
     environment:
       - DATABASE_HOST=database
+      - DRAGONFLY_HOST=dragonfly
     expose:
       - 5000
     deploy:
@@ -41,6 +42,7 @@ services:
     restart: always
     depends_on:
       - database
+      - dragonfly
 
   database:
     image: postgres
@@ -85,6 +87,12 @@ services:
       - "6379:6379"
     volumes:
       - dragonflydata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
 
 volumes:
   database:

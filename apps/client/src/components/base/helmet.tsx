@@ -1,5 +1,4 @@
-import { Helmet as ReactHelmet } from "react-helmet";
-
+import { Helmet as ReactHelmet } from "react-helmet-async";
 type Meta = {
   title?: string;
   description?: string;

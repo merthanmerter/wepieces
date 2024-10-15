@@ -6,6 +6,7 @@
   "scripts": {
     "up": "docker-compose up -d",
     "build": "docker-compose up -d --build --force-recreate",
+    "dev": "bun index.ts",
     "migrate": "cd apps/server && bun run db:generate && bun run db:migrate",
     "clean": "rm bun.lockb && bun install"
   },
