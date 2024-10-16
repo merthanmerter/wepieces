@@ -4,6 +4,7 @@ import { z } from "zod";
 export const env = createEnv({
   server: {
     SECRET: z.string(),
+    MIGRATE: z.coerce.number().min(0).max(1),
     SUPERADMIN_USERNAME: z.string(),
     SUPERADMIN_EMAIL: z.string(),
     SUPERADMIN_PASSWORD: z.string(),
@@ -18,6 +19,7 @@ export const env = createEnv({
   runtimeEnv: {
     // Server settings
     SECRET: Bun.env.SECRET,
+    MIGRATE: Bun.env.MIGRATE,
 
     // Super admin credentials
     SUPERADMIN_USERNAME: Bun.env.SUPERADMIN_USERNAME,

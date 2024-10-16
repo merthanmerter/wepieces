@@ -1,3 +1,4 @@
+import { env } from "./env";
 import pkg from "./package.json";
 import app from "./src/app";
 import { migrate } from "./src/database/migrate";
@@ -6,7 +7,7 @@ import { redis } from "./src/database/redis";
 const port = 5000;
 const server = Bun.serve({ port, fetch: app.fetch });
 
-if (server) migrate();
+if (server && env.MIGRATE) migrate();
 
 redis.on("error", (err) => {
   console.error(`Redis error:`, err);

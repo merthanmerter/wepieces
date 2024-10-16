@@ -103,6 +103,10 @@ docker-compose configuration.~~
 Migrations will run automatically when the server starts. This is a more
 convenient way to run migrations as database ports will not be exposed.
 
+```
+Change .env `MIGRATE=0` to disable migrations on startup.
+```
+
 3. Open your browser and navigate to `http://localhost`.
 
 ## Contributing
