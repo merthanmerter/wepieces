@@ -1,0 +1,50 @@
+name: wepieces_local
+
+services:
+  database:
+    image: postgres
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_SCHEMA}
+    restart: always
+    user: postgres
+    volumes:
+      - local_pg:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    expose:
+      - 5432
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4
+    env_file: .env
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${SUPERADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${SUPERADMIN_PASSWORD}
+    restart: always
+    ports:
+      - "5051:80"
+    depends_on:
+      - database
+    volumes:
+      - local_pg_admin:/var/lib/pgadmin
+
+  redis:
+    image: "redis:6-alpine"
+    ports:
+      - "6379:6379"
+    volumes:
+      - local_redis:/data
+    restart: always
+
+volumes:
+  local_pg:
+  local_pg_admin:
+  local_redis:

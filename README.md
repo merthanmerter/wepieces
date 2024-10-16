@@ -78,6 +78,7 @@ cp .env.example .env
 4. Start the development server:
 
 ```bash
+bun docker:dev
 bun index.ts
 ```
 
