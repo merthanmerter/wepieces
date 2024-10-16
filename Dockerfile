@@ -33,6 +33,9 @@ WORKDIR /app
 # Copy the client `dist` folder from the client build stage
 COPY --from=client-build /app/apps/client/dist ./dist
 
+# Copy drizzle migration meta
+COPY --from=server-build /app/apps/server/drizzle ./drizzle
+
 # Copy the built server binary from the server build stage
 COPY --from=server-build /app/apps/server/server ./server
 

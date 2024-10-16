@@ -172,3 +172,24 @@ export const adminProcedure = t.procedure
       },
     });
   });
+
+export const superAdminProcedure = t.procedure
+  .use(middleware)
+  .use(({ ctx, next }) => {
+    /*
+    Only admins and superadmins can access this procedure.
+    */
+    if (!ctx.session || ctx.session.role !== "superadmin") {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: !ctx.session ? MESSAGES.unauthorized : MESSAGES.notAdmin,
+      });
+    }
+
+    return next({
+      ctx: {
+        ...ctx,
+        session: ctx.session,
+      },
+    });
+  });

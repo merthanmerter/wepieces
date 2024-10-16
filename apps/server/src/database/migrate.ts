@@ -42,8 +42,8 @@ export const migrate = async () => {
       .execute();
   } catch (error) {}
 
-  console.log("[\x1b[32m✓\x1b[0m] Migration completed");
-  process.exit(0);
+  console.log(`  [\x1b[32m✓\x1b[0m] Database migration completed`);
+  // process.exit(0);
 };
 
-migrate();
+// migrate();

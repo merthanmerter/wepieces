@@ -79,7 +79,7 @@ cp .env.example .env
 
 ```bash
 bun run docker:dev
-bun run migrate
+~~bun run migrate~~
 bun run dev
 ```
 
@@ -97,12 +97,15 @@ bun run build
 
 2. Migrate the database:
 
-This may require some manual steps as database ports will not be exposed. You
+~~This may require some manual steps as database ports will not be exposed. You
 might need to expose the ports and remove them after the migration in the
-docker-compose configuration.
+docker-compose configuration.~~
+
+Migrations will be run automatically when the server starts. This is a more
+convenient way to run migrations as database ports will not be exposed.
 
 ```bash
-bun run migrate
+~~bun run migrate~~
 ```
 
 3. Open your browser and navigate to `http://localhost`.

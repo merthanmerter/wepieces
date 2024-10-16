@@ -15,7 +15,9 @@ export const DATABASE_OPTIONS: postgres.Options<{}> = {
   // keep_alive: true,
   // max: 10,
   // ssl: true,
+  onnotice: () => {}, // Suppress Postgres notices
 };
 
 const pool = postgres(DATABASE_OPTIONS);
+
 export const db = drizzle(pool, { schema: schema });
