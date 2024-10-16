@@ -1,4 +1,4 @@
-import { migrate as drizzle_migrate } from "drizzle-orm/postgres-js/migrator";
+import { migrate as migrator } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 import { env } from "../../env";
 import { hashPassword } from "../lib/auth";
@@ -19,7 +19,7 @@ export const migrate = async () => {
    * 2. Migrate the database.
    */
   try {
-    await drizzle_migrate(db, {
+    await migrator(db, {
       migrationsFolder: "drizzle",
     });
   } catch (error) {
