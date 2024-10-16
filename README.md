@@ -78,8 +78,8 @@ cp .env.example .env
 4. Start the development server:
 
 ```bash
-bun docker:dev
-bun index.ts
+bun run docker:dev
+bun run dev
 ```
 
 5. Open your browser and navigate to `http://localhost:4000`.
