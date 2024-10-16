@@ -7,6 +7,12 @@ import { redis } from "./src/database/redis";
 const port = 5000;
 const server = Bun.serve({ port, fetch: app.fetch });
 
+/**
+ * Runs database migrations on startup
+ * Migrations will run automatically when the server starts.
+ * This is a more convenient way to run migrations as database ports will not be exposed.
+ * Change .env MIGRATE=0 to disable.
+ */
 if (server && env.MIGRATE) migrate();
 
 redis.on("error", (err) => {
