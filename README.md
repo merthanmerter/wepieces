@@ -100,7 +100,7 @@ bun run build
 might need to expose the ports and remove them after the migration in the
 docker-compose configuration.~~
 
-Migrations will be run automatically when the server starts. This is a more
+Migrations will run automatically when the server starts. This is a more
 convenient way to run migrations as database ports will not be exposed.
 
 3. Open your browser and navigate to `http://localhost`.
