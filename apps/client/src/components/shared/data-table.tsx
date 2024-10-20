@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { DEFAULT_PAGINATION_LIMIT } from "@app/server/src/constants/misc";
-import { useLocation, useNavigate, useRouter } from "@tanstack/react-router";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import {
   flexRender,
   getCoreRowModel,
@@ -103,8 +103,6 @@ export default function DataTable<TData, TValue>({
     },
   });
 
-  const router = useRouter();
-
   return (
     <React.Fragment>
       <div className='flex mb-4 items-center justify-between gap-2 h-8'>
@@ -153,11 +151,7 @@ export default function DataTable<TData, TValue>({
         </div>
       </div>
       <HorizontalScrollArea>
-        <Table
-          className={cn(
-            router.state.status === "pending" &&
-              "pointer-events-none select-none ",
-          )}>
+        <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>

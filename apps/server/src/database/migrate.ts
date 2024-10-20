@@ -46,7 +46,6 @@ export const migrate = async () => {
         .values({
           username: env.SUPERADMIN_USERNAME,
           email: env.SUPERADMIN_EMAIL,
-          role: "superadmin",
           password: await hashPassword(env.SUPERADMIN_PASSWORD),
           activeTenantId: tenant.id,
         })

@@ -56,10 +56,10 @@ services:
     user: postgres
     volumes:
       - database:/var/lib/postgresql/data
-    # ports:
-    #   - "5432:5432"
-    # expose:
-    #   - 5432
+    ports:
+      - "5432:5432"
+    expose:
+      - 5432
     healthcheck:
       test: ["CMD", "pg_isready"]
       interval: 10s
