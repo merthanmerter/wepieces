@@ -8,6 +8,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { Link, LinkProps, useLocation } from "@tanstack/react-router";
@@ -38,6 +39,8 @@ const items: SidebarItem[] = [
 
 export function AppSidebar() {
   const [search, setSearch] = React.useState("");
+  const sidebar = useSidebar();
+
   return (
     <Sidebar collapsible='icon'>
       <SidebarContent>
@@ -45,14 +48,16 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <CompanySwitcher />
-              <SidebarSeparator className='px-0 mx-0 ' />
-              <SearchInput
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                name='search'
-                placeholder='Search...'
-                className='bg-muted border-0 my-1.5'
-              />
+              <SidebarSeparator className='px-0 mx-0' />
+              {sidebar.state === "expanded" && (
+                <SearchInput
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  name='search'
+                  placeholder='Search...'
+                  className='bg-muted border-0'
+                />
+              )}
               {items
                 .filter((item) =>
                   item.title.toLowerCase().includes(search.toLowerCase()),
