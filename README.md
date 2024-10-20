@@ -96,15 +96,12 @@ bun run build
 
 2. Migrate the database:
 
-~~This may require some manual steps as database ports will not be exposed. You
-might need to expose the ports and remove them after the migration in the
-docker-compose configuration.~~
-
-Migrations will run automatically when the server starts. This is a more
-convenient way to run migrations as database ports will not be exposed.
+Since the database ports should not be exposed in docker-compose, this will
+require some manual steps. Currently, you need to expose the ports and remove
+them after the migration in the docker-compose configuration.
 
 ```
-Change .env `MIGRATE=0` to disable migrations on startup.
+bun run migrate
 ```
 
 3. Open your browser and navigate to `http://localhost`.

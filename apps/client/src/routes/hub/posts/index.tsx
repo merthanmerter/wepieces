@@ -42,7 +42,7 @@ function Page() {
               <Link
                 to='/hub/posts/$id'
                 params={{ id: row.original.id }}>
-                <ArrowUpRightIcon className='h-4 w-4 cursor-pointer' />
+                <ArrowUpRightIcon className='size-4 cursor-pointer' />
               </Link>
             ),
           },

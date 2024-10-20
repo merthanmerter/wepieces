@@ -10,8 +10,9 @@ export default function HorizontalScrollArea({
   className?: string;
 }) {
   return (
-    <ScrollArea className={cn("w-full rounded-md border", className)}>
-      <div className='min-w-fit whitespace-nowrap'>{children}</div>
+    <ScrollArea
+      className={cn("w-full rounded-md border whitespace-nowrap", className)}>
+      <div className='min-w-fit'>{children}</div>
       <ScrollBar orientation='horizontal' />
     </ScrollArea>
   );

@@ -24,7 +24,6 @@ import {
   ChevronsUpDown,
   LogOut,
   MoonIcon,
-  ShieldIcon,
   SunIcon,
   SunMoonIcon,
   UserRoundIcon,
@@ -91,31 +90,14 @@ export function NavUser() {
                   Account
                 </DropdownMenuItem>
               </Link>
-              {auth?.role === "superadmin" && (
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className='relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0'>
-                    <ShieldIcon className='h-4 w-4' />
-                    Superadmin
-                  </DropdownMenuSubTrigger>
-                  <DropdownMenuPortal>
-                    <DropdownMenuSubContent className='my-1.5'>
-                      <Link to='/hub/tenants'>
-                        <DropdownMenuCheckboxItem>
-                          Tenants
-                        </DropdownMenuCheckboxItem>
-                      </Link>
-                    </DropdownMenuSubContent>
-                  </DropdownMenuPortal>
-                </DropdownMenuSub>
-              )}
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger className='relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0'>
                   {theme === "system" ? (
-                    <SunMoonIcon className='h-4 w-4' />
+                    <SunMoonIcon className='size-4' />
                   ) : theme === "light" ? (
-                    <SunIcon className='h-4 w-4' />
+                    <SunIcon className='size-4' />
                   ) : (
-                    <MoonIcon className='h-4 w-4' />
+                    <MoonIcon className='size-4' />
                   )}
                   Theme
                 </DropdownMenuSubTrigger>

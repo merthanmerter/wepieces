@@ -59,7 +59,7 @@ export default function DangerZone({
             variant='ghost'
             size='sm'
             className='w-9 p-0'>
-            <ChevronsUpDownIcon className='h-4 w-4' />
+            <ChevronsUpDownIcon className='size-4' />
             <span className='sr-only'>Toggle</span>
           </Button>
         </CollapsibleTrigger>

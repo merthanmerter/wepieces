@@ -194,7 +194,7 @@ export default function UsersForm({
                 disabled={mutation.isPending}>
                 {mutation.isPending ? (
                   <React.Fragment>
-                    <Loader2Icon className='h-4 w-4 animate-spin' />
+                    <Loader2Icon className='size-4 animate-spin' />
                   </React.Fragment>
                 ) : initialValues ? (
                   "Update"

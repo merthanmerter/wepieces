@@ -86,7 +86,7 @@ function Page() {
             <>
               <DropdownMenu>
                 <DropdownMenuTrigger className='my-auto'>
-                  <EllipsisIcon className='h-4 w-4' />
+                  <EllipsisIcon className='size-4' />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuLabel>{row.original.username}</DropdownMenuLabel>
@@ -123,6 +123,7 @@ function Page() {
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
+                      disabled={dismissFn.isPending}
                       onClick={() => dismissFn.mutate(row.original.id)}>
                       Continue
                     </AlertDialogAction>

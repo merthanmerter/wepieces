@@ -557,7 +557,7 @@ export function DataTableFilters<TData, TValue>({
                         variant='outline'
                         size='icon'
                         className='col-span-1 flex-shrink-0'>
-                        <XIcon className='h-4 w-4' />
+                        <XIcon className='size-4' />
                       </Button>
                     )}
                     <SortMenu
@@ -602,7 +602,7 @@ export function DataTableFilters<TData, TValue>({
                         variant='outline'
                         size='icon'
                         className='col-span-1 flex-shrink-0'>
-                        <XIcon className='h-4 w-4' />
+                        <XIcon className='size-4' />
                       </Button>
                     )}
                     <SortMenu
@@ -670,7 +670,7 @@ export function DataTableFilters<TData, TValue>({
                         variant='outline'
                         size='icon'
                         className='col-span-1 flex-shrink-0'>
-                        <XIcon className='h-4 w-4' />
+                        <XIcon className='size-4' />
                       </Button>
                     )}
                     <SortMenu
@@ -703,7 +703,7 @@ export function DataTableFilters<TData, TValue>({
                         variant='outline'
                         size='icon'
                         className='col-span-1 flex-shrink-0'>
-                        <XIcon className='h-4 w-4' />
+                        <XIcon className='size-4' />
                       </Button>
                     )}
                     <SortMenu
@@ -734,7 +734,7 @@ export function DataTableFilters<TData, TValue>({
                         variant='outline'
                         size='icon'
                         className='col-span-1 flex-shrink-0'>
-                        <XIcon className='h-4 w-4' />
+                        <XIcon className='size-4' />
                       </Button>
                     )}
                     <SortMenu
@@ -802,14 +802,14 @@ function SortMenu<T, V>({
             className={"col-span-1 flex-shrink-0"}>
             {defaultValues.orderBy === filter.accessorKey &&
               defaultValues.orderDir === "asc" && (
-                <ArrowUpNarrowWideIcon className='h-4 w-4' />
+                <ArrowUpNarrowWideIcon className='size-4' />
               )}
             {defaultValues.orderBy === filter.accessorKey &&
               defaultValues.orderDir === "desc" && (
-                <ArrowDownNarrowWideIcon className='h-4 w-4' />
+                <ArrowDownNarrowWideIcon className='size-4' />
               )}
             {defaultValues.orderBy !== filter.accessorKey && (
-              <ArrowUpDownIcon className='h-4 w-4' />
+              <ArrowUpDownIcon className='size-4' />
             )}
           </Button>
         </DropdownMenuTrigger>
@@ -827,7 +827,7 @@ function SortMenu<T, V>({
               onClick={() => handleSort(filter.accessorKey?.toString(), "asc")}>
               <span>Ascending</span>
               <DropdownMenuShortcut>
-                <ArrowUpNarrowWideIcon className='h-4 w-4' />
+                <ArrowUpNarrowWideIcon className='size-4' />
               </DropdownMenuShortcut>
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -840,7 +840,7 @@ function SortMenu<T, V>({
               onClick={() => handleSort(filter.accessorKey.toString(), "desc")}>
               <span>Descending</span>
               <DropdownMenuShortcut>
-                <ArrowDownNarrowWideIcon className='h-4 w-4' />
+                <ArrowDownNarrowWideIcon className='size-4' />
               </DropdownMenuShortcut>
             </DropdownMenuItem>
 
@@ -856,7 +856,7 @@ function SortMenu<T, V>({
               }>
               <span>Clear</span>
               <DropdownMenuShortcut>
-                <TrashIcon className='h-4 w-4' />
+                <TrashIcon className='size-4' />
               </DropdownMenuShortcut>
             </DropdownMenuItem>
           </DropdownMenuGroup>

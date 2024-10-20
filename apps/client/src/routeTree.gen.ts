@@ -19,7 +19,6 @@ import { Route as authLoginImport } from './routes/(auth)/login'
 import { Route as HubUsersIndexImport } from './routes/hub/users/index'
 import { Route as HubTenantsIndexImport } from './routes/hub/tenants/index'
 import { Route as HubPostsIndexImport } from './routes/hub/posts/index'
-import { Route as HubTenantsIdImport } from './routes/hub/tenants/$id'
 import { Route as HubPostsIdImport } from './routes/hub/posts/$id'
 
 // Create/Update Routes
@@ -69,12 +68,6 @@ const HubTenantsIndexRoute = HubTenantsIndexImport.update({
 const HubPostsIndexRoute = HubPostsIndexImport.update({
   id: '/posts/',
   path: '/posts/',
-  getParentRoute: () => HubRoute,
-} as any)
-
-const HubTenantsIdRoute = HubTenantsIdImport.update({
-  id: '/tenants/$id',
-  path: '/tenants/$id',
   getParentRoute: () => HubRoute,
 } as any)
 
@@ -130,13 +123,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HubPostsIdImport
       parentRoute: typeof HubImport
     }
-    '/hub/tenants/$id': {
-      id: '/hub/tenants/$id'
-      path: '/tenants/$id'
-      fullPath: '/hub/tenants/$id'
-      preLoaderRoute: typeof HubTenantsIdImport
-      parentRoute: typeof HubImport
-    }
     '/hub/posts/': {
       id: '/hub/posts/'
       path: '/posts'
@@ -166,7 +152,6 @@ declare module '@tanstack/react-router' {
 interface HubRouteChildren {
   HubIndexRoute: typeof HubIndexRoute
   HubPostsIdRoute: typeof HubPostsIdRoute
-  HubTenantsIdRoute: typeof HubTenantsIdRoute
   HubPostsIndexRoute: typeof HubPostsIndexRoute
   HubTenantsIndexRoute: typeof HubTenantsIndexRoute
   HubUsersIndexRoute: typeof HubUsersIndexRoute
@@ -175,7 +160,6 @@ interface HubRouteChildren {
 const HubRouteChildren: HubRouteChildren = {
   HubIndexRoute: HubIndexRoute,
   HubPostsIdRoute: HubPostsIdRoute,
-  HubTenantsIdRoute: HubTenantsIdRoute,
   HubPostsIndexRoute: HubPostsIndexRoute,
   HubTenantsIndexRoute: HubTenantsIndexRoute,
   HubUsersIndexRoute: HubUsersIndexRoute,
@@ -190,7 +174,6 @@ export interface FileRoutesByFullPath {
   '/me': typeof authMeRoute
   '/hub/': typeof HubIndexRoute
   '/hub/posts/$id': typeof HubPostsIdRoute
-  '/hub/tenants/$id': typeof HubTenantsIdRoute
   '/hub/posts': typeof HubPostsIndexRoute
   '/hub/tenants': typeof HubTenantsIndexRoute
   '/hub/users': typeof HubUsersIndexRoute
@@ -202,7 +185,6 @@ export interface FileRoutesByTo {
   '/me': typeof authMeRoute
   '/hub': typeof HubIndexRoute
   '/hub/posts/$id': typeof HubPostsIdRoute
-  '/hub/tenants/$id': typeof HubTenantsIdRoute
   '/hub/posts': typeof HubPostsIndexRoute
   '/hub/tenants': typeof HubTenantsIndexRoute
   '/hub/users': typeof HubUsersIndexRoute
@@ -216,7 +198,6 @@ export interface FileRoutesById {
   '/(auth)/me': typeof authMeRoute
   '/hub/': typeof HubIndexRoute
   '/hub/posts/$id': typeof HubPostsIdRoute
-  '/hub/tenants/$id': typeof HubTenantsIdRoute
   '/hub/posts/': typeof HubPostsIndexRoute
   '/hub/tenants/': typeof HubTenantsIndexRoute
   '/hub/users/': typeof HubUsersIndexRoute
@@ -231,7 +212,6 @@ export interface FileRouteTypes {
     | '/me'
     | '/hub/'
     | '/hub/posts/$id'
-    | '/hub/tenants/$id'
     | '/hub/posts'
     | '/hub/tenants'
     | '/hub/users'
@@ -242,7 +222,6 @@ export interface FileRouteTypes {
     | '/me'
     | '/hub'
     | '/hub/posts/$id'
-    | '/hub/tenants/$id'
     | '/hub/posts'
     | '/hub/tenants'
     | '/hub/users'
@@ -254,7 +233,6 @@ export interface FileRouteTypes {
     | '/(auth)/me'
     | '/hub/'
     | '/hub/posts/$id'
-    | '/hub/tenants/$id'
     | '/hub/posts/'
     | '/hub/tenants/'
     | '/hub/users/'
@@ -301,7 +279,6 @@ export const routeTree = rootRoute
       "children": [
         "/hub/",
         "/hub/posts/$id",
-        "/hub/tenants/$id",
         "/hub/posts/",
         "/hub/tenants/",
         "/hub/users/"
@@ -319,10 +296,6 @@ export const routeTree = rootRoute
     },
     "/hub/posts/$id": {
       "filePath": "hub/posts/$id.tsx",
-      "parent": "/hub"
-    },
-    "/hub/tenants/$id": {
-      "filePath": "hub/tenants/$id.tsx",
       "parent": "/hub"
     },
     "/hub/posts/": {

@@ -53,7 +53,7 @@ export default function Login() {
         disabled={login.isPending}
         className='w-full'>
         {login.isPending && (
-          <Loader2Icon className='h-4 w-4 animate-spin mr-1' />
+          <Loader2Icon className='size-4 animate-spin mr-1' />
         )}
         Login
       </Button>

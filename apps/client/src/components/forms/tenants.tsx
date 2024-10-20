@@ -42,12 +42,16 @@ export const Route = null;
 
 export default function TenantsForm({
   initialValues,
+  open,
+  onOpenChange,
 }: {
   initialValues?: SelectTenant;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
   const router = useRouter();
   const context = useRootContext();
-  const [open, setOpen] = useState(false);
+  const [_open, setOpen] = useState(open ?? false);
 
   const form = useForm({
     resolver: zodResolver(
@@ -69,10 +73,11 @@ export default function TenantsForm({
     },
     onSuccess: () => {
       setOpen(false);
-      form.reset();
+      onOpenChange?.(false);
       router.invalidate();
       router.clearCache();
       router.clearExpiredCache();
+      form.reset();
     },
     onError: (err) => toast.error(err.message),
   });
@@ -80,20 +85,23 @@ export default function TenantsForm({
   const handleSubmit = form.handleSubmit(() => mutation.mutate());
 
   const title = initialValues ? "Update" : "Create";
-  const description = initialValues ? "Update post." : "Create a post.";
+  const description = initialValues ? "Update tenant." : "Create a new tenant.";
 
   return (
     <Dialog
-      open={open}
+      open={_open}
       onOpenChange={(open) => {
         setOpen(open);
+        onOpenChange?.(open);
         form.reset();
       }}>
-      <DialogTrigger asChild>
-        <Button size='sm'>
-          <FilePenLineIcon /> <span>{title}</span>
-        </Button>
-      </DialogTrigger>
+      {!initialValues && (
+        <DialogTrigger asChild>
+          <Button size='sm'>
+            <FilePenLineIcon /> <span>{title}</span>
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className='max-w-lg'>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
@@ -154,7 +162,7 @@ export default function TenantsForm({
                 disabled={mutation.isPending}>
                 {mutation.isPending ? (
                   <React.Fragment>
-                    <Loader2Icon className='h-4 w-4 animate-spin' />
+                    <Loader2Icon className='size-4 animate-spin' />
                   </React.Fragment>
                 ) : initialValues ? (
                   "Update"

@@ -2,6 +2,7 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -15,8 +16,13 @@ import {
 import { useAuth, useRootContext } from "@/hooks";
 import { SelectTenant } from "@app/server/src/database/schema";
 import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "@tanstack/react-router";
-import { ChevronsUpDown, FactoryIcon, Loader2Icon } from "lucide-react";
+import { Link, useRouter } from "@tanstack/react-router";
+import {
+  ChevronsUpDown,
+  FactoryIcon,
+  Loader2Icon,
+  PlusIcon,
+} from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
 
@@ -108,6 +114,17 @@ export function CompanySwitcher() {
                 {tenant.name}
               </DropdownMenuCheckboxItem>
             ))}
+            {auth?.role === "superadmin" && (
+              <>
+                <DropdownMenuSeparator />
+                <Link to='/hub/tenants'>
+                  <DropdownMenuItem>
+                    <PlusIcon className='size-4' />
+                    <span className='text-muted-foreground'>New tenant</span>
+                  </DropdownMenuItem>
+                </Link>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
