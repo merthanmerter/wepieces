@@ -10,31 +10,34 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link, LinkProps, useLocation } from "@tanstack/react-router";
 import { HomeIcon, LucideIcon, RssIcon, UsersRoundIcon } from "lucide-react";
+import React from "react";
 import { CompanySwitcher } from "./company-switcher";
 import { NavUser } from "./nav-user";
+import SearchInput from "./search-input";
 
 // Menu items.
-const items = [
+const items: SidebarItem[] = [
   {
     title: "Home",
-    url: "/hub",
+    to: "/hub",
     icon: HomeIcon,
   },
   {
     title: "Posts",
-    url: "/hub/posts",
+    to: "/hub/posts",
     icon: RssIcon,
   },
   {
     title: "Users",
-    url: "/hub/users",
+    to: "/hub/users",
     icon: UsersRoundIcon,
   },
 ];
 
 export function AppSidebar() {
+  const [search, setSearch] = React.useState("");
   return (
     <Sidebar collapsible='icon'>
       <SidebarContent>
@@ -42,14 +45,25 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <CompanySwitcher />
-              <SidebarSeparator className='px-0 mx-0 my-1' />
-              {items.map((item) => (
-                <Item
-                  key={item.title}
-                  item={item}
-                  name={item.title}
-                />
-              ))}
+              <SidebarSeparator className='px-0 mx-0 ' />
+              <SearchInput
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                name='search'
+                placeholder='Search...'
+                className='bg-muted border-0 my-1.5'
+              />
+              {items
+                .filter((item) =>
+                  item.title.toLowerCase().includes(search.toLowerCase()),
+                )
+                .map((item) => (
+                  <Item
+                    key={item.title}
+                    item={item}
+                    name={item.title}
+                  />
+                ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -61,11 +75,10 @@ export function AppSidebar() {
   );
 }
 
-export type SidebarItem = {
+interface SidebarItem extends LinkProps {
   title: string;
-  url: string;
   icon: LucideIcon;
-};
+}
 
 function Item({ item, name }: { item: SidebarItem; name: string }) {
   const location = useLocation();
@@ -80,7 +93,7 @@ function Item({ item, name }: { item: SidebarItem; name: string }) {
   return (
     <Link
       activeOptions={{ exact: true }}
-      to={item.url}>
+      to={item.to}>
       {(props) => (
         <SidebarMenuItem key={item.title}>
           <SidebarMenuButton
