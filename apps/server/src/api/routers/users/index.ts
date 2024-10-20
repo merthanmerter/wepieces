@@ -1,6 +1,6 @@
 import { adminProcedure, createTRPCRouter } from "@app/server/src/api/trpc";
 import { MESSAGES } from "@app/server/src/constants";
-import { users } from "@app/server/src/database/schema";
+import { users, usersTenants } from "@app/server/src/database/schema";
 import {
   idSchema,
   paramsSchema,
@@ -23,6 +23,7 @@ import postgres from "postgres";
 import { hashPassword } from "../../../lib/auth";
 import {
   userInsertSchema,
+  userInviteSchema,
   userQuerySchema,
   userUpdateSchema,
 } from "./definitions";
@@ -32,27 +33,63 @@ export const usersRouter = createTRPCRouter({
     const { page, limit, offset, orderBy, orderDir, ...rest } =
       serializeSearchParams(input);
 
-    const records = await ctx.db
-      .select({
-        ...getTableColumns(users),
-        total: sql<number>`count(*) over ()`,
-      })
-      .from(users)
-      .where((r) => {
-        const args = [];
-        if (rest.username) args.push(like(r.username, `%${rest.username}%`));
-        if (ctx.session.role === "user")
-          args.push(not(inArray(r.role, ["admin", "superadmin"])));
-        if (ctx.session.role === "admin")
-          args.push(not(eq(r.role, "superadmin")));
-        return and(...args);
-      })
-      .limit(limit)
-      .offset(offset)
-      .orderBy(() => {
-        if (orderBy) return (orderDir === "asc" ? asc : desc)(users[orderBy]);
-        return desc(users.id);
-      });
+    const records = await ctx.db.transaction((trx) => {
+      return trx
+        .select({
+          ...getTableColumns(users),
+          total: sql<number>`count(*) over ()`,
+          role: usersTenants.role,
+        })
+        .from(users)
+        .innerJoin(
+          usersTenants,
+          and(
+            eq(usersTenants.userId, users.id),
+            eq(usersTenants.tenantId, ctx.session.activeTenant.id),
+          ),
+        )
+        .where((r) => {
+          const args = [];
+          if (rest.username) args.push(like(r.username, `%${rest.username}%`));
+
+          args.push(
+            inArray(
+              users.id,
+              trx
+                .select({
+                  id: usersTenants.userId,
+                })
+                .from(usersTenants)
+                .where(() => {
+                  const args = [];
+
+                  // 👇 include only users that belong to the active tenant
+                  args.push(
+                    eq(usersTenants.tenantId, ctx.session.activeTenant.id),
+                  );
+
+                  // 👇 include only same and lower roles of the query owner
+                  if (ctx.session.role === "user")
+                    args.push(
+                      not(inArray(usersTenants.role, ["admin", "superadmin"])),
+                    );
+                  if (ctx.session.role === "admin")
+                    args.push(not(eq(usersTenants.role, "superadmin")));
+
+                  return and(...args);
+                }),
+            ),
+          );
+
+          return and(...args);
+        })
+        .limit(limit)
+        .offset(offset)
+        .orderBy(() => {
+          if (orderBy) return (orderDir === "asc" ? asc : desc)(users[orderBy]);
+          return desc(users.id);
+        });
+    });
 
     const total = records?.[0]?.total;
 
@@ -63,24 +100,57 @@ export const usersRouter = createTRPCRouter({
   }),
 
   find: adminProcedure.input(paramsSchema).query(async ({ ctx, input }) => {
-    const [res] = await ctx.db
-      .select({
-        id: users.id,
-        username: users.username,
-        email: users.email,
-        role: users.role,
-      })
-      .from(users)
-      .where((r) => {
-        const args = [];
-        if (input.id) args.push(eq(r.id, input.id));
-        if (ctx.session.role === "user")
-          args.push(not(inArray(r.role, ["admin", "superadmin"])));
-        if (ctx.session.role === "admin")
-          args.push(not(eq(r.role, "superadmin")));
-        return and(...args);
-      })
-      .execute();
+    const [res] = await ctx.db.transaction((trx) => {
+      return trx
+        .select({
+          id: users.id,
+          username: users.username,
+          email: users.email,
+          role: usersTenants.role,
+        })
+        .from(users)
+        .innerJoin(
+          usersTenants,
+          and(
+            eq(usersTenants.userId, users.id),
+            eq(usersTenants.tenantId, ctx.session.activeTenant.id),
+          ),
+        )
+        .where((r) => {
+          const args = [];
+          if (input.id) args.push(eq(r.id, input.id));
+
+          args.push(
+            inArray(
+              users.id,
+              trx
+                .select({ id: usersTenants.userId })
+                .from(usersTenants)
+                .where(() => {
+                  const args = [];
+
+                  // 👇 include only users that belong to the active tenant
+                  args.push(
+                    eq(usersTenants.tenantId, ctx.session.activeTenant.id),
+                  );
+
+                  // 👇 include only same and lower roles of the query owner
+                  if (ctx.session.role === "user")
+                    args.push(
+                      not(inArray(usersTenants.role, ["admin", "superadmin"])),
+                    );
+                  if (ctx.session.role === "admin")
+                    args.push(not(eq(usersTenants.role, "superadmin")));
+
+                  return and(...args);
+                }),
+            ),
+          );
+
+          return and(...args);
+        })
+        .execute();
+    });
 
     if (!res)
       throw new TRPCError({
@@ -97,18 +167,42 @@ export const usersRouter = createTRPCRouter({
       try {
         const password = await hashPassword(input.password!);
 
-        const [res] = await ctx.db
-          .insert(users)
-          .values({
-            username: input.username,
-            email: input.email,
-            role: input.role,
-            password,
-          })
-          .returning()
-          .execute();
+        if (
+          ctx.session.role === "admin" &&
+          input.role !== "user" &&
+          input.role !== "admin"
+        ) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message:
+              "Admins can only create users with roles 'user' or 'admin'.",
+          });
+        }
 
-        return { action: "insert", id: res.id };
+        return await ctx.db.transaction(async (trx) => {
+          const [res] = await trx
+            .insert(users)
+            .values({
+              username: input.username,
+              email: input.email,
+              password,
+              activeTenantId: ctx.session.activeTenant.id,
+            })
+            .returning()
+            .execute();
+
+          await trx
+            .insert(usersTenants)
+            .values({
+              userId: res.id,
+              tenantId: ctx.session.activeTenant.id,
+              role: input.role,
+            })
+            .returning()
+            .execute();
+
+          return { action: "insert", id: res.id };
+        });
       } catch (err) {
         if (err instanceof postgres.PostgresError && err.code === "23505") {
           throw new TRPCError({
@@ -123,22 +217,93 @@ export const usersRouter = createTRPCRouter({
   update: adminProcedure
     .input(userUpdateSchema)
     .mutation(async ({ ctx, input }) => {
-      const [res] = await ctx.db
-        .update(users)
-        .set({
-          username: input.username,
-          email: input.email,
-          role: input.role,
-        })
-        .where(eq(users.id, input.id))
-        .returning()
-        .execute();
+      if (
+        ctx.session.role === "admin" &&
+        input.role !== "user" &&
+        input.role !== "admin"
+      ) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Admins can only update users with roles 'user' or 'admin'.",
+        });
+      }
 
-      return { action: "update", id: res.id };
+      return await ctx.db.transaction(async (trx) => {
+        const [res] = await trx
+          .update(users)
+          .set({
+            username: input.username,
+            email: input.email,
+          })
+          .where(eq(users.id, input.id))
+          .returning()
+          .execute();
+
+        await trx
+          .update(usersTenants)
+          .set({
+            role: input.role,
+          })
+          .where(
+            and(
+              eq(usersTenants.userId, input.id),
+              eq(usersTenants.tenantId, ctx.session.activeTenant.id),
+            ),
+          )
+          .returning()
+          .execute();
+
+        return { action: "update", id: res.id };
+      });
     }),
 
   delete: adminProcedure.input(idSchema).mutation(async ({ ctx, input }) => {
     await ctx.db.delete(users).where(eq(users.id, input.id)).execute();
+    return { action: "delete" };
+  }),
+
+  invite: adminProcedure
+    .input(userInviteSchema)
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.transaction(async (trx) => {
+        const [res] = await trx
+          .selectDistinct({
+            id: users.id,
+          })
+          .from(users)
+          .where(eq(users.email, input.email))
+          .execute();
+
+        if (!res)
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: MESSAGES.notFound("user"),
+          });
+
+        await trx
+          .insert(usersTenants)
+          .values({
+            userId: res.id,
+            tenantId: ctx.session.activeTenant.id,
+            role: input.role,
+          })
+          .returning()
+          .execute();
+
+        return { action: "insert", id: res.id };
+      });
+    }),
+
+  dismiss: adminProcedure.input(idSchema).mutation(async ({ ctx, input }) => {
+    await ctx.db
+      .delete(usersTenants)
+      .where(
+        and(
+          eq(usersTenants.userId, input.id),
+          eq(usersTenants.tenantId, ctx.session.activeTenant.id),
+        ),
+      )
+      .execute();
     return { action: "delete" };
   }),
 });

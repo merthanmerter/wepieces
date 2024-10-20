@@ -1,6 +1,13 @@
+import { and, eq, or } from "drizzle-orm";
 import type { Context } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
 import { jwtVerify, SignJWT, type JWTPayload } from "jose";
+import {
+  tenants,
+  users,
+  usersTenants,
+  type SelectTenant,
+} from "../database/schema";
 
 export const SESSION_PREFIX = "_session";
 export const SESSION_EXPIRY = 7 * 24 * 60 * 60 * 1000;
@@ -44,10 +51,12 @@ export const decrypt = async (token: string) => {
 
 export type Roles = "user" | "admin" | "superadmin";
 export type Credentials = {
+  id: string;
   username: string;
   role: Roles;
-  id: string;
   exp: number;
+  activeTenant: SelectTenant;
+  tenants: SelectTenant[];
 } | null;
 
 export const secureSessionToCredentials = (
@@ -55,32 +64,23 @@ export const secureSessionToCredentials = (
 ): Credentials => {
   if (
     session &&
-    "id" in session &&
-    "username" in session &&
-    "role" in session &&
-    "exp" in session &&
     typeof session.id === "string" &&
     typeof session.username === "string" &&
-    (session.role === "user" ||
-      session.role === "admin" ||
-      session.role === "superadmin") &&
     typeof session.exp === "number"
   ) {
     return {
-      username: session.username,
-      role: session.role,
       id: session.id,
+      username: session.username,
       exp: session.exp,
+      role: session.role as Roles,
+      activeTenant: session.activeTenant as SelectTenant,
+      tenants: session.tenants as SelectTenant[],
     };
   }
   return null;
 };
 
-export const storeAuthSession = async (
-  c: Context,
-  session: string,
-  type?: "login" | "refresh",
-) => {
+export const storeAuthSession = async (c: Context, session: string) => {
   const redis = c.get("redis"); // Get the RedisDB instance from the context
   const sessionKey = SESSION_KEY(session); // Create a unique key for the session
 
@@ -147,4 +147,82 @@ export const hashPassword = async (password: string) => {
 export const verifyPassword = async (password: string, hash: string) => {
   const isValid = await Bun.password.verify(password, hash);
   return isValid;
+};
+
+/**
+ * Get user from database
+ * @param c The context
+ * @param by The user id, username or email
+ * @returns The user object from the database
+ */
+export const getUserFromDb = async (c: Context, by: string) => {
+  const db = c.get("db");
+
+  const user = await db.transaction(async (trx) => {
+    // Step 1: Fetch the user along with the active tenant details
+    const [user] = await trx
+      .select({
+        id: users.id,
+        username: users.username,
+        email: users.email,
+        password: users.password,
+        role: usersTenants.role,
+        activeTenant: tenants, // We will check if this tenant is active or passive
+      })
+      .from(users)
+      .where(or(eq(users.id, by), eq(users.username, by), eq(users.email, by)))
+      .innerJoin(
+        usersTenants,
+        and(
+          eq(users.activeTenantId, usersTenants.tenantId),
+          eq(usersTenants.userId, users.id),
+        ),
+      )
+      .innerJoin(tenants, eq(users.activeTenantId, tenants.id))
+      .execute();
+
+    // Step 2: Fetch the list of active tenants for this user
+    const activeTenants = await trx
+      .select({
+        id: tenants.id,
+        name: tenants.name,
+        status: tenants.status,
+      })
+      .from(tenants)
+      .where(
+        and(eq(usersTenants.userId, user.id), eq(tenants.status, "active")),
+      )
+      .innerJoin(usersTenants, eq(tenants.id, usersTenants.tenantId))
+      .execute();
+
+    // Step 3: Check if the active tenant is passive (i.e., status is not active)
+    const currentActiveTenant = user.activeTenant;
+    let selectedTenant = currentActiveTenant;
+
+    if (currentActiveTenant.status !== "active" && activeTenants.length > 0) {
+      // If the active tenant is passive and there are active tenants, select the first active tenant
+      selectedTenant = activeTenants[0];
+
+      await trx
+        .update(users)
+        .set({
+          activeTenantId: selectedTenant.id,
+        })
+        .returning()
+        .execute();
+    }
+
+    // Step 4: Return the user object with the correct active tenant and the list of tenants
+    return {
+      ...user,
+      activeTenant: selectedTenant, // Update the active tenant if necessary
+      tenants: activeTenants,
+    };
+  });
+
+  if (user.activeTenant.status === "passive") return null;
+
+  if (!user) return null;
+
+  return user;
 };

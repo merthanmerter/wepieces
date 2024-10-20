@@ -1,6 +1,6 @@
 {
-  "id": "c89d06db-1a73-40a3-be60-5d96ae2894ca",
-  "prevId": "5b0c8f1e-dfba-4428-93f5-53931246ea02",
+  "id": "cb3e1ade-fcab-48b5-9bf7-541b50f06311",
+  "prevId": "1946c07e-4fb6-485c-b80e-389f63d75ced",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -36,6 +36,12 @@
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tenant": {
+          "name": "tenant",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -79,10 +85,60 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
+        },
+        "wepieces_posts_tenant_wepieces_tenants_id_fk": {
+          "name": "wepieces_posts_tenant_wepieces_tenants_id_fk",
+          "tableFrom": "wepieces_posts",
+          "tableTo": "wepieces_tenants",
+          "columnsFrom": [
+            "tenant"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
+    },
+    "public.wepieces_tenants": {
+      "name": "wepieces_tenants",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(255)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'active'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "wepieces_tenants_name_unique": {
+          "name": "wepieces_tenants_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        }
+      }
     },
     "public.wepieces_users": {
       "name": "wepieces_users",
@@ -118,10 +174,30 @@
           "type": "varchar(512)",
           "primaryKey": false,
           "notNull": true
+        },
+        "active_tenant": {
+          "name": "active_tenant",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "wepieces_users_active_tenant_wepieces_tenants_id_fk": {
+          "name": "wepieces_users_active_tenant_wepieces_tenants_id_fk",
+          "tableFrom": "wepieces_users",
+          "tableTo": "wepieces_tenants",
+          "columnsFrom": [
+            "active_tenant"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "wepieces_users_email_unique": {
@@ -132,6 +208,55 @@
           ]
         }
       }
+    },
+    "public.wepieces_users_tenants": {
+      "name": "wepieces_users_tenants",
+      "schema": "",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "wepieces_users_tenants_user_id_wepieces_users_id_fk": {
+          "name": "wepieces_users_tenants_user_id_wepieces_users_id_fk",
+          "tableFrom": "wepieces_users_tenants",
+          "tableTo": "wepieces_users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "wepieces_users_tenants_tenant_id_wepieces_tenants_id_fk": {
+          "name": "wepieces_users_tenants_tenant_id_wepieces_tenants_id_fk",
+          "tableFrom": "wepieces_users_tenants",
+          "tableTo": "wepieces_tenants",
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
     }
   },
   "enums": {},

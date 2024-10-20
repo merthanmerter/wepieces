@@ -76,6 +76,13 @@ export default defineConfig(() => {
       cssMinify: true,
       cssCodeSplit: true,
       rollupOptions: {
+        onwarn(warning, defaultHandler) {
+          if (warning.code === "SOURCEMAP_ERROR") {
+            return;
+          }
+
+          defaultHandler(warning);
+        },
         output: {
           manualChunks(id) {
             if (id.includes("node_modules")) {

@@ -3,7 +3,7 @@ import postgres from "postgres";
 import { env } from "../../env";
 import { hashPassword } from "../lib/auth";
 import { DATABASE_OPTIONS, db } from "./";
-import { users } from "./schema";
+import { tenants, users, usersTenants } from "./schema";
 
 export const migrate = async () => {
   /**
@@ -31,19 +31,41 @@ export const migrate = async () => {
    * 3. Create the superadmin user if it doesn't exist.
    */
   try {
-    await db
-      .insert(users)
-      .values({
-        username: env.SUPERADMIN_USERNAME,
-        email: env.SUPERADMIN_EMAIL,
-        role: "superadmin",
-        password: await hashPassword(env.SUPERADMIN_PASSWORD),
-      })
-      .execute();
+    await db.transaction(async (trx) => {
+      const [tenant] = await trx
+        .insert(tenants)
+        .values({
+          name: "default",
+          status: "active",
+        })
+        .returning()
+        .execute();
+
+      const [user] = await trx
+        .insert(users)
+        .values({
+          username: env.SUPERADMIN_USERNAME,
+          email: env.SUPERADMIN_EMAIL,
+          role: "superadmin",
+          password: await hashPassword(env.SUPERADMIN_PASSWORD),
+          activeTenantId: tenant.id,
+        })
+        .returning()
+        .execute();
+
+      await trx
+        .insert(usersTenants)
+        .values({
+          userId: user.id,
+          tenantId: tenant.id,
+          role: "superadmin",
+        })
+        .execute();
+    });
   } catch (error) {}
 
   console.log(`  [\x1b[32m✓\x1b[0m] Database migration completed`);
-  // process.exit(0);
+  process.exit(0);
 };
 
-// migrate();
+migrate();

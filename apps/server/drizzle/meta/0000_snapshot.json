@@ -1,5 +1,5 @@
 {
-  "id": "5b0c8f1e-dfba-4428-93f5-53931246ea02",
+  "id": "1946c07e-4fb6-485c-b80e-389f63d75ced",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -18,15 +18,13 @@
           "name": "created_by",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'system'"
+          "notNull": true
         },
         "updated_by": {
           "name": "updated_by",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'system'"
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
@@ -41,6 +39,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "tenant": {
+          "name": "tenant",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "title": {
           "name": "title",
           "type": "text",
@@ -52,6 +56,75 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "wepieces_posts_created_by_wepieces_users_id_fk": {
+          "name": "wepieces_posts_created_by_wepieces_users_id_fk",
+          "tableFrom": "wepieces_posts",
+          "tableTo": "wepieces_users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "wepieces_posts_updated_by_wepieces_users_id_fk": {
+          "name": "wepieces_posts_updated_by_wepieces_users_id_fk",
+          "tableFrom": "wepieces_posts",
+          "tableTo": "wepieces_users",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "wepieces_posts_tenant_wepieces_tenants_id_fk": {
+          "name": "wepieces_posts_tenant_wepieces_tenants_id_fk",
+          "tableFrom": "wepieces_posts",
+          "tableTo": "wepieces_tenants",
+          "columnsFrom": [
+            "tenant"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.wepieces_tenants": {
+      "name": "wepieces_tenants",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(255)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'active'"
         }
       },
       "indexes": {},
@@ -93,10 +166,30 @@
           "type": "varchar(512)",
           "primaryKey": false,
           "notNull": true
+        },
+        "active_tenant": {
+          "name": "active_tenant",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "wepieces_users_active_tenant_wepieces_tenants_id_fk": {
+          "name": "wepieces_users_active_tenant_wepieces_tenants_id_fk",
+          "tableFrom": "wepieces_users",
+          "tableTo": "wepieces_tenants",
+          "columnsFrom": [
+            "active_tenant"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "wepieces_users_email_unique": {
@@ -107,6 +200,61 @@
           ]
         }
       }
+    },
+    "public.wepieces_users_tenants": {
+      "name": "wepieces_users_tenants",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(255)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tenant_id": {
+          "name": "tenant_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "wepieces_users_tenants_user_id_wepieces_users_id_fk": {
+          "name": "wepieces_users_tenants_user_id_wepieces_users_id_fk",
+          "tableFrom": "wepieces_users_tenants",
+          "tableTo": "wepieces_users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "wepieces_users_tenants_tenant_id_wepieces_tenants_id_fk": {
+          "name": "wepieces_users_tenants_tenant_id_wepieces_tenants_id_fk",
+          "tableFrom": "wepieces_users_tenants",
+          "tableTo": "wepieces_tenants",
+          "columnsFrom": [
+            "tenant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
     }
   },
   "enums": {},

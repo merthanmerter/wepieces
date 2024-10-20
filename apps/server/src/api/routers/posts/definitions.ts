@@ -2,16 +2,16 @@ import { posts } from "@app/server/src/database/schema";
 import { paginationSchema } from "@app/server/src/lib/utils";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { MESSAGES } from "../../../constants";
 
 export const postQuerySchema = paginationSchema.extend({
   title: z.string().optional(),
-  createdAt: z.coerce.date().optional(),
-  updatedAt: z.coerce.date().optional(),
-  orderBy: z.enum(["title", "createdAt", "updatedAt"]).optional(),
+  orderBy: z.enum(["title"]).optional(),
 });
 
 export const postInsertSchema = createInsertSchema(posts, {
-  id: z.string().optional(),
+  title: z.string().min(3, MESSAGES.min(3)),
+  content: z.string().min(10, MESSAGES.min(10)),
 }).pick({
   title: true,
   content: true,

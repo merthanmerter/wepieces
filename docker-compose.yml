@@ -28,6 +28,7 @@ services:
     environment:
       DATABASE_HOST: database
       REDIS_HOST: redis
+      NODE_ENV: production
     expose:
       - 5000
     deploy:

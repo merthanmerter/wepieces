@@ -11,7 +11,6 @@ function getSafeUserColumns(userAlias: typeof users) {
     id: userAlias.id,
     username: userAlias.username,
     email: userAlias.email,
-    role: userAlias.role,
   };
 }
 

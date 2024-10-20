@@ -4,7 +4,6 @@ import { z } from "zod";
 export const env = createEnv({
   server: {
     SECRET: z.string(),
-    MIGRATE: z.coerce.number().min(0).max(1),
     SUPERADMIN_USERNAME: z.string(),
     SUPERADMIN_EMAIL: z.string(),
     SUPERADMIN_PASSWORD: z.string(),
@@ -15,11 +14,11 @@ export const env = createEnv({
     DATABASE_PORT: z.coerce.number().min(1).max(65535),
     REDIS_HOST: z.string(),
     REDIS_PORT: z.coerce.number().min(1).max(65535),
+    NODE_ENV: z.enum(["development", "production"]),
   },
   runtimeEnv: {
     // Server settings
     SECRET: Bun.env.SECRET,
-    MIGRATE: Bun.env.MIGRATE,
 
     // Super admin credentials
     SUPERADMIN_USERNAME: Bun.env.SUPERADMIN_USERNAME,
@@ -36,6 +35,7 @@ export const env = createEnv({
     // Redis settings
     REDIS_HOST: Bun.env.REDIS_HOST,
     REDIS_PORT: Bun.env.REDIS_PORT,
+    NODE_ENV: Bun.env.NODE_ENV,
   },
   skipValidation: !!Bun.env.SKIP_ENV_VALIDATION,
   emptyStringAsUndefined: true,

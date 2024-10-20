@@ -4,74 +4,66 @@ import {
   userProcedure,
 } from "@app/server/src/api/trpc";
 import { MESSAGES } from "@app/server/src/constants";
-import { users } from "@app/server/src/database/schema";
 import {
   AUTH_COOKIE_OPTS,
   decrypt,
   encrypt,
   getAuthSession,
+  getUserFromDb,
   revokeAuthSession,
   secureSessionToCredentials,
   storeAuthSession,
   verifyPassword,
+  type Credentials,
 } from "@app/server/src/lib/auth";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { users } from "../../../database/schema";
 import { authLoginSchema } from "./definitions";
 
 export const authRouter = createTRPCRouter({
   login: publicProcedure
     .input(authLoginSchema)
     .query(async ({ ctx, input }) => {
-      return await ctx.db.transaction(async (trx) => {
-        const { username } = input;
-        const [user] = await trx
-          .select({
-            id: users.id,
-            username: users.username,
-            email: users.email,
-            role: users.role,
-            password: users.password,
-          })
-          .from(users)
-          .where(eq(users.username, username))
-          .execute();
+      const { username } = input;
+      const user = await getUserFromDb(ctx.appContext, username);
 
-        if (!user) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: MESSAGES.invalidCredentials,
-          });
-        }
+      if (!user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: MESSAGES.invalidCredentials,
+        });
+      }
 
-        const isValid = await verifyPassword(input.password, user.password);
+      const isValid = await verifyPassword(input.password, user.password);
 
-        if (!isValid) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: MESSAGES.invalidCredentials,
-          });
-        }
+      if (!isValid) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: MESSAGES.invalidCredentials,
+        });
+      }
 
-        const payload = {
-          id: user.id,
-          username: user.username,
-          role: user.role,
-          exp: AUTH_COOKIE_OPTS.expires.getTime() / 1000,
-        };
+      const payload: Credentials = {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        activeTenant: user.activeTenant,
+        tenants: user.tenants,
+        exp: AUTH_COOKIE_OPTS.expires.getTime() / 1000,
+      };
 
-        const session = await encrypt(payload);
+      const session = await encrypt(payload);
 
-        await storeAuthSession(ctx.appContext, session);
+      await storeAuthSession(ctx.appContext, session);
 
-        const parsed = await decrypt(session);
+      const parsed = await decrypt(session);
 
-        return {
-          success: true,
-          credentials: secureSessionToCredentials(parsed),
-        };
-      });
+      return {
+        success: true,
+        credentials: secureSessionToCredentials(parsed),
+      };
     }),
 
   me: userProcedure.query(async ({ ctx }) => {
@@ -90,14 +82,7 @@ export const authRouter = createTRPCRouter({
       const { session } = ctx;
 
       if (input.revalidate) {
-        const [user] = await ctx.db
-          .select({
-            id: users.id,
-            username: users.username,
-            role: users.role,
-          })
-          .from(users)
-          .where(eq(users.id, session.id));
+        const user = await getUserFromDb(ctx.appContext, session.id);
 
         if (!user) {
           await revokeAuthSession(ctx.appContext);
@@ -106,11 +91,13 @@ export const authRouter = createTRPCRouter({
 
         session.username = user.username;
         session.role = user.role;
+        session.activeTenant = user.activeTenant;
+        session.tenants = user.tenants;
       }
 
       session.exp = AUTH_COOKIE_OPTS.expires.getTime() / 1000;
 
-      await storeAuthSession(ctx.appContext, await encrypt(session), "refresh");
+      await storeAuthSession(ctx.appContext, await encrypt(session));
 
       return {
         success: true,
@@ -121,4 +108,32 @@ export const authRouter = createTRPCRouter({
   logout: userProcedure.query(async ({ ctx }) => {
     await revokeAuthSession(ctx.appContext);
   }),
+
+  changeActiveTenant: userProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const tenant = ctx.session.tenants.find((t) => t.id === input.id);
+
+      if (!tenant) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: MESSAGES.invalidCredentials,
+        });
+      }
+
+      await ctx.db
+        .update(users)
+        .set({
+          activeTenantId: tenant.id,
+        })
+        .where(eq(users.id, ctx.session.id))
+        .returning()
+        .execute();
+
+      return {
+        success: true,
+        credentials: secureSessionToCredentials(ctx.session),
+        tenant,
+      };
+    }),
 });

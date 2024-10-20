@@ -14,7 +14,6 @@ export const userQuerySchema = paginationSchema.extend({
 });
 
 export const userInsertSchema = createInsertSchema(users, {
-  id: z.string().optional(),
   username: z
     .string({
       message: MESSAGES.string,
@@ -26,24 +25,33 @@ export const userInsertSchema = createInsertSchema(users, {
       message: MESSAGES.string,
     })
     .email(MESSAGES.email),
-  role: z.enum(["user", "admin", "superadmin"]),
   password: z
     .string({
       message: MESSAGES.string,
     })
     .regex(passwordValidation, MESSAGES.password)
     .optional(),
-}).pick({
-  username: true,
-  email: true,
-  role: true,
-  password: true,
-});
+})
+  .extend({
+    role: z.enum(["user", "admin", "superadmin"]),
+  })
+  .pick({
+    username: true,
+    email: true,
+    role: true,
+    password: true,
+  });
 
 export const userUpdateSchema = userInsertSchema
   .extend({
     id: z.string(),
+    role: z.enum(["user", "admin", "superadmin"]),
   })
   .omit({
     password: true,
   });
+
+export const userInviteSchema = userInsertSchema.pick({
+  email: true,
+  role: true,
+});

@@ -2,9 +2,8 @@ import { useRootContext } from "@/hooks";
 import { authAtom, authRevalidateIntervalStore } from "@/store/auth";
 import { MESSAGES } from "@app/server/src/constants";
 import { Credentials } from "@app/server/src/lib/auth";
-import { helpers } from "@app/utils";
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useAtomValue, useSetAtom } from "jotai/react";
 import { toast } from "sonner";
 
@@ -16,6 +15,7 @@ export default function useAuth() {
   const auth = useAtomValue(authAtom);
   const setAuth = useSetAtom(authAtom);
   const setAuthRevalidate = useSetAtom(authRevalidateIntervalStore);
+  const router = useRouter();
 
   const loginMutation = useMutation({
     mutationFn: async (data: Partial<Credentials> & { password: string }) => {
@@ -27,11 +27,16 @@ export default function useAuth() {
     },
     onSuccess: async (data) => {
       setAuth(data.credentials);
-      navigate({ to: NAVIGATE_TO.me });
+      router.invalidate();
+      router.clearCache();
+      router.clearExpiredCache();
     },
     onError: (res) => {
       setAuth(null);
       toast.error(res.message);
+    },
+    onSettled: () => {
+      router.navigate({ to: NAVIGATE_TO.me });
     },
   });
 
@@ -81,9 +86,7 @@ export default function useAuth() {
     },
     onError: (err) => {
       setAuth(null);
-      toast.error(
-        err?.message ?? helpers.str(MESSAGES.unknownError).capitalizeFirst(),
-      );
+      toast.error(err?.message ?? MESSAGES.unknownError);
     },
   });
 
