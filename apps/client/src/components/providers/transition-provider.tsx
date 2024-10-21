@@ -14,7 +14,6 @@ export default function TransitionProvider({
   const [transition, set] = React.useState(false);
 
   React.useEffect(() => {
-    console.log(state.resolvedLocation);
     const unsubscribeStart = subscribe("onBeforeLoad", (r) => {
       set(r.pathChanged);
     });

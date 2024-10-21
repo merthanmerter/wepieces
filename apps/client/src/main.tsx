@@ -41,7 +41,6 @@ const router = createRouter({
     store, // this is the jotai store
   },
   defaultNotFoundComponent: () => <ErrorBoundary />,
-  // defaultStaleTime: Infinity,
 });
 
 const rootElement = document.getElementById("root")!;
