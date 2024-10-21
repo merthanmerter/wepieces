@@ -36,7 +36,7 @@ services:
       replicas: ${REPLICAS}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.app.rule=Host(`${HOST}`)"
+      - "traefik.http.routers.app.rule=Host(`${DOMAIN}`)"
       - "traefik.http.services.app.loadbalancer.server.port=5000"
       # - "traefik.http.routers.app.entrypoints=websecure"
       # - "traefik.http.routers.app.tls.certresolver=myresolver"
