@@ -1,15 +1,15 @@
-import { and, eq, or } from "drizzle-orm";
-import type { Context } from "hono";
-import { getCookie, setCookie } from "hono/cookie";
-import type { CookieOptions } from "hono/utils/cookie";
-import { jwtVerify, SignJWT, type JWTPayload } from "jose";
-import { env } from "../../env";
+import { env } from "@app/server/env";
 import {
   tenants,
   users,
   usersTenants,
   type SelectTenant,
-} from "../database/schema";
+} from "@app/server/src/database/schema";
+import { and, eq, or } from "drizzle-orm";
+import type { Context } from "hono";
+import { getCookie, setCookie } from "hono/cookie";
+import type { CookieOptions } from "hono/utils/cookie";
+import { jwtVerify, SignJWT, type JWTPayload } from "jose";
 
 export const SESSION_PREFIX = "_session";
 export const SESSION_EXPIRY = 7 * 24 * 60 * 60 * 1000;
@@ -153,71 +153,78 @@ export const verifyPassword = async (password: string, hash: string) => {
 export const getUserFromDb = async (c: Context, by: string) => {
   const db = c.get("db");
 
-  const user = await db.transaction(async (trx) => {
-    // Step 1: Fetch the user along with the active tenant details
-    const [user] = await trx
-      .select({
-        id: users.id,
-        username: users.username,
-        email: users.email,
-        password: users.password,
-        role: usersTenants.role,
-        activeTenant: tenants, // We will check if this tenant is active or passive
-      })
-      .from(users)
-      .where(or(eq(users.id, by), eq(users.username, by), eq(users.email, by)))
-      .innerJoin(
-        usersTenants,
-        and(
-          eq(users.activeTenantId, usersTenants.tenantId),
-          eq(usersTenants.userId, users.id),
-        ),
-      )
-      .innerJoin(tenants, eq(users.activeTenantId, tenants.id))
-      .execute();
-
-    // Step 2: Fetch the list of active tenants for this user
-    const activeTenants = await trx
-      .select({
-        id: tenants.id,
-        name: tenants.name,
-        status: tenants.status,
-      })
-      .from(tenants)
-      .where(
-        and(eq(usersTenants.userId, user.id), eq(tenants.status, "active")),
-      )
-      .innerJoin(usersTenants, eq(tenants.id, usersTenants.tenantId))
-      .execute();
-
-    // Step 3: Check if the active tenant is passive (i.e., status is not active)
-    const currentActiveTenant = user.activeTenant;
-    let selectedTenant = currentActiveTenant;
-
-    if (currentActiveTenant.status !== "active" && activeTenants.length > 0) {
-      // If the active tenant is passive and there are active tenants, select the first active tenant
-      selectedTenant = activeTenants[0];
-
-      await trx
-        .update(users)
-        .set({
-          activeTenantId: selectedTenant.id,
+  try {
+    const user = await db.transaction(async (trx) => {
+      // Step 1: Fetch the user along with the active tenant details
+      const [user] = await trx
+        .select({
+          id: users.id,
+          username: users.username,
+          email: users.email,
+          password: users.password,
+          role: usersTenants.role,
+          activeTenant: tenants, // We will check if this tenant is active or passive
+          recoveryCode: users.recoveryCode,
         })
-        .returning()
+        .from(users)
+        .where(
+          or(eq(users.id, by), eq(users.username, by), eq(users.email, by)),
+        )
+        .innerJoin(
+          usersTenants,
+          and(
+            eq(users.activeTenantId, usersTenants.tenantId),
+            eq(usersTenants.userId, users.id),
+          ),
+        )
+        .innerJoin(tenants, eq(users.activeTenantId, tenants.id))
         .execute();
-    }
 
-    // Step 4: Return the user object with the correct active tenant and the list of tenants
-    return {
-      ...user,
-      activeTenant: selectedTenant, // Update the active tenant if necessary
-      tenants: activeTenants,
-    };
-  });
+      // Step 2: Fetch the list of active tenants for this user
+      const activeTenants = await trx
+        .select({
+          id: tenants.id,
+          name: tenants.name,
+          status: tenants.status,
+        })
+        .from(tenants)
+        .where(
+          and(eq(usersTenants.userId, user.id), eq(tenants.status, "active")),
+        )
+        .innerJoin(usersTenants, eq(tenants.id, usersTenants.tenantId))
+        .execute();
 
-  if (user.activeTenant.status === "passive") return null;
+      // Step 3: Check if the active tenant is passive (i.e., status is not active)
+      const currentActiveTenant = user.activeTenant;
+      let selectedTenant = currentActiveTenant;
 
-  if (!user) return null;
+      if (currentActiveTenant.status !== "active" && activeTenants.length > 0) {
+        // If the active tenant is passive and there are active tenants, select the first active tenant
+        selectedTenant = activeTenants[0];
 
-  return user;
+        await trx
+          .update(users)
+          .set({
+            activeTenantId: selectedTenant.id,
+          })
+          .returning()
+          .execute();
+      }
+
+      // Step 4: Return the user object with the correct active tenant and the list of tenants
+      return {
+        ...user,
+        activeTenant: selectedTenant, // Update the active tenant if necessary
+        tenants: activeTenants,
+      };
+    });
+
+    if (user.activeTenant.status === "passive") return null;
+
+    if (!user) return null;
+
+    return user;
+  } catch (error) {
+    return null;
+  }
 };

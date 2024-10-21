@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
-import { env } from "../../env";
+import { env } from "@app/server/env";
 import * as schema from "./schema";
 
 export const DATABASE_OPTIONS: postgres.Options<{}> = {

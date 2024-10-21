@@ -36,6 +36,20 @@
       "when": 1729378584710,
       "tag": "0004_nasty_wrecking_crew",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1729536506181,
+      "tag": "0005_high_hedge_knight",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1729542065439,
+      "tag": "0006_steady_manta",
+      "breakpoints": true
     }
   ]
 }

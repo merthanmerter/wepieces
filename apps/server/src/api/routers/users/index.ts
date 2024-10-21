@@ -19,6 +19,7 @@ import {
   not,
   sql,
 } from "drizzle-orm";
+import { nanoid } from "nanoid";
 import postgres from "postgres";
 import { hashPassword } from "../../../lib/auth";
 import {
@@ -315,4 +316,22 @@ export const usersRouter = createTRPCRouter({
       .execute();
     return { action: "delete" };
   }),
+
+  resetPassword: adminProcedure
+    .input(idSchema)
+    .mutation(async ({ ctx, input }) => {
+      const recoveryId = nanoid();
+      const recoveryCode = await hashPassword(recoveryId);
+
+      await ctx.db
+        .update(users)
+        .set({
+          recoveryCode,
+        })
+        .where(eq(users.id, input.id))
+        .returning()
+        .execute();
+
+      return { action: "update", recoveryId };
+    }),
 });

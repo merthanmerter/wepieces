@@ -51,9 +51,9 @@ export default function DangerZone({
       ref={ref}
       open={open}
       onOpenChange={handleOpen}
-      className='bg-background border border-destructive rounded-md py-2'>
-      <div className='flex items-center justify-between space-x-4 px-4'>
-        <h4 className='font-semibold'>Danger Zone</h4>
+      className='bg-background border border-destructive rounded-md'>
+      <div className='flex items-center justify-between space-x-4 px-4 text-sm py-2'>
+        <h4>Danger Zone</h4>
         <CollapsibleTrigger asChild>
           <Button
             variant='ghost'
@@ -72,15 +72,17 @@ export default function DangerZone({
           <Input
             onChange={(e) => setPrompt(e.target.value)}
             placeholder={DELETE_PROMPT}
+            className='h-8'
           />
           <Button
             disabled={prompt !== DELETE_PROMPT}
             variant='destructive'
+            size='sm'
             onClick={() => {
               if (prompt !== DELETE_PROMPT) return;
               mutation?.mutate();
             }}>
-            Confirm Delete
+            Delete
           </Button>
         </div>
       </CollapsibleContent>

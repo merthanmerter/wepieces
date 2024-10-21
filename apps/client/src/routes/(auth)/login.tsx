@@ -1,3 +1,4 @@
+import RecoverAccountForm from "@/components/forms/recover-account";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks";
@@ -26,37 +27,44 @@ export const Route = createFileRoute("/(auth)/login")({
 export default function Login() {
   const { auth, login } = useAuth();
 
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (auth) return;
+    const formData = new FormData(e.currentTarget);
+    const username = formData.get("username") as string;
+    const password = formData.get("password") as string;
+    login.mutate({ username, password });
+  };
+
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (auth) return;
-        const formData = new FormData(e.currentTarget);
-        const username = formData.get("username") as string;
-        const password = formData.get("password") as string;
-        login.mutate({ username, password });
-      }}
-      className='flex flex-col gap-4 items-center justify-center w-full h-screen mx-auto max-w-xs'>
-      <h1 className='text-center text-xl font-bold'>Login</h1>
-      <Input
-        name='username'
-        placeholder='Username'
-        className='w-full bg-background'
-      />
-      <Input
-        name='password'
-        type='password'
-        placeholder='Password'
-        className='w-full bg-background'
-      />
-      <Button
-        disabled={login.isPending}
-        className='w-full'>
-        {login.isPending && (
-          <Loader2Icon className='size-4 animate-spin mr-1' />
-        )}
-        Login
-      </Button>
-    </form>
+    <>
+      <div className='flex flex-col gap-3 items-center justify-center h-screen max-w-sm w-full mx-auto'>
+        <form
+          className='w-full space-y-3 text-center'
+          onSubmit={onSubmit}>
+          <h1 className='text-center text-xl font-bold'>Login</h1>
+          <Input
+            name='username'
+            placeholder='Username'
+            className='w-full bg-background'
+          />
+          <Input
+            name='password'
+            type='password'
+            placeholder='Password'
+            className='w-full bg-background'
+          />
+          <Button
+            disabled={login.isPending}
+            className='w-full'>
+            {login.isPending && (
+              <Loader2Icon className='size-4 animate-spin mr-1' />
+            )}
+            Login
+          </Button>
+        </form>
+        <RecoverAccountForm />
+      </div>
+    </>
   );
 }

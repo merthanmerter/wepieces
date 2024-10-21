@@ -17,29 +17,18 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useRootContext } from "@/hooks";
 import { ActionDispatch } from "@/lib/dispatches";
-import {
-  postInsertSchema,
-  postUpdateSchema,
-} from "@app/server/src/api/routers/posts/definitions";
-import { SelectPostWithUser } from "@app/server/src/database/schema";
+import { recoverAccountSchema } from "@app/server/src/api/routers/auth/definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "@tanstack/react-router";
-import { Loader2Icon, PlusIcon } from "lucide-react";
+import { KeyRoundIcon, Loader2Icon } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-export default function PostsForm({
-  initialValues,
-}: {
-  initialValues?: SelectPostWithUser;
-}) {
+export default function RecoverAccountForm() {
   const { proxy } = useRootContext();
-  const { invalidate } = useRouter();
 
   const [action, updateAction] = React.useReducer(
     ActionDispatch<{ open: boolean }>,
@@ -47,23 +36,20 @@ export default function PostsForm({
   );
 
   const form = useForm({
-    resolver: zodResolver(initialValues ? postUpdateSchema : postInsertSchema),
-    values: initialValues ?? {
-      title: "",
-      content: "",
+    resolver: zodResolver(recoverAccountSchema),
+    values: {
+      username: "",
+      password: "",
+      confirmPassword: "",
+      recoveryCode: "",
     },
   });
 
   const mutation = useMutation({
     mutationFn: () => {
-      if (initialValues) {
-        const values = { ...form.getValues(), id: initialValues.id };
-        return proxy.posts.update.mutate(values);
-      }
-      return proxy.posts.create.mutate(form.getValues());
+      return proxy.auth.recoverAccount.mutate(form.getValues());
     },
     onSuccess: () => {
-      invalidate();
       updateAction({ open: false });
       form.reset();
     },
@@ -72,8 +58,9 @@ export default function PostsForm({
 
   const handleSubmit = form.handleSubmit(() => mutation.mutate());
 
-  const title = initialValues ? "Update" : "Create";
-  const description = initialValues ? "Update post." : "Create a post.";
+  const title = "Account Recovery";
+  const description =
+    "Recover your account by entering the recovery key provided by your administrator.";
 
   return (
     <Dialog
@@ -83,8 +70,10 @@ export default function PostsForm({
         form.reset();
       }}>
       <DialogTrigger asChild>
-        <Button size='sm'>
-          <PlusIcon /> <span>{title}</span>
+        <Button
+          size='sm'
+          variant='ghost'>
+          <KeyRoundIcon /> <span>{title}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className='max-w-lg'>
@@ -101,10 +90,10 @@ export default function PostsForm({
             className='space-y-3'>
             <FormField
               control={form.control}
-              name='title'
+              name='username'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>Username</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -115,13 +104,47 @@ export default function PostsForm({
 
             <FormField
               control={form.control}
-              name='content'
+              name='password'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Content</FormLabel>
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Textarea
-                      rows={10}
+                    <Input
+                      type='password'
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name='confirmPassword'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type='password'
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name='recoveryCode'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Recovery Key</FormLabel>
+                  <FormControl>
+                    <Input
+                      type='password'
                       {...field}
                     />
                   </FormControl>
@@ -140,10 +163,8 @@ export default function PostsForm({
                   <React.Fragment>
                     <Loader2Icon className='size-4 animate-spin' />
                   </React.Fragment>
-                ) : initialValues ? (
-                  "Update"
                 ) : (
-                  "Create"
+                  "Submit"
                 )}
               </Button>
             </DialogFooter>

@@ -44,14 +44,21 @@ export const users = pgTable("users", {
     .text("active_tenant")
     .notNull()
     .references(() => tenants.id),
+  recoveryCode: t.varchar("recovery_code", { length: 512 }).default(""),
 });
 
 export type InsertUser = typeof users.$inferInsert;
 export type SelectUser = typeof users.$inferSelect;
-export type SelectUserWithoutPassword = Omit<
+export type SelectUserWithRole = SelectUser & {
+  role: SelectUsersTenants["role"];
+};
+export type SelectPublicUser = Omit<
   SelectUser,
-  "password" | "activeTenantId"
-> & { role: SelectUsersTenants["role"] };
+  "password" | "activeTenantId" | "recoveryCode"
+>;
+export type SelectPublicUserWithRole = SelectPublicUser & {
+  role: SelectUsersTenants["role"];
+};
 
 export const tenants = pgTable("tenants", {
   id: customId,
@@ -111,6 +118,6 @@ export const posts = pgTable("posts", {
 export type InsertPost = typeof posts.$inferInsert;
 export type SelectPost = typeof posts.$inferSelect;
 export type SelectPostWithUser = Omit<SelectPost, "createdBy" | "updatedBy"> & {
-  createdBy: Omit<SelectUserWithoutPassword, "role">;
-  updatedBy: Omit<SelectUserWithoutPassword, "role">;
+  createdBy: SelectPublicUser;
+  updatedBy: SelectPublicUser;
 };

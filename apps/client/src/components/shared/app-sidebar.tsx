@@ -54,8 +54,8 @@ export function AppSidebar() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   name='search'
-                  placeholder='Search...'
-                  className='bg-muted border-0'
+                  placeholder='Search pages'
+                  className='bg-transparent focus-within:bg-muted border-0'
                 />
               )}
               {items

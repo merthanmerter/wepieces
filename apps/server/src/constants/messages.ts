@@ -1,5 +1,6 @@
 export const MESSAGES = {
   success: "Success",
+  error: "Error",
   required: "required",
   string: "Must be a string",
   number: "Must be a number",
@@ -27,6 +28,9 @@ export const MESSAGES = {
   password:
     "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
   invalidCredentials: "Invalid credentials.",
+  requiresRecovery: "You have to recover your account first.",
+  invalidRecoveryCode: "Recovery code is invalid.",
+  recoveryCodeExpired: "Recovery code has expired.",
 } as const;
 
 const capitalize = (str: string) => {

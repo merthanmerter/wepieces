@@ -46,7 +46,7 @@ function Page() {
       value: data.content,
       description: "Content of the post",
     },
-  ];
+  ] as const;
 
   return (
     <React.Fragment>
@@ -77,7 +77,7 @@ function Page() {
         {action.view === "default" ? (
           data.content && <p className='text-justify'>{data.content}</p>
         ) : (
-          <HorizontalScrollArea className='whitespace-normal'>
+          <HorizontalScrollArea>
             <Table>
               <TableBody>
                 <TableRow>
@@ -87,13 +87,13 @@ function Page() {
                 </TableRow>
                 {rows.map((row, idx) => (
                   <TableRow key={idx}>
-                    <TableCell className='whitespace-nowrap'>
-                      {row.name}
+                    <TableCell>{row.name}</TableCell>
+                    <TableCell>
+                      {row.name === "Content"
+                        ? row.value?.slice(0, 60) + "..."
+                        : row.value}
                     </TableCell>
-                    <TableCell className='max-w-[30ch]'>{row.value}</TableCell>
-                    <TableCell className='whitespace-nowrap'>
-                      {row.description}
-                    </TableCell>
+                    <TableCell>{row.description}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

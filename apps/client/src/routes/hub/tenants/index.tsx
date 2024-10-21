@@ -34,15 +34,20 @@ export const Route = createFileRoute("/hub/tenants/")({
     context.proxy.tenants.list.query(location.search),
 });
 
+type Actions = {
+  update: string | boolean;
+  remove: string | boolean;
+};
+
 function Page() {
   const data = Route.useLoaderData();
   const { proxy } = useRootContext();
   const { invalidate } = useRouter();
 
-  const [action, updateAction] = React.useReducer(
-    ActionDispatch<{ update: string | boolean; remove: string | boolean }>,
-    { update: false, remove: false },
-  );
+  const [action, updateAction] = React.useReducer(ActionDispatch<Actions>, {
+    update: false,
+    remove: false,
+  });
 
   const deleteFn = useMutation({
     mutationFn: async (id: string) => {

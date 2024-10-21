@@ -39,8 +39,6 @@ import {
   SelectValue,
 } from "../ui/select";
 
-export const Route = null;
-
 export default function TenantsForm({
   initialValues,
   open,

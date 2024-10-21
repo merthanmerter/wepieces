@@ -10,6 +10,7 @@ import {
   encrypt,
   getAuthSession,
   getUserFromDb,
+  hashPassword,
   revokeAuthSession,
   secureSessionToCredentials,
   storeAuthSession,
@@ -20,7 +21,7 @@ import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { users } from "../../../database/schema";
-import { authLoginSchema } from "./definitions";
+import { authLoginSchema, recoverAccountSchema } from "./definitions";
 
 export const authRouter = createTRPCRouter({
   login: publicProcedure
@@ -33,6 +34,22 @@ export const authRouter = createTRPCRouter({
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: MESSAGES.invalidCredentials,
+        });
+      }
+
+      /**
+       * If the user has a recovery code, it means
+       * they have to recover their account first.
+       * Currently we reset the password with
+       * administrator action.
+       * Method can be replaced to email
+       * magic link or any other mechanism.
+       */
+      if (user.recoveryCode) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: MESSAGES.requiresRecovery,
+          cause: "requires_recovery",
         });
       }
 
@@ -51,7 +68,7 @@ export const authRouter = createTRPCRouter({
         role: user.role,
         activeTenant: user.activeTenant,
         tenants: user.tenants,
-        exp: AUTH_COOKIE_OPTS.expires.getTime() / 1000,
+        exp: AUTH_COOKIE_OPTS.expires!.getTime() / 1000,
       };
 
       const session = await encrypt(payload);
@@ -95,7 +112,7 @@ export const authRouter = createTRPCRouter({
         session.tenants = user.tenants;
       }
 
-      session.exp = AUTH_COOKIE_OPTS.expires.getTime() / 1000;
+      session.exp = AUTH_COOKIE_OPTS.expires!.getTime() / 1000;
 
       await storeAuthSession(ctx.appContext, await encrypt(session));
 
@@ -135,5 +152,49 @@ export const authRouter = createTRPCRouter({
         credentials: secureSessionToCredentials(ctx.session),
         tenant,
       };
+    }),
+
+  recoverAccount: publicProcedure
+    .input(recoverAccountSchema)
+    .mutation(async ({ ctx, input }) => {
+      const user = await getUserFromDb(ctx.appContext, input.username);
+
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: MESSAGES.notFound("User"),
+        });
+      }
+
+      if (!user.recoveryCode) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: MESSAGES.recoveryCodeExpired,
+        });
+      }
+
+      const recoveryCode = await verifyPassword(
+        input.recoveryCode,
+        user.recoveryCode,
+      );
+
+      if (!recoveryCode) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: MESSAGES.invalidRecoveryCode,
+        });
+      }
+
+      await ctx.db
+        .update(users)
+        .set({
+          recoveryCode: null,
+          password: await hashPassword(input.password),
+        })
+        .where(eq(users.id, user.id))
+        .returning()
+        .execute();
+
+      return { success: true };
     }),
 });

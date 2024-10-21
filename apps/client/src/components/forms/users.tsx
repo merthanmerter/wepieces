@@ -30,7 +30,7 @@ import {
   userInsertSchema,
   userUpdateSchema,
 } from "@app/server/src/api/routers/users/definitions";
-import { SelectUserWithoutPassword } from "@app/server/src/database/schema";
+import { SelectUserWithRole } from "@app/server/src/database/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
@@ -44,7 +44,7 @@ export default function UsersForm({
   open,
   onOpenChange,
 }: {
-  initialValues?: SelectUserWithoutPassword;
+  initialValues?: SelectUserWithRole;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {

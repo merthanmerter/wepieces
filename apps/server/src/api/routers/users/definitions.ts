@@ -31,8 +31,7 @@ export const userInsertSchema = createInsertSchema(users, {
     .string({
       message: MESSAGES.string,
     })
-    .regex(passwordValidation, MESSAGES.password)
-    .optional(),
+    .regex(passwordValidation, MESSAGES.password),
 })
   .extend({
     role: z.enum(["user", "admin", "superadmin"]),

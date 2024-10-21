@@ -11,8 +11,13 @@ export default function SearchInput(props: React.ComponentProps<typeof Input>) {
         props.className,
       )}>
       <input
+        name={props.name ?? "search"}
         {...props}
-        type='search'
+        id='search'
+        type='text'
+        autoComplete='off'
+        aria-autocomplete='none'
+        aria-label='Search'
         className='peer pl-8 pr-6 w-full bg-transparent outline-none border-none ring-0'
       />
       <SearchIcon className='absolute left-1.5 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground peer-focus:text-foreground' />

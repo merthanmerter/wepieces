@@ -31,9 +31,9 @@ export default function useAuth() {
       router.clearCache();
       router.clearExpiredCache();
     },
-    onError: (res) => {
+    onError: (err) => {
       setAuth(null);
-      toast.error(res.message);
+      toast.error(err.message);
     },
     onSettled: () => {
       router.navigate({ to: NAVIGATE_TO.me });
