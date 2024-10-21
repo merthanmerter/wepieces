@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useRootContext } from "@/hooks";
+import { ActionDispatch } from "@/lib/dispatches";
 import {
   postInsertSchema,
   postUpdateSchema,
@@ -28,7 +29,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { FilePenLineIcon, Loader2Icon } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -39,9 +40,13 @@ export default function PostsForm({
 }: {
   initialValues?: SelectPostWithUser;
 }) {
-  const router = useRouter();
-  const context = useRootContext();
-  const [open, setOpen] = useState(false);
+  const { proxy } = useRootContext();
+  const { invalidate } = useRouter();
+
+  const [action, updateAction] = React.useReducer(
+    ActionDispatch<{ open: boolean }>,
+    { open: false },
+  );
 
   const form = useForm({
     resolver: zodResolver(initialValues ? postUpdateSchema : postInsertSchema),
@@ -55,13 +60,13 @@ export default function PostsForm({
     mutationFn: () => {
       if (initialValues) {
         const values = { ...form.getValues(), id: initialValues.id };
-        return context.proxy.posts.update.mutate(values);
+        return proxy.posts.update.mutate(values);
       }
-      return context.proxy.posts.create.mutate(form.getValues());
+      return proxy.posts.create.mutate(form.getValues());
     },
     onSuccess: () => {
-      setOpen(false);
-      router.invalidate();
+      invalidate();
+      updateAction({ open: false });
       form.reset();
     },
     onError: (err) => toast.error(err.message),
@@ -74,9 +79,9 @@ export default function PostsForm({
 
   return (
     <Dialog
-      open={open}
+      open={action.open}
       onOpenChange={(open) => {
-        setOpen(open);
+        updateAction({ open });
         form.reset();
       }}>
       <DialogTrigger asChild>

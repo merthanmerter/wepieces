@@ -5,7 +5,6 @@
  * @see https://create.t3.gg/
  */
 
-import { env } from "@app/server/env";
 import { initTRPC, TRPCError } from "@trpc/server";
 import type { Context } from "hono";
 import type { BlankEnv, BlankInput } from "hono/types";
@@ -84,11 +83,6 @@ export const createTRPCRouter = t.router;
  * Middleware
  */
 const middleware = t.middleware(async ({ next, path, ctx }) => {
-  // sleep between requests to simulate slower API in development
-  if (env.NODE_ENV === "development") {
-    await new Promise((resolve) => setTimeout(resolve, 750));
-  }
-
   if (!["auth.refresh"].includes(path)) {
     const dateTime = new Date().toLocaleString("en-US", { hour12: false });
     console.log(

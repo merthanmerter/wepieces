@@ -3,6 +3,7 @@ import { z } from "zod";
 
 export const env = createEnv({
   server: {
+    DOMAIN: z.string(),
     SECRET: z.string(),
     SUPERADMIN_USERNAME: z.string(),
     SUPERADMIN_EMAIL: z.string(),
@@ -18,6 +19,7 @@ export const env = createEnv({
   },
   runtimeEnv: {
     // Server settings
+    DOMAIN: Bun.env.DOMAIN,
     SECRET: Bun.env.SECRET,
 
     // Super admin credentials

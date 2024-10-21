@@ -10,7 +10,9 @@ export const passwordValidation = new RegExp(
 
 export const userQuerySchema = paginationSchema.extend({
   username: z.string().optional(),
-  orderBy: z.enum(["username"]).optional(),
+  email: z.string().optional(),
+  role: z.enum(["user", "admin", "superadmin"]).optional(),
+  orderBy: z.enum(["username", "email", "role"]).optional(),
 });
 
 export const userInsertSchema = createInsertSchema(users, {

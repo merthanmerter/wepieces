@@ -25,20 +25,27 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth, useRootContext } from "@/hooks";
+import { ActionDispatch } from "@/lib/dispatches";
 import { userInviteSchema } from "@app/server/src/api/routers/users/definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { Loader2Icon, UserRoundPlusIcon } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 export default function InviteUserForm() {
-  const router = useRouter();
-  const context = useRootContext();
-  const [open, setOpen] = useState(false);
+  const { proxy } = useRootContext();
+  const { invalidate } = useRouter();
   const { auth } = useAuth();
+
+  const [action, updateAction] = React.useReducer(
+    ActionDispatch<{ open: boolean }>,
+    {
+      open: false,
+    },
+  );
 
   const form = useForm({
     resolver: zodResolver(userInviteSchema),
@@ -50,12 +57,12 @@ export default function InviteUserForm() {
 
   const mutation = useMutation({
     mutationFn: () => {
-      return context.proxy.users.invite.mutate(form.getValues());
+      return proxy.users.invite.mutate(form.getValues());
     },
     onSuccess: () => {
-      setOpen(false);
+      invalidate();
+      updateAction({ open: false });
       form.reset();
-      router.invalidate();
     },
     onError: (err) => toast.error(err.message),
   });
@@ -64,9 +71,9 @@ export default function InviteUserForm() {
 
   return (
     <Dialog
-      open={open}
+      open={action.open}
       onOpenChange={(open) => {
-        setOpen(open);
+        updateAction({ open });
         form.reset();
       }}>
       <DialogTrigger asChild>

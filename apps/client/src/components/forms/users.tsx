@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth, useRootContext } from "@/hooks";
+import { ActionDispatch } from "@/lib/dispatches";
 import {
   userInsertSchema,
   userUpdateSchema,
@@ -34,7 +35,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { FilePenLineIcon, Loader2Icon } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -47,10 +48,14 @@ export default function UsersForm({
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
-  const router = useRouter();
-  const context = useRootContext();
-  const [_open, setOpen] = useState(open ?? false);
+  const { proxy } = useRootContext();
+  const { invalidate } = useRouter();
   const { auth } = useAuth();
+
+  const [action, updateAction] = React.useReducer(
+    ActionDispatch<{ open: boolean }>,
+    { open: open ?? false },
+  );
 
   const form = useForm({
     resolver: zodResolver(initialValues ? userUpdateSchema : userInsertSchema),
@@ -66,14 +71,14 @@ export default function UsersForm({
     mutationFn: () => {
       if (initialValues) {
         const values = { ...form.getValues(), id: initialValues.id };
-        return context.proxy.users.update.mutate(values);
+        return proxy.users.update.mutate(values);
       }
-      return context.proxy.users.create.mutate(form.getValues());
+      return proxy.users.create.mutate(form.getValues());
     },
     onSuccess: () => {
-      setOpen(false);
+      invalidate();
+      updateAction({ open: false });
       onOpenChange?.(false);
-      router.invalidate();
       form.reset();
     },
     onError: (err) => toast.error(err.message),
@@ -86,9 +91,9 @@ export default function UsersForm({
 
   return (
     <Dialog
-      open={_open}
+      open={action.open}
       onOpenChange={(open) => {
-        setOpen(open);
+        updateAction({ open });
         onOpenChange?.(open);
         form.reset();
       }}>

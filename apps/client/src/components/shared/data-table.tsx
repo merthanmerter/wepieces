@@ -530,14 +530,7 @@ export function DataTableFilters<TData, TValue>({
           </DialogHeader>
           <div className='grid gap-2 py-4'>
             {columns.map((filter) => {
-              if (
-                !filter.meta ||
-                !hasType(filter.meta) ||
-                !hasName(filter.meta)
-              )
-                return null;
-
-              if (filter.meta.type === "text") {
+              if (isTextMeta(filter.meta)) {
                 return (
                   <div
                     className='flex gap-1.5 items-center justify-between'
@@ -569,7 +562,7 @@ export function DataTableFilters<TData, TValue>({
                 );
               }
 
-              if (filter.meta.type === "range") {
+              if (isRangeMeta(filter.meta)) {
                 return (
                   <div
                     className='flex gap-1.5 items-center justify-between'
@@ -614,7 +607,7 @@ export function DataTableFilters<TData, TValue>({
                 );
               }
 
-              if (filter.meta.type === "select") {
+              if (isSelectMeta(filter.meta)) {
                 return (
                   <div
                     className='flex gap-1.5 items-center justify-between'
@@ -628,7 +621,7 @@ export function DataTableFilters<TData, TValue>({
                     <Select
                       value={defaultValues[filter.meta.name]?.toString() ?? ""}
                       onValueChange={(value) => {
-                        if (filter.meta && hasName(filter.meta)) {
+                        if (filter.meta && "name" in filter.meta) {
                           setDefaultValues({
                             ...defaultValues,
                             [filter.meta.name?.toString()]: value,
@@ -660,7 +653,7 @@ export function DataTableFilters<TData, TValue>({
                       <Button
                         type='button'
                         onClick={() => {
-                          if (filter.meta && hasName(filter.meta)) {
+                          if (filter.meta && "name" in filter.meta) {
                             setDefaultValues({
                               ...defaultValues,
                               [filter.meta.name?.toString()]: "",
@@ -682,7 +675,7 @@ export function DataTableFilters<TData, TValue>({
                 );
               }
 
-              if (filter.meta.type === "date") {
+              if (isDateMeta(filter.meta)) {
                 return (
                   <div
                     className='flex gap-1.5 items-center justify-between'
@@ -715,7 +708,7 @@ export function DataTableFilters<TData, TValue>({
                 );
               }
 
-              if (filter.meta.type === "sort-only") {
+              if (isSortOnlyMeta(filter.meta)) {
                 return (
                   <div
                     className='flex gap-1.5 items-center justify-between'
@@ -909,13 +902,17 @@ type SortOnlyMeta = BaseMeta & {
   sortable?: boolean;
 };
 
+type FallbackMeta = BaseMeta & {
+  type?: undefined;
+};
+
 type ColumnMeta =
   | TextMeta
   | RangeMeta
   | SelectMeta
   | DateMeta
   | SortOnlyMeta
-  | BaseMeta;
+  | FallbackMeta;
 
 type BaseColumn<T, V> = ColumnDef<T, V> & {
   accessorKey: keyof T;
@@ -934,10 +931,27 @@ export interface SortMenuProps<T, V> {
   filter: DataTableColumnProps<T, V>;
 }
 
-function hasType(meta: ColumnMeta): meta is TextMeta | RangeMeta | SelectMeta {
-  return "type" in meta;
+function isTextMeta(meta?: ColumnMeta): meta is TextMeta {
+  if (!meta) return false;
+  return meta.type === "text";
 }
 
-function hasName(meta: ColumnMeta): meta is TextMeta | RangeMeta | SelectMeta {
-  return "name" in meta;
+function isRangeMeta(meta?: ColumnMeta): meta is RangeMeta {
+  if (!meta) return false;
+  return meta.type === "range";
+}
+
+function isSelectMeta(meta?: ColumnMeta): meta is SelectMeta {
+  if (!meta) return false;
+  return meta.type === "select";
+}
+
+function isDateMeta(meta?: ColumnMeta): meta is DateMeta {
+  if (!meta) return false;
+  return meta.type === "date";
+}
+
+function isSortOnlyMeta(meta?: ColumnMeta): meta is SortOnlyMeta {
+  if (!meta) return false;
+  return meta.type === "sort-only";
 }

@@ -51,6 +51,8 @@ export const usersRouter = createTRPCRouter({
         .where((r) => {
           const args = [];
           if (rest.username) args.push(like(r.username, `%${rest.username}%`));
+          if (rest.email) args.push(like(r.email, `%${rest.email}%`));
+          if (rest.role) args.push(like(usersTenants.role, `%${rest.role}%`));
 
           args.push(
             inArray(
@@ -86,7 +88,14 @@ export const usersRouter = createTRPCRouter({
         .limit(limit)
         .offset(offset)
         .orderBy(() => {
-          if (orderBy) return (orderDir === "asc" ? asc : desc)(users[orderBy]);
+          if (orderBy)
+            return (orderDir === "asc" ? asc : desc)(
+              {
+                username: users.username,
+                email: users.email,
+                role: usersTenants.role,
+              }[orderBy],
+            );
           return desc(users.id);
         });
     });

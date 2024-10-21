@@ -10,7 +10,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useRootContext } from "@/hooks";
-import { createFileRoute, useLoaderData } from "@tanstack/react-router";
+import { ActionDispatch } from "@/lib/dispatches";
+import { createFileRoute } from "@tanstack/react-router";
 import { TableIcon } from "lucide-react";
 import React from "react";
 import PostsForm from "../../../components/forms/posts";
@@ -22,13 +23,16 @@ export const Route = createFileRoute("/hub/posts/$id")({
 });
 
 function Page() {
-  const data = useLoaderData({ from: "/hub/posts/$id" });
-  const context = useRootContext();
+  const data = Route.useLoaderData();
+  const { proxy } = useRootContext();
 
-  const [view, setView] = React.useState<"default" | "table">("default");
+  const [action, updateAction] = React.useReducer(
+    ActionDispatch<{ view: "default" | "table" }>,
+    { view: "default" },
+  );
 
   const deleteFn = async () => {
-    await context.proxy.posts.delete.mutate({ id: data.id });
+    await proxy.posts.delete.mutate({ id: data.id });
   };
 
   const rows = [
@@ -58,7 +62,11 @@ function Page() {
           <Button
             size='sm'
             variant='outline'
-            onClick={() => setView(view === "default" ? "table" : "default")}>
+            onClick={() =>
+              updateAction({
+                view: action.view === "default" ? "table" : "default",
+              })
+            }>
             <TableIcon className='size-4' />
             Change View
           </Button>
@@ -66,7 +74,7 @@ function Page() {
         </div>
       </div>
       <div className='grid lg:grid-cols-2 gap-4 items-start lg:grid-cols-[2.5fr_1fr]'>
-        {view === "default" ? (
+        {action.view === "default" ? (
           data.content && <p className='text-justify'>{data.content}</p>
         ) : (
           <HorizontalScrollArea className='whitespace-normal'>

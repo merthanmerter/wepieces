@@ -20,41 +20,38 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRootContext } from "@/hooks";
+import { ActionDispatch } from "@/lib/dispatches";
 import { MESSAGES } from "@app/server/src/constants";
 import { useMutation } from "@tanstack/react-query";
-import {
-  createFileRoute,
-  useLoaderData,
-  useRouter,
-} from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { EllipsisIcon, SquarePenIcon, Trash2Icon } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/hub/tenants/")({
-  loaderDeps: ({ search }) => search,
   component: Page,
-  loader: ({ context, deps: params }) =>
-    context.proxy.tenants.list.query(params),
+  loader: ({ context, location }) =>
+    context.proxy.tenants.list.query(location.search),
 });
 
 function Page() {
-  const data = useLoaderData({ from: "/hub/tenants/" });
+  const data = Route.useLoaderData();
+  const { proxy } = useRootContext();
+  const { invalidate } = useRouter();
 
-  const context = useRootContext();
-  const router = useRouter();
-
-  const [edit, setEdit] = React.useState<string | boolean>(false);
-  const [remove, setRemove] = React.useState<string | boolean>(false);
+  const [action, updateAction] = React.useReducer(
+    ActionDispatch<{ update: string | boolean; remove: string | boolean }>,
+    { update: false, remove: false },
+  );
 
   const deleteFn = useMutation({
     mutationFn: async (id: string) => {
-      return await context.proxy.tenants.delete.mutate({ id });
+      return await proxy.tenants.delete.mutate({ id });
     },
     onSuccess: async () => {
-      setRemove(false);
+      invalidate();
+      updateAction({ remove: false });
       toast.success(MESSAGES.success);
-      router.invalidate();
     },
     onError: (err) => {
       toast.error(err.message);
@@ -84,11 +81,13 @@ function Page() {
                 <DropdownMenuContent>
                   <DropdownMenuLabel>{row.original.name}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setEdit(row.original.id)}>
+                  <DropdownMenuItem
+                    onClick={() => updateAction({ update: row.original.id })}>
                     <SquarePenIcon />
                     Update
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setRemove(row.original.id)}>
+                  <DropdownMenuItem
+                    onClick={() => updateAction({ remove: row.original.id })}>
                     <Trash2Icon />
                     Remove
                   </DropdownMenuItem>
@@ -96,14 +95,14 @@ function Page() {
               </DropdownMenu>
 
               <TenantsForm
-                open={edit === row.original.id}
-                onOpenChange={(open) => setEdit(open)}
                 initialValues={row.original}
+                open={action.update === row.original.id}
+                onOpenChange={(open) => updateAction({ update: open })}
               />
 
               <AlertDialog
-                open={remove === row.original.id}
-                onOpenChange={() => setRemove(false)}>
+                open={action.remove === row.original.id}
+                onOpenChange={() => updateAction({ remove: false })}>
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>

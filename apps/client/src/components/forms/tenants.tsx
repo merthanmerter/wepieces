@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useRootContext } from "@/hooks";
+import { ActionDispatch } from "@/lib/dispatches";
 import {
   tenantInsertSchema,
   tenantUpdateSchema,
@@ -27,7 +28,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { FilePenLineIcon, Loader2Icon } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
@@ -49,9 +50,13 @@ export default function TenantsForm({
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
-  const router = useRouter();
-  const context = useRootContext();
-  const [_open, setOpen] = useState(open ?? false);
+  const { proxy } = useRootContext();
+  const { invalidate, clearCache, clearExpiredCache } = useRouter();
+
+  const [action, updateAction] = React.useReducer(
+    ActionDispatch<{ open: boolean }>,
+    { open: open ?? false },
+  );
 
   const form = useForm({
     resolver: zodResolver(
@@ -67,16 +72,16 @@ export default function TenantsForm({
     mutationFn: () => {
       if (initialValues) {
         const values = { ...form.getValues(), id: initialValues.id };
-        return context.proxy.tenants.update.mutate(values);
+        return proxy.tenants.update.mutate(values);
       }
-      return context.proxy.tenants.create.mutate(form.getValues());
+      return proxy.tenants.create.mutate(form.getValues());
     },
     onSuccess: () => {
-      setOpen(false);
+      invalidate();
+      clearCache();
+      clearExpiredCache();
+      updateAction({ open: false });
       onOpenChange?.(false);
-      router.invalidate();
-      router.clearCache();
-      router.clearExpiredCache();
       form.reset();
     },
     onError: (err) => toast.error(err.message),
@@ -89,9 +94,9 @@ export default function TenantsForm({
 
   return (
     <Dialog
-      open={_open}
+      open={action.open}
       onOpenChange={(open) => {
-        setOpen(open);
+        updateAction({ open });
         onOpenChange?.(open);
         form.reset();
       }}>

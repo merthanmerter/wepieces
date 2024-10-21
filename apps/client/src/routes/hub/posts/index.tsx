@@ -1,18 +1,18 @@
 import DataTable from "@/components/shared/data-table";
 import Helmet from "@/components/shared/helmet";
-import { createFileRoute, Link, useLoaderData } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUpRightIcon } from "lucide-react";
 import React from "react";
 import PostsForm from "../../../components/forms/posts";
 
 export const Route = createFileRoute("/hub/posts/")({
-  loaderDeps: ({ search }) => search,
   component: Page,
-  loader: ({ context, deps: params }) => context.proxy.posts.list.query(params),
+  loader: ({ context, location }) =>
+    context.proxy.posts.list.query(location.search),
 });
 
 function Page() {
-  const data = useLoaderData({ from: "/hub/posts/" });
+  const data = Route.useLoaderData();
 
   return (
     <React.Fragment>

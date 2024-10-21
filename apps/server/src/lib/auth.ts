@@ -1,7 +1,9 @@
 import { and, eq, or } from "drizzle-orm";
 import type { Context } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
+import type { CookieOptions } from "hono/utils/cookie";
 import { jwtVerify, SignJWT, type JWTPayload } from "jose";
+import { env } from "../../env";
 import {
   tenants,
   users,
@@ -12,22 +14,15 @@ import {
 export const SESSION_PREFIX = "_session";
 export const SESSION_EXPIRY = 7 * 24 * 60 * 60 * 1000;
 export const SESSION_KEY = (key: string) => `${SESSION_PREFIX}:${key}`;
-const SIGNING_KEY = new TextEncoder().encode(Bun.env.SECRET!);
+const SIGNING_KEY: Uint8Array = new TextEncoder().encode(Bun.env.SECRET!);
 
-type AuthCookieOptions = {
-  httpOnly: boolean;
-  sameSite: "lax";
-  path: string;
-  expires: Date;
-  secure: boolean;
-};
-
-export const AUTH_COOKIE_OPTS: AuthCookieOptions = {
+export const AUTH_COOKIE_OPTS: CookieOptions = {
   httpOnly: true,
-  sameSite: "lax",
+  sameSite: "Strict",
   path: "/",
   expires: new Date(Date.now() + SESSION_EXPIRY),
   secure: true,
+  domain: env.NODE_ENV === "development" ? undefined : env.DOMAIN,
 };
 
 export const encrypt = async (payload: JWTPayload) => {

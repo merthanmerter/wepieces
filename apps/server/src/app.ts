@@ -28,9 +28,6 @@ app.use(
     c.set("db", db); // Set the postgres database to the context
     c.set("redis", redis); // Set the redis database to the context
 
-    /**
-     * List all sessions
-     */
     // const sessions = await redis.keys("*_session:*");
     // console.log("Active sessions:", sessions.length);
 

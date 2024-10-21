@@ -20,46 +20,45 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRootContext } from "@/hooks";
+import { ActionDispatch } from "@/lib/dispatches";
 import { MESSAGES } from "@app/server/src/constants";
 import { useMutation } from "@tanstack/react-query";
-import {
-  createFileRoute,
-  useLoaderData,
-  useRouter,
-} from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { EllipsisIcon, UserRoundPenIcon, UserRoundXIcon } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/hub/users/")({
-  loaderDeps: ({ search }) => search,
   component: Page,
-  loader: ({ context, deps: params }) => context.proxy.users.list.query(params),
-  wrapInSuspense: true,
+  loader: ({ context, location }) =>
+    context.proxy.users.list.query(location.search),
 });
 
 function Page() {
-  const data = useLoaderData({ from: "/hub/users/" });
+  const data = Route.useLoaderData();
+  const { proxy } = useRootContext();
+  const { invalidate } = useRouter();
 
-  const context = useRootContext();
-  const router = useRouter();
-
-  const [edit, setEdit] = React.useState<string | boolean>(false);
-  const [dismiss, setDismiss] = React.useState<string | boolean>(false);
+  const [action, updateAction] = React.useReducer(
+    ActionDispatch<{ update: string | boolean; dismiss: string | boolean }>,
+    { update: false, dismiss: false },
+  );
 
   const dismissFn = useMutation({
     mutationFn: async (id: string) => {
-      return await context.proxy.users.dismiss.mutate({ id });
+      return await proxy.users.dismiss.mutate({ id });
     },
     onSuccess: async () => {
-      setDismiss(false);
+      invalidate();
+      updateAction({ dismiss: false });
       toast.success(MESSAGES.success);
-      router.invalidate();
     },
     onError: (err) => {
       toast.error(err.message);
     },
   });
+
+  if (!data) return null;
 
   return (
     <DataTable
@@ -91,11 +90,13 @@ function Page() {
                 <DropdownMenuContent>
                   <DropdownMenuLabel>{row.original.username}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setEdit(row.original.id)}>
+                  <DropdownMenuItem
+                    onClick={() => updateAction({ update: row.original.id })}>
                     <UserRoundPenIcon />
                     Update
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setDismiss(row.original.id)}>
+                  <DropdownMenuItem
+                    onClick={() => updateAction({ dismiss: row.original.id })}>
                     <UserRoundXIcon />
                     Dismiss
                   </DropdownMenuItem>
@@ -103,14 +104,14 @@ function Page() {
               </DropdownMenu>
 
               <UsersForm
-                open={edit === row.original.id}
-                onOpenChange={(open) => setEdit(open)}
                 initialValues={row.original}
+                open={action.update === row.original.id}
+                onOpenChange={(open) => updateAction({ update: open })}
               />
 
               <AlertDialog
-                open={dismiss === row.original.id}
-                onOpenChange={() => setDismiss(false)}>
+                open={action.dismiss === row.original.id}
+                onOpenChange={() => updateAction({ dismiss: false })}>
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>
@@ -157,10 +158,14 @@ function Page() {
           accessorKey: "role",
           header: "Role",
           meta: {
-            type: "text",
+            type: "select",
             name: "role",
             placeholder: "Role",
             sortable: true,
+            options: [
+              { value: "user", label: "User" },
+              { value: "admin", label: "Admin" },
+            ],
           },
         },
       ]}
