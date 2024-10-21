@@ -34,7 +34,7 @@ import { SelectUserWithoutPassword } from "@app/server/src/database/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
-import { FilePenLineIcon, Loader2Icon } from "lucide-react";
+import { Loader2Icon, UserRoundPlusIcon } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -100,7 +100,7 @@ export default function UsersForm({
       {!initialValues && (
         <DialogTrigger asChild>
           <Button size='sm'>
-            <FilePenLineIcon /> <span>{title}</span>
+            <UserRoundPlusIcon /> <span>{title}</span>
           </Button>
         </DialogTrigger>
       )}

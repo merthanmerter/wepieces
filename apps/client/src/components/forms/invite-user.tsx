@@ -30,7 +30,7 @@ import { userInviteSchema } from "@app/server/src/api/routers/users/definitions"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
-import { Loader2Icon, UserRoundPlusIcon } from "lucide-react";
+import { Loader2Icon, UserRoundCheckIcon } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -78,7 +78,7 @@ export default function InviteUserForm() {
       }}>
       <DialogTrigger asChild>
         <Button size='sm'>
-          <UserRoundPlusIcon /> <span>Invite</span>
+          <UserRoundCheckIcon /> <span>Invite</span>
         </Button>
       </DialogTrigger>
       <DialogContent className='max-w-sm'>
