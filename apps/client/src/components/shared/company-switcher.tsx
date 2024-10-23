@@ -29,15 +29,15 @@ import { toast } from "sonner";
 
 export function CompanySwitcher() {
   const { isMobile } = useSidebar();
-
   const { auth } = useAuth();
-  const context = useRootContext();
-  const [workspace, setWorkspace] = React.useState(auth?.activeTenant);
+  const { proxy } = useRootContext();
   const navigate = useAsyncNavigate();
+
+  const [workspace, setWorkspace] = React.useState(auth?.activeTenant);
 
   const changeActiveTenant = useMutation({
     mutationFn: async (data: Pick<SelectTenant, "id">) => {
-      return await context.proxy.auth.changeActiveTenant.mutate(data);
+      return await proxy.auth.changeActiveTenant.mutate(data);
     },
     onSuccess: async (res) => {
       /**

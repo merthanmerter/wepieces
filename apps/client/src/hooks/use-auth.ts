@@ -11,14 +11,14 @@ const NAVIGATE_TO = { login: "/login", me: "/me" };
 
 export default function useAuth() {
   const navigate = useNavigate();
-  const context = useRootContext();
+  const router = useRouter();
+  const { proxy } = useRootContext();
   const auth = useAtomValue(authAtom);
   const setAuth = useSetAtom(authAtom);
-  const router = useRouter();
 
   const login = useMutation({
     mutationFn: async (data: Partial<Credentials> & { password: string }) => {
-      return await context.proxy.auth.login
+      return await proxy.auth.login
         .mutate({ username: data?.username!, password: data?.password! })
         .catch((err) => {
           throw err;
@@ -41,7 +41,7 @@ export default function useAuth() {
 
   const validate = useMutation({
     mutationFn: async () => {
-      return await context.proxy.auth.validate.mutate();
+      return await proxy.auth.validate.mutate();
     },
     onSuccess: async (data) => setAuth(data.credentials),
     onError: () => {
@@ -52,7 +52,7 @@ export default function useAuth() {
 
   const refresh = useMutation({
     mutationFn: async () => {
-      return await context.proxy.auth.refresh.mutate();
+      return await proxy.auth.refresh.mutate();
     },
     onSuccess: async (data) => {
       setAuth(data.credentials);
@@ -65,7 +65,7 @@ export default function useAuth() {
 
   const logout = useMutation({
     mutationFn: async () => {
-      return await context.proxy.auth.logout.mutate().catch((err) => {
+      return await proxy.auth.logout.mutate().catch((err) => {
         throw err;
       });
     },
