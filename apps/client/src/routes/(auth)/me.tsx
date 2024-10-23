@@ -44,7 +44,7 @@ export default function Login() {
           <Button
             size='sm'
             variant='outline'
-            onClick={() => logout.mutate()}
+            onClick={() => logout.mutate({ allDevices: false })}
             type='button'
             className='w-full'>
             Logout

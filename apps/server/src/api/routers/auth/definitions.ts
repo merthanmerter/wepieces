@@ -21,6 +21,9 @@ export const authLoginSchema = createInsertSchema(users, {
   password: true,
 });
 
+export const authLogoutSchema = z.object({
+  allDevices: z.boolean().optional().default(false),
+});
 export const recoverAccountSchema = createInsertSchema(users, {
   username: z.string().min(2, MESSAGES.min(2)).max(50, MESSAGES.max(50)),
   password: z

@@ -143,13 +143,32 @@ export const validateAuthSession = async (
   return secureCredentials(payload);
 };
 
-export const revokeAuthSession = async (c: Context): Promise<void> => {
+/**
+ * Revokes the current session.
+ * If `userId` is provided, it will
+ * revoke all sessions for the user.
+ * @param userId
+ */
+export const revokeAuthSession = async (
+  c: Context,
+  userId: string | null = null,
+): Promise<void> => {
   const db = c.get("db");
 
   const token = getCookie(c, SESSION_PREFIX);
   if (!token) return;
 
-  await db.delete(sessions).where(eq(sessions.id, token)).execute();
+  if (userId) {
+    await db.delete(sessions).where(eq(sessions.userId, userId)).execute();
+  } else {
+    await db.delete(sessions).where(eq(sessions.id, token)).execute();
+  }
+
+  /**
+   * Invalidate _all_ expired sessions
+   * when a session is revoked on demand.
+   */
+  await invalidateExpiredSessions(c);
 
   setCookie(c, SESSION_PREFIX, "", {
     ...AUTH_COOKIE_OPTS,
@@ -173,6 +192,11 @@ export const invalidateExpiredSessions = async (
     .execute();
 };
 
+/**
+ * Get user from database
+ * @param c Hono context
+ * @param by The user id, username or email
+ */
 export const getUserFromDatabase = async (c: Context, by: string) => {
   const db = c.get("db");
 

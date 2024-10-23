@@ -18,7 +18,11 @@ import {
   validateAuthSession,
   verifyPassword,
 } from "../../../lib/auth";
-import { authLoginSchema, recoverAccountSchema } from "./definitions";
+import {
+  authLoginSchema,
+  authLogoutSchema,
+  recoverAccountSchema,
+} from "./definitions";
 
 export const authRouter = createTRPCRouter({
   login: publicProcedure
@@ -104,9 +108,14 @@ export const authRouter = createTRPCRouter({
     };
   }),
 
-  logout: userProcedure.mutation(async ({ ctx }) => {
-    await revokeAuthSession(ctx.appContext);
-  }),
+  logout: userProcedure
+    .input(authLogoutSchema)
+    .mutation(async ({ ctx, input }) => {
+      await revokeAuthSession(
+        ctx.appContext,
+        input.allDevices ? ctx.session.id : null, // If allDevices is true, revoke all sessions for the user
+      );
+    }),
 
   changeActiveTenant: userProcedure
     .input(z.object({ id: z.string() }))
