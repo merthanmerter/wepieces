@@ -18,9 +18,9 @@ import { users, usersTenants } from "../../../database/schema";
 import { hashPassword } from "../../../lib/auth";
 import {
   idSchema,
+  paginationMetaFactory,
   paramsSchema,
-  serializePaginationProps,
-  serializeSearchParams,
+  resolvedQueryParams,
 } from "../../../lib/utils";
 import {
   userInsertSchema,
@@ -31,8 +31,8 @@ import {
 
 export const usersRouter = createTRPCRouter({
   list: adminProcedure.input(userQuerySchema).query(async ({ ctx, input }) => {
-    const { page, limit, offset, orderBy, orderDir, ...rest } =
-      serializeSearchParams(input);
+    const { page, limit, offset, orderBy, orderDir, username, email, role } =
+      resolvedQueryParams(input);
 
     const records = await ctx.db.transaction((trx) => {
       return trx
@@ -51,9 +51,9 @@ export const usersRouter = createTRPCRouter({
         )
         .where((r) => {
           const args = [];
-          if (rest.username) args.push(ilike(r.username, `%${rest.username}%`));
-          if (rest.email) args.push(ilike(r.email, `%${rest.email}%`));
-          if (rest.role) args.push(ilike(usersTenants.role, `%${rest.role}%`));
+          if (username) args.push(ilike(r.username, `%${username}%`));
+          if (email) args.push(ilike(r.email, `%${email}%`));
+          if (role) args.push(ilike(usersTenants.role, `%${role}%`));
 
           args.push(
             inArray(
@@ -105,7 +105,7 @@ export const usersRouter = createTRPCRouter({
 
     return {
       records,
-      ...serializePaginationProps({ total, page, limit }),
+      meta: paginationMetaFactory({ total, page, limit }),
     };
   }),
 

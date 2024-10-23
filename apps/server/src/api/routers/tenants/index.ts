@@ -6,9 +6,9 @@ import { MESSAGES } from "../../../constants";
 import { tenants, usersTenants } from "../../../database/schema";
 import {
   idSchema,
+  paginationMetaFactory,
   paramsSchema,
-  serializePaginationProps,
-  serializeSearchParams,
+  resolvedQueryParams,
 } from "../../../lib/utils";
 import {
   tenantInsertSchema,
@@ -20,8 +20,7 @@ export const tenantsRouter = createTRPCRouter({
   list: superAdminProcedure
     .input(tenantQuerySchema)
     .query(async ({ ctx, input }) => {
-      const { page, limit, offset, orderBy, orderDir, ...rest } =
-        serializeSearchParams(input);
+      const { page, limit, offset, ...q } = resolvedQueryParams(input);
 
       const records = await ctx.db
         .select({
@@ -31,15 +30,15 @@ export const tenantsRouter = createTRPCRouter({
         .from(tenants)
         .where((r) => {
           const args = [];
-          if (rest.name) args.push(ilike(r.name, `%${rest.name}%`));
-          if (rest.status) args.push(eq(r.status, rest.status));
+          if (q.name) args.push(ilike(r.name, `%${q.name}%`));
+          if (q.status) args.push(eq(r.status, q.status));
           return and(...args);
         })
         .limit(limit)
         .offset(offset)
         .orderBy(() => {
-          if (orderBy)
-            return (orderDir === "asc" ? asc : desc)(tenants[orderBy]);
+          if (q.orderBy)
+            return (q.orderDir === "asc" ? asc : desc)(tenants[q.orderBy]);
           return desc(tenants.id);
         });
 
@@ -47,7 +46,7 @@ export const tenantsRouter = createTRPCRouter({
 
       return {
         records,
-        ...serializePaginationProps({ total, page, limit }),
+        meta: paginationMetaFactory({ total, page, limit }),
       };
     }),
 

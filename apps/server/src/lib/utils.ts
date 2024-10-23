@@ -22,7 +22,7 @@ export type TMeta = {
   hasNext: boolean;
 };
 
-export const serializePaginationProps = (pagination: {
+export const paginationMetaFactory = (pagination: {
   total?: number;
   page: number;
   limit: number;
@@ -30,18 +30,16 @@ export const serializePaginationProps = (pagination: {
   const { total = 0, page = 1, limit = +DEFAULT_PAGINATION_LIMIT } = pagination;
   const totalPages = Math.ceil(total / limit);
   return {
-    meta: {
-      total: +total,
-      page: +page,
-      limit: +limit,
-      totalPages: +totalPages,
-      hasPrev: +page > 1,
-      hasNext: +page < totalPages,
-    } satisfies TMeta,
-  };
+    total: +total,
+    page: +page,
+    limit: +limit,
+    totalPages: +totalPages,
+    hasPrev: +page > 1,
+    hasNext: +page < totalPages,
+  } satisfies TMeta;
 };
 
-export const serializeSearchParams = <T extends Record<string, unknown>>(
+export const resolvedQueryParams = <T extends Record<string, unknown>>(
   searchParams: T,
 ) => {
   const page = searchParams.page ? +searchParams.page : 1;
@@ -50,5 +48,15 @@ export const serializeSearchParams = <T extends Record<string, unknown>>(
     : +DEFAULT_PAGINATION_LIMIT;
   const offset = (page - 1) * limit;
 
-  return { ...searchParams, limit, offset, page };
+  // const paramsMap = new Map<keyof T, T[keyof T]>(
+  //   Object.entries(searchParams) as [keyof T, T[keyof T]][],
+  // );
+
+  return {
+    ...searchParams,
+    limit,
+    offset,
+    page,
+    // paramsMap,
+  };
 };

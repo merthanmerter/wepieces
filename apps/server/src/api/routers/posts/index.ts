@@ -10,9 +10,9 @@ import { posts } from "../../../database/schema";
 import { usersAlias } from "../../../database/utils";
 import {
   idSchema,
+  paginationMetaFactory,
   paramsSchema,
-  serializePaginationProps,
-  serializeSearchParams,
+  resolvedQueryParams,
 } from "../../../lib/utils";
 import {
   postInsertSchema,
@@ -23,7 +23,7 @@ import {
 export const postsRouter = createTRPCRouter({
   list: userProcedure.input(postQuerySchema).query(async ({ ctx, input }) => {
     const { page, limit, offset, orderBy, orderDir, ...rest } =
-      serializeSearchParams(input);
+      resolvedQueryParams(input);
 
     const records = await ctx.db
       .select({
@@ -49,7 +49,7 @@ export const postsRouter = createTRPCRouter({
 
     return {
       records,
-      ...serializePaginationProps({ total, page, limit }),
+      meta: paginationMetaFactory({ total, page, limit }),
     };
   }),
 
