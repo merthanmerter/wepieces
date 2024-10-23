@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, asc, desc, eq, getTableColumns, like, sql } from "drizzle-orm";
+import { and, asc, desc, eq, getTableColumns, ilike, sql } from "drizzle-orm";
 import {
   adminProcedure,
   createTRPCRouter,
@@ -32,8 +32,9 @@ export const postsRouter = createTRPCRouter({
       })
       .from(posts)
       .where((r) => {
+        console.log(rest.title);
         const args = [];
-        if (rest.title) args.push(like(r.title, `%${rest.title}%`));
+        if (rest.title) args.push(ilike(r.title, `%${rest.title}%`));
         args.push(eq(r.tenantId, ctx.session.activeTenant.id));
         return and(...args);
       })

@@ -5,8 +5,8 @@ import {
   desc,
   eq,
   getTableColumns,
+  ilike,
   inArray,
-  like,
   not,
   sql,
 } from "drizzle-orm";
@@ -51,9 +51,9 @@ export const usersRouter = createTRPCRouter({
         )
         .where((r) => {
           const args = [];
-          if (rest.username) args.push(like(r.username, `%${rest.username}%`));
-          if (rest.email) args.push(like(r.email, `%${rest.email}%`));
-          if (rest.role) args.push(like(usersTenants.role, `%${rest.role}%`));
+          if (rest.username) args.push(ilike(r.username, `%${rest.username}%`));
+          if (rest.email) args.push(ilike(r.email, `%${rest.email}%`));
+          if (rest.role) args.push(ilike(usersTenants.role, `%${rest.role}%`));
 
           args.push(
             inArray(

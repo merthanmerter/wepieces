@@ -55,7 +55,6 @@ export function CompanySwitcher() {
         },
         callback: () => {
           setWorkspace(res.tenant);
-          toast.success("Active tenant changed successfully");
         },
       });
     },
