@@ -1,6 +1,6 @@
-import { env } from "@app/server/env";
 import { migrate as migrator } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
+import { env } from "../../env";
 import { hashPassword } from "../lib/auth";
 import { DATABASE_OPTIONS, db } from "./";
 import { tenants, users, usersTenants } from "./schema";
