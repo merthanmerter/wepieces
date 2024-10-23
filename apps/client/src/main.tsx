@@ -36,9 +36,8 @@ const queryClient = new QueryClient();
 const router = createRouter({
   routeTree,
   context: {
-    proxy, // this is the rpc proxy client
-    query: queryClient, // this is the query client
-    store, // this is the jotai store
+    proxy, // rpc proxy client
+    store, // jotai store
   },
   defaultNotFoundComponent: () => <ErrorBoundary />,
 });

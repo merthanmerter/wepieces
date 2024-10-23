@@ -19,7 +19,9 @@ export const proxy = createTRPCProxyClient<AppRouter>({
         });
       },
       // headers() {
+      //   const subdomain = new URL(url).hostname;
       //   return {
+      //     "x-subdomain": subdomain,
       //     "x-cache-version": new Date().getTime().toString(),
       //   };
       // },

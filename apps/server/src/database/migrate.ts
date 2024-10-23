@@ -30,38 +30,47 @@ export const migrate = async () => {
   /**
    * 3. Create the superadmin user if it doesn't exist.
    */
-  try {
-    await db.transaction(async (trx) => {
-      const [tenant] = await trx
-        .insert(tenants)
-        .values({
-          name: "default",
-          status: "active",
-        })
-        .returning()
-        .execute();
+  await db.transaction(async (trx) => {
+    const [tenant] = await trx
+      .insert(tenants)
+      .values({
+        name: "default",
+        status: "active",
+      })
+      .onConflictDoNothing({
+        target: tenants.name,
+      })
+      .returning()
+      .execute();
 
-      const [user] = await trx
-        .insert(users)
-        .values({
-          username: env.SUPERADMIN_USERNAME,
-          email: env.SUPERADMIN_EMAIL,
-          password: await hashPassword(env.SUPERADMIN_PASSWORD),
-          activeTenantId: tenant.id,
-        })
-        .returning()
-        .execute();
+    if (!tenant) return;
 
-      await trx
-        .insert(usersTenants)
-        .values({
-          userId: user.id,
-          tenantId: tenant.id,
-          role: "superadmin",
-        })
-        .execute();
-    });
-  } catch (error) {}
+    const [user] = await trx
+      .insert(users)
+      .values({
+        username: env.SUPERADMIN_USERNAME,
+        email: env.SUPERADMIN_EMAIL,
+        password: await hashPassword(env.SUPERADMIN_PASSWORD),
+        activeTenantId: tenant.id,
+      })
+      .onConflictDoNothing({
+        target: users.username,
+      })
+      .returning()
+      .execute();
+
+    await trx
+      .insert(usersTenants)
+      .values({
+        userId: user.id,
+        tenantId: tenant.id,
+        role: "superadmin",
+      })
+      .onConflictDoNothing({
+        target: [usersTenants.userId, usersTenants.tenantId],
+      })
+      .execute();
+  });
 
   console.log(`  [\x1b[32m✓\x1b[0m] Database migration completed`);
   process.exit(0);

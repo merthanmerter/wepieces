@@ -14,9 +14,10 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useAuth, useRootContext } from "@/hooks";
+import useAsyncNavigate from "@/hooks/use-async-navigate";
 import { SelectTenant } from "@app/server/src/database/schema";
 import { useMutation } from "@tanstack/react-query";
-import { Link, useRouter } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import {
   ChevronsUpDown,
   FactoryIcon,
@@ -31,8 +32,8 @@ export function CompanySwitcher() {
 
   const { auth } = useAuth();
   const context = useRootContext();
-  const router = useRouter();
   const [workspace, setWorkspace] = React.useState(auth?.activeTenant);
+  const navigate = useAsyncNavigate();
 
   const changeActiveTenant = useMutation({
     mutationFn: async (data: Pick<SelectTenant, "id">) => {
@@ -43,22 +44,25 @@ export function CompanySwitcher() {
        * Empty all cached matches since
        * we are changing the active tenant
        * and we don't want to show the stale data.
-       * @method invalidate (Invalidates the current route)
-       * @method clearCache (Clears the cache for the current route)
-       * @method navigate (Navigates to the root route in case of no match e.g. dynamic routes)
        * @see https://github.com/TanStack/router/discussions/2567
        */
-      router.invalidate();
-      router.clearCache();
-      router.clearExpiredCache();
-      setWorkspace(res.tenant);
+      await navigate({
+        to: "/hub",
+        invalidate: false,
+        clearCache: {
+          before: true,
+          after: true,
+        },
+        callback: () => {
+          setWorkspace(res.tenant);
+          toast.success("Active tenant changed successfully");
+        },
+      });
     },
     onError: (err) => {
       toast.error(err.message);
     },
-    onSettled: () => {
-      router.navigate({ to: "/hub" });
-    },
+    onSettled: () => {},
   });
 
   React.useEffect(() => {

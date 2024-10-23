@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { useParentRoute } from "@/hooks";
 import { JotaiStore } from "@/store";
 import { type TRPCProxyClient } from "@/trpc";
-import { QueryClient } from "@tanstack/react-query";
 import {
   createRootRouteWithContext,
   ErrorComponentProps,
@@ -16,7 +15,6 @@ import React from "react";
 export type RootContext = {
   proxy: TRPCProxyClient;
   store: JotaiStore;
-  query: QueryClient;
 };
 
 export const Route = createRootRouteWithContext<RootContext>()({
