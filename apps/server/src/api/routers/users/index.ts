@@ -12,9 +12,13 @@ import {
 } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import postgres from "postgres";
-import { adminProcedure, createTRPCRouter } from "../../../api/trpc";
+import {
+  adminProcedure,
+  createTRPCRouter,
+  userProcedure,
+} from "../../../api/trpc";
 import { MESSAGES } from "../../../constants";
-import { users, usersTenants } from "../../../database/schema";
+import { sessions, users, usersTenants } from "../../../database/schema";
 import { hashPassword } from "../../../lib/auth";
 import {
   idSchema,
@@ -334,4 +338,18 @@ export const usersRouter = createTRPCRouter({
 
       return { action: "update", recoveryId };
     }),
+
+  activeUsers: userProcedure.query(async ({ ctx }) => {
+    const activeUsers = await ctx.db
+      .select({
+        id: users.id,
+        username: users.username,
+      })
+      .from(sessions)
+      .innerJoin(users, eq(sessions.userId, users.id))
+      .where(eq(users.activeTenantId, ctx.session.activeTenant.id))
+      .execute();
+
+    return activeUsers;
+  }),
 });

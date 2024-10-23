@@ -65,7 +65,6 @@ export default function useAuth() {
 
   const logout = useMutation({
     mutationFn: async ({ allDevices }: { allDevices: boolean }) => {
-      console.log(allDevices);
       return await proxy.auth.logout
         .mutate({
           allDevices,

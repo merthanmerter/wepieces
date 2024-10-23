@@ -38,10 +38,16 @@ app.use(
   "*",
   cors({
     origin: ["http://localhost:4000"],
-    allowHeaders: ["Content-Type", "Authorization", "Accept-Encoding"],
+    allowHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Accept-Encoding",
+      "Connection",
+      "Cache-Control",
+    ],
     allowMethods: ["POST", "GET", "DELETE", "OPTIONS", "PUT", "PATCH"],
     credentials: true,
-    exposeHeaders: ["Cross-Origin-Resource-Policy"],
+    exposeHeaders: ["Cross-Origin-Resource-Policy", "Cache-Control"],
   }),
 );
 

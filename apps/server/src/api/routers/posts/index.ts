@@ -1,5 +1,14 @@
 import { TRPCError } from "@trpc/server";
-import { and, asc, desc, eq, getTableColumns, ilike, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  getTableColumns,
+  gte,
+  ilike,
+  sql,
+} from "drizzle-orm";
 import {
   adminProcedure,
   createTRPCRouter,
@@ -32,7 +41,6 @@ export const postsRouter = createTRPCRouter({
       })
       .from(posts)
       .where((r) => {
-        console.log(rest.title);
         const args = [];
         if (rest.title) args.push(ilike(r.title, `%${rest.title}%`));
         args.push(eq(r.tenantId, ctx.session.activeTenant.id));
@@ -120,5 +128,30 @@ export const postsRouter = createTRPCRouter({
   delete: adminProcedure.input(idSchema).mutation(async ({ ctx, input }) => {
     await ctx.db.delete(posts).where(eq(posts.id, input.id)).execute();
     return { action: "delete" };
+  }),
+
+  chart: userProcedure.query(async ({ ctx }) => {
+    return await ctx.db
+      .select({
+        day: posts.createdAt,
+        total: sql<number>`count(*)`,
+      })
+      .from(posts)
+      .where(
+        and(
+          eq(posts.tenantId, ctx.session.activeTenant.id),
+          gte(
+            posts.createdAt,
+            new Date(
+              new Date().getFullYear(),
+              new Date().getMonth() - 7,
+              new Date().getDate() - 7,
+            ),
+          ),
+        ),
+      )
+      .groupBy(posts.createdAt)
+      .orderBy(posts.createdAt)
+      .execute();
   }),
 });
