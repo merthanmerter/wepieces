@@ -1,9 +1,13 @@
+import { TRPCError } from "@trpc/server";
+import { eq } from "drizzle-orm";
+import { z } from "zod";
 import {
   createTRPCRouter,
   publicProcedure,
   userProcedure,
-} from "@app/server/src/api/trpc";
-import { MESSAGES } from "@app/server/src/constants";
+} from "../../../api/trpc";
+import { MESSAGES } from "../../../constants";
+import { users } from "../../../database/schema";
 import {
   AUTH_COOKIE_OPTS,
   decrypt,
@@ -16,11 +20,7 @@ import {
   storeAuthSession,
   verifyPassword,
   type Credentials,
-} from "@app/server/src/lib/auth";
-import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
-import { z } from "zod";
-import { users } from "../../../database/schema";
+} from "../../../lib/auth";
 import { authLoginSchema, recoverAccountSchema } from "./definitions";
 
 export const authRouter = createTRPCRouter({

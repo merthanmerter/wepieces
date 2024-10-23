@@ -11,10 +11,7 @@
     "dev": "bun --env-file=../../.env --watch index.ts",
     "db:generate": "drizzle-kit generate --dialect=postgresql --schema=src/database/schema.ts --out=./drizzle",
     "db:migrate": "bun --env-file=../../.env ./src/database/migrate.ts",
-    "db:drop": "bunx drizzle-kit drop",
-    "build:win": "bun build --compile --target=bun-windows-x64 ./index.ts --outfile server",
-    "build:linux": "bun build --compile --target=bun-linux-x64 ./index.ts --outfile server",
-    "build:macos": "bun build --compile --target=bun-darwin-x64 ./index.ts --outfile server"
+    "db:drop": "bunx drizzle-kit drop"
   },
   "devDependencies": {
     "@types/bun": "latest",

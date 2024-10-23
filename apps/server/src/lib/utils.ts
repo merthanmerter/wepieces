@@ -1,5 +1,5 @@
-import { DEFAULT_PAGINATION_LIMIT } from "@app/server/src/constants/misc";
 import { z } from "zod";
+import { DEFAULT_PAGINATION_LIMIT } from "../constants/misc";
 
 export const idSchema = z.object({ id: z.string() });
 

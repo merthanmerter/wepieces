@@ -1,18 +1,15 @@
-import {
-  createTRPCRouter,
-  superAdminProcedure,
-} from "@app/server/src/api/trpc";
-import { MESSAGES } from "@app/server/src/constants";
-import { tenants, usersTenants } from "@app/server/src/database/schema";
+import { TRPCError } from "@trpc/server";
+import { and, asc, desc, eq, getTableColumns, like, sql } from "drizzle-orm";
+import postgres from "postgres";
+import { createTRPCRouter, superAdminProcedure } from "../../../api/trpc";
+import { MESSAGES } from "../../../constants";
+import { tenants, usersTenants } from "../../../database/schema";
 import {
   idSchema,
   paramsSchema,
   serializePaginationProps,
   serializeSearchParams,
-} from "@app/server/src/lib/utils";
-import { TRPCError } from "@trpc/server";
-import { and, asc, desc, eq, getTableColumns, like, sql } from "drizzle-orm";
-import postgres from "postgres";
+} from "../../../lib/utils";
 import {
   tenantInsertSchema,
   tenantQuerySchema,

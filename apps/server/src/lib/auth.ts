@@ -1,15 +1,15 @@
 import { env } from "@app/server/env";
-import {
-  tenants,
-  users,
-  usersTenants,
-  type SelectTenant,
-} from "@app/server/src/database/schema";
 import { and, eq, or } from "drizzle-orm";
 import type { Context } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
 import type { CookieOptions } from "hono/utils/cookie";
 import { jwtVerify, SignJWT, type JWTPayload } from "jose";
+import {
+  tenants,
+  users,
+  usersTenants,
+  type SelectTenant,
+} from "../database/schema";
 
 export const SESSION_PREFIX = "_session";
 export const SESSION_EXPIRY = 7 * 24 * 60 * 60 * 1000;

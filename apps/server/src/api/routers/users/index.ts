@@ -1,12 +1,3 @@
-import { adminProcedure, createTRPCRouter } from "@app/server/src/api/trpc";
-import { MESSAGES } from "@app/server/src/constants";
-import { users, usersTenants } from "@app/server/src/database/schema";
-import {
-  idSchema,
-  paramsSchema,
-  serializePaginationProps,
-  serializeSearchParams,
-} from "@app/server/src/lib/utils";
 import { TRPCError } from "@trpc/server";
 import {
   and,
@@ -21,7 +12,16 @@ import {
 } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import postgres from "postgres";
+import { adminProcedure, createTRPCRouter } from "../../../api/trpc";
+import { MESSAGES } from "../../../constants";
+import { users, usersTenants } from "../../../database/schema";
 import { hashPassword } from "../../../lib/auth";
+import {
+  idSchema,
+  paramsSchema,
+  serializePaginationProps,
+  serializeSearchParams,
+} from "../../../lib/utils";
 import {
   userInsertSchema,
   userInviteSchema,
