@@ -10,18 +10,14 @@ import { RootContext } from "./__root";
 /**
  * Auth Refresh
  * This is called every time the user navigates between `hub` routes.
- * - Checks if the user is au../__rootted, and if not, it redirects to the login page.
- * - If revalidate counter is reached, it will revalidate the user data from the database.
+ * - Checks if the user is authenticated, and if not, it redirects to the login page.
  * Don't use this function in root component as it will cause an infinite loop.
  * @see https://github.com/TanStack/router/issues/1295#issuecomment-2005280746
  */
 const beforeLoad = async ({ context }: { context: RootContext }) => {
   try {
-    // const revalidate = authRevalidateInterval(context); // We pass context since store is already set in root context.
-    const response = await context.proxy.auth.refresh.query({
-      revalidate: true, // Can be set to `always` true on demand.
-    });
-    const isAuth = response?.success ? response?.credentials : null;
+    const res = await context.proxy.auth.refresh.mutate();
+    const isAuth = res?.success ? res?.credentials : null;
     context.store.set(authAtom, isAuth);
   } catch (error) {
     context.store.set(authAtom, null);

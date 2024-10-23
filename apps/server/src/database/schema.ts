@@ -60,6 +60,18 @@ export type SelectPublicUserWithRole = SelectPublicUser & {
   role: SelectUsersTenants["role"];
 };
 
+export const sessions = pgTable("session", {
+  id: t.text("id").primaryKey(),
+  userId: t
+    .text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  expires: t.timestamp("expires", { mode: "date" }).notNull(),
+});
+
+export type InsertSession = typeof sessions.$inferInsert;
+export type SelectSession = typeof sessions.$inferSelect;
+
 export const tenants = pgTable("tenants", {
   id: customId,
   name: t.varchar("name", { length: 255 }).unique().notNull(),

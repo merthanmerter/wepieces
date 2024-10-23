@@ -10,25 +10,22 @@ import { MESSAGES } from "../../../constants";
 import { users } from "../../../database/schema";
 import {
   AUTH_COOKIE_OPTS,
-  decrypt,
-  encrypt,
-  getAuthSession,
-  getUserFromDb,
+  createAuthSession,
+  getUserFromDatabase,
   hashPassword,
   revokeAuthSession,
-  secureSessionToCredentials,
-  storeAuthSession,
+  secureCredentials,
+  validateAuthSession,
   verifyPassword,
-  type Credentials,
 } from "../../../lib/auth";
 import { authLoginSchema, recoverAccountSchema } from "./definitions";
 
 export const authRouter = createTRPCRouter({
   login: publicProcedure
     .input(authLoginSchema)
-    .query(async ({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
       const { username } = input;
-      const user = await getUserFromDb(ctx.appContext, username);
+      const user = await getUserFromDatabase(ctx.appContext, username);
 
       if (!user) {
         throw new TRPCError({
@@ -62,67 +59,52 @@ export const authRouter = createTRPCRouter({
         });
       }
 
-      const payload: Credentials = {
+      const parsed = await createAuthSession(ctx.appContext, {
         id: user.id,
         username: user.username,
         role: user.role,
         activeTenant: user.activeTenant,
         tenants: user.tenants,
         exp: AUTH_COOKIE_OPTS.expires!.getTime() / 1000,
-      };
-
-      const session = await encrypt(payload);
-
-      await storeAuthSession(ctx.appContext, session);
-
-      const parsed = await decrypt(session);
+      });
 
       return {
         success: true,
-        credentials: secureSessionToCredentials(parsed),
+        credentials: secureCredentials(parsed),
       };
     }),
 
-  me: userProcedure.query(async ({ ctx }) => {
-    const session = await getAuthSession(ctx.appContext);
-    return { success: true, credentials: secureSessionToCredentials(session) };
+  validate: userProcedure.mutation(async ({ ctx }) => {
+    const session = await validateAuthSession(ctx.appContext);
+    return { success: true, credentials: secureCredentials(session) };
   }),
 
-  refresh: userProcedure
-    .input(
-      z.object({
-        revalidate: z.boolean().optional().default(false),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
-      if (!ctx.session) throw new TRPCError({ code: "UNAUTHORIZED" });
-      const { session } = ctx;
+  refresh: userProcedure.mutation(async ({ ctx }) => {
+    if (!ctx.session) throw new TRPCError({ code: "UNAUTHORIZED" });
+    const { session } = ctx;
 
-      if (input.revalidate) {
-        const user = await getUserFromDb(ctx.appContext, session.id);
+    const user = await getUserFromDatabase(ctx.appContext, session.id);
 
-        if (!user) {
-          await revokeAuthSession(ctx.appContext);
-          return { success: false, credentials: null };
-        }
+    if (!user) {
+      await revokeAuthSession(ctx.appContext);
+      return { success: false, credentials: null };
+    }
 
-        session.username = user.username;
-        session.role = user.role;
-        session.activeTenant = user.activeTenant;
-        session.tenants = user.tenants;
-      }
+    session.username = user.username;
+    session.role = user.role;
+    session.activeTenant = user.activeTenant;
+    session.tenants = user.tenants;
+    session.exp = AUTH_COOKIE_OPTS.expires!.getTime() / 1000;
 
-      session.exp = AUTH_COOKIE_OPTS.expires!.getTime() / 1000;
+    await createAuthSession(ctx.appContext, session);
 
-      await storeAuthSession(ctx.appContext, await encrypt(session));
+    return {
+      success: true,
+      credentials: secureCredentials(session),
+    };
+  }),
 
-      return {
-        success: true,
-        credentials: secureSessionToCredentials(session),
-      };
-    }),
-
-  logout: userProcedure.query(async ({ ctx }) => {
+  logout: userProcedure.mutation(async ({ ctx }) => {
     await revokeAuthSession(ctx.appContext);
   }),
 
@@ -149,7 +131,7 @@ export const authRouter = createTRPCRouter({
 
       return {
         success: true,
-        credentials: secureSessionToCredentials(ctx.session),
+        credentials: secureCredentials(ctx.session),
         tenant,
       };
     }),
@@ -157,7 +139,7 @@ export const authRouter = createTRPCRouter({
   recoverAccount: publicProcedure
     .input(recoverAccountSchema)
     .mutation(async ({ ctx, input }) => {
-      const user = await getUserFromDb(ctx.appContext, input.username);
+      const user = await getUserFromDatabase(ctx.appContext, input.username);
 
       if (!user) {
         throw new TRPCError({

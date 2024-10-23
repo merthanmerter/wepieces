@@ -27,7 +27,6 @@ services:
     env_file: .env
     environment:
       DATABASE_HOST: database
-      REDIS_HOST: redis
       NODE_ENV: production
     expose:
       - 5000
@@ -43,7 +42,6 @@ services:
     restart: always
     depends_on:
       - database
-      - redis
 
   database:
     image: postgres
@@ -80,15 +78,6 @@ services:
     volumes:
       - pgadmin:/var/lib/pgadmin
 
-  redis:
-    image: "redis:6-alpine"
-    # ports:
-    #   - "6379:6379"
-    volumes:
-      - redisdata:/data
-    restart: always
-
 volumes:
   database:
   pgadmin:
-  redisdata:

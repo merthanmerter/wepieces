@@ -22,7 +22,7 @@ export const Route = createFileRoute("/(auth)/me")({
 });
 
 export default function Login() {
-  const { auth, me, refresh, logout } = useAuth();
+  const { auth, validate, refresh, logout } = useAuth();
 
   return (
     <div className='flex flex-col gap-4 items-center justify-center w-full h-screen mx-auto'>
@@ -53,19 +53,19 @@ export default function Login() {
           <Button
             size='sm'
             variant='outline'
-            onClick={() => me.mutate()}
+            onClick={() => refresh.mutate()}
             type='button'
             className='w-full'>
-            Validate Auth
+            Refresh Auth
           </Button>
 
           <Button
             size='sm'
             variant='outline'
-            onClick={() => refresh.mutate()}
+            onClick={() => validate.mutate()}
             type='button'
             className='w-full'>
-            Refresh Auth
+            Validate Auth
           </Button>
         </div>
       </div>

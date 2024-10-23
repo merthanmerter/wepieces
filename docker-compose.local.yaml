@@ -36,15 +36,6 @@ services:
     volumes:
       - local_pg_admin:/var/lib/pgadmin
 
-  redis:
-    image: "redis:6-alpine"
-    ports:
-      - "6379:6379"
-    volumes:
-      - local_redis:/data
-    restart: always
-
 volumes:
   local_pg:
   local_pg_admin:
-  local_redis:

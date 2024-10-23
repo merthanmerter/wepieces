@@ -1,5 +1,5 @@
 import { useRootContext } from "@/hooks";
-import { authAtom, authRevalidateIntervalStore } from "@/store/auth";
+import { authAtom } from "@/store/auth";
 import { MESSAGES } from "@app/server/src/constants";
 import { Credentials } from "@app/server/src/lib/auth";
 import { useMutation } from "@tanstack/react-query";
@@ -14,13 +14,12 @@ export default function useAuth() {
   const context = useRootContext();
   const auth = useAtomValue(authAtom);
   const setAuth = useSetAtom(authAtom);
-  const setAuthRevalidate = useSetAtom(authRevalidateIntervalStore);
   const router = useRouter();
 
-  const loginMutation = useMutation({
+  const login = useMutation({
     mutationFn: async (data: Partial<Credentials> & { password: string }) => {
       return await context.proxy.auth.login
-        .query({ username: data?.username!, password: data?.password! })
+        .mutate({ username: data?.username!, password: data?.password! })
         .catch((err) => {
           throw err;
         });
@@ -40,11 +39,9 @@ export default function useAuth() {
     },
   });
 
-  const meMutation = useMutation({
+  const validate = useMutation({
     mutationFn: async () => {
-      return await context.proxy.auth.me.query().catch((err) => {
-        throw err;
-      });
+      return await context.proxy.auth.validate.mutate();
     },
     onSuccess: async (data) => setAuth(data.credentials),
     onError: () => {
@@ -53,19 +50,12 @@ export default function useAuth() {
     },
   });
 
-  const refreshMutation = useMutation({
+  const refresh = useMutation({
     mutationFn: async () => {
-      return await context.proxy.auth.refresh
-        .query({
-          revalidate: true,
-        })
-        .catch((err) => {
-          throw err;
-        });
+      return await context.proxy.auth.refresh.mutate();
     },
     onSuccess: async (data) => {
       setAuth(data.credentials);
-      setAuthRevalidate(0);
     },
     onError: () => {
       setAuth(null);
@@ -73,9 +63,9 @@ export default function useAuth() {
     },
   });
 
-  const logoutMutation = useMutation({
+  const logout = useMutation({
     mutationFn: async () => {
-      return await context.proxy.auth.logout.query().catch((err) => {
+      return await context.proxy.auth.logout.mutate().catch((err) => {
         throw err;
       });
     },
@@ -92,9 +82,9 @@ export default function useAuth() {
 
   return {
     auth,
-    login: loginMutation,
-    me: meMutation,
-    refresh: refreshMutation,
-    logout: logoutMutation,
+    login,
+    validate,
+    refresh,
+    logout,
   };
 }

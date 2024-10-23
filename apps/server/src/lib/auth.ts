@@ -1,20 +1,25 @@
-import { and, eq, or } from "drizzle-orm";
+import { and, eq, lt, or } from "drizzle-orm";
 import type { Context } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
 import type { CookieOptions } from "hono/utils/cookie";
 import { jwtVerify, SignJWT, type JWTPayload } from "jose";
 import { env } from "../../env";
 import {
+  sessions,
   tenants,
   users,
   usersTenants,
+  type SelectSession,
   type SelectTenant,
 } from "../database/schema";
 
-export const SESSION_PREFIX = "_session";
-export const SESSION_EXPIRY = 7 * 24 * 60 * 60 * 1000;
-export const SESSION_KEY = (key: string) => `${SESSION_PREFIX}:${key}`;
-const SIGNING_KEY: Uint8Array = new TextEncoder().encode(Bun.env.SECRET!);
+/**
+ * Constants for session management
+ * and cookie options.
+ */
+const SESSION_PREFIX = "_session";
+const SESSION_EXPIRY = 7 * 24 * 60 * 60 * 1000;
+const SIGNING_KEY: Uint8Array = new TextEncoder().encode(env.SECRET);
 
 export const AUTH_COOKIE_OPTS: CookieOptions = {
   httpOnly: true,
@@ -44,89 +49,107 @@ export const decrypt = async (token: string) => {
   }
 };
 
-export type Roles = "user" | "admin" | "superadmin";
-export type Credentials = {
-  id: string;
-  username: string;
-  role: Roles;
-  exp: number;
-  activeTenant: SelectTenant;
-  tenants: SelectTenant[];
-} | null;
+export const hashPassword = async (password: string): Promise<string> => {
+  return await Bun.password.hash(password);
+};
 
-export const secureSessionToCredentials = (
+export const verifyPassword = async (
+  password: string,
+  hash: string,
+): Promise<boolean> => {
+  return await Bun.password.verify(password, hash);
+};
+
+/**
+ * We make sure that the session data
+ * type is correct. And we return only
+ * secure credentials.
+ */
+export const secureCredentials = (
   session: JWTPayload | null,
-): Credentials => {
-  if (
-    session &&
-    typeof session.id === "string" &&
-    typeof session.username === "string" &&
-    typeof session.exp === "number"
-  ) {
+): Credentials | null => {
+  if (hasValidSessionData(session)) {
     return {
       id: session.id,
       username: session.username,
       exp: session.exp,
-      role: session.role as Roles,
-      activeTenant: session.activeTenant as SelectTenant,
-      tenants: session.tenants as SelectTenant[],
+      role: session.role,
+      activeTenant: session.activeTenant,
+      tenants: session.tenants,
     };
   }
   return null;
 };
 
-export const storeAuthSession = async (c: Context, session: string) => {
-  const redis = c.get("redis"); // Get the RedisDB instance from the context
-  const sessionKey = SESSION_KEY(session); // Create a unique key for the session
+export const createAuthSession = async (
+  c: Context,
+  payload: Credentials,
+): Promise<JWTPayload | null> => {
+  const db = c.get("db");
 
-  /**
-   * Check if there is an existing session
-   * If there is, refresh the session by removing
-   * the old one and storing the new one
-   */
-  const oldSession = getCookie(c, SESSION_PREFIX);
-  if (oldSession) {
-    const oldSessionKey = SESSION_KEY(oldSession);
-    await redis.del(oldSessionKey);
-  }
+  // 1. Revoke the previous session
+  await revokeAuthSession(c);
 
-  // Store the new session token in RedisDB
-  await redis.set(sessionKey, session);
-  await redis.expire(sessionKey, SESSION_EXPIRY); // Set the expiration time for the session
+  // 2. Encrypt the payload
+  const token = await encrypt(payload);
 
-  // Update the cookie with the new session token
-  setCookie(c, SESSION_PREFIX, session, {
+  // 3. Set the session in the database
+  const values = {
+    id: token,
+    userId: payload.id,
+    expires: new Date(payload.exp * 1000),
+  };
+  await db
+    .insert(sessions)
+    .values(values)
+    .onConflictDoUpdate({
+      target: [sessions.id],
+      set: values,
+    })
+    .execute();
+
+  // 4. Set the cookie
+  setCookie(c, SESSION_PREFIX, token, {
     ...AUTH_COOKIE_OPTS,
   });
+
+  // 5. Decrypt the payload and return it
+  return await decrypt(token);
 };
 
-export const getAuthSession = async (c: Context) => {
-  const redis = c.get("redis"); // Get the redis database from the context
-
+export const validateAuthSession = async (
+  c: Context,
+): Promise<Credentials | null> => {
+  const db = c.get("db");
   const token = getCookie(c, SESSION_PREFIX);
-  if (!token) return null;
 
-  const sessionKey = SESSION_KEY(token); // Create a unique key for the session
-  const session = await redis.get(sessionKey); // Get the session data from redis
-
-  if (!session) {
+  if (!token) {
     await revokeAuthSession(c);
     return null;
   }
 
-  const payload = await decrypt(session);
-  return secureSessionToCredentials(payload);
+  const [session] = await db
+    .select()
+    .from(sessions)
+    .where(eq(sessions.id, token))
+    .execute();
+
+  if (!session || Date.now() >= session.expires.getTime()) {
+    await revokeAuthSession(c);
+    return null;
+  }
+
+  const payload = await decrypt(token);
+  return secureCredentials(payload);
 };
 
-export const revokeAuthSession = async (c: Context) => {
-  const redis = c.get("redis"); // Get the redis database from the context
+export const revokeAuthSession = async (c: Context): Promise<void> => {
+  const db = c.get("db");
 
   const token = getCookie(c, SESSION_PREFIX);
   if (!token) return;
 
-  const sessionKey = SESSION_KEY(token); // Create a unique key for the session
-  await redis.del(sessionKey); // Delete the session from redis
-  // await redis.expire(sessionKey, 0); // Set the expiry time for the session
+  await db.delete(sessions).where(eq(sessions.id, token)).execute();
 
   setCookie(c, SESSION_PREFIX, "", {
     ...AUTH_COOKIE_OPTS,
@@ -134,23 +157,23 @@ export const revokeAuthSession = async (c: Context) => {
   });
 };
 
-export const hashPassword = async (password: string) => {
-  const hash = await Bun.password.hash(password);
-  return hash;
-};
-
-export const verifyPassword = async (password: string, hash: string) => {
-  const isValid = await Bun.password.verify(password, hash);
-  return isValid;
-};
-
 /**
- * Get user from database
- * @param c The context
- * @param by The user id, username or email
- * @returns The user object from the database
+ * This can bu used on demand
+ * to invalidate all expired sessions
+ * in the database.
  */
-export const getUserFromDb = async (c: Context, by: string) => {
+export const invalidateExpiredSessions = async (
+  c: Context,
+): Promise<SelectSession[]> => {
+  const db = c.get("db");
+  return await db
+    .delete(sessions)
+    .where(lt(sessions.expires, new Date()))
+    .returning()
+    .execute();
+};
+
+export const getUserFromDatabase = async (c: Context, by: string) => {
   const db = c.get("db");
 
   try {
@@ -227,4 +250,31 @@ export const getUserFromDb = async (c: Context, by: string) => {
   } catch (error) {
     return null;
   }
+};
+
+/**
+ * Types
+ */
+type Roles = "user" | "admin" | "superadmin";
+export interface Credentials extends JWTPayload {
+  id: string;
+  username: string;
+  role: Roles;
+  exp: number;
+  activeTenant: SelectTenant;
+  tenants: SelectTenant[];
+}
+
+const hasValidSessionData = (
+  session: JWTPayload | null,
+): session is Credentials => {
+  return (
+    session !== null &&
+    typeof session.id === "string" &&
+    typeof session.username === "string" &&
+    typeof session.exp === "number" &&
+    typeof session.role === "string" &&
+    Array.isArray(session.tenants) &&
+    session.activeTenant !== undefined
+  );
 };

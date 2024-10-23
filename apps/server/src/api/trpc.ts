@@ -11,7 +11,7 @@ import type { BlankEnv, BlankInput } from "hono/types";
 import superjson from "superjson";
 import { ZodError } from "zod";
 import { MESSAGES } from "../constants";
-import { getAuthSession } from "../lib/auth";
+import { validateAuthSession } from "../lib/auth";
 
 /**
  *
@@ -29,7 +29,7 @@ import { getAuthSession } from "../lib/auth";
 
 export const createTRPCContext = async (appContext: Context) => {
   const db = appContext.get("db");
-  const session = await getAuthSession(appContext);
+  const session = await validateAuthSession(appContext);
   return { db, session, appContext };
 };
 

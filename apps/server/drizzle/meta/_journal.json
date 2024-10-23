@@ -50,6 +50,13 @@
       "when": 1729542065439,
       "tag": "0006_steady_manta",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1729702517496,
+      "tag": "0007_burly_chimera",
+      "breakpoints": true
     }
   ]
 }
