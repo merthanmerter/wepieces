@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useRootContext } from "@/hooks";
-import { useContainerViewport } from "@/hooks/use-container-viewport";
 import { cn } from "@/lib/utils";
 import {
   todoInsertSchema,
@@ -55,7 +54,6 @@ function Page() {
   const { search } = useLocation();
   const navigate = Route.useNavigate();
   const { proxy } = useRootContext();
-  const { width, height } = useContainerViewport({ id: "todo-list" });
   const router = useRouter();
 
   const form = useForm({
@@ -121,8 +119,6 @@ function Page() {
   });
 
   const handleSubmit = form.handleSubmit(() => addMutation.mutate());
-
-  console.log(width, height);
 
   return (
     <section className='max-w-lg mx-auto'>
