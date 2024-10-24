@@ -11,15 +11,15 @@ export default function TransitionProvider({
 }) {
   const { subscribe, state } = useRouter();
   const [key] = React.useState(state.location.state.key);
-  const [transition, set] = React.useState(false);
+  const [transition, setTransition] = React.useState(false);
 
   React.useEffect(() => {
-    const unsubscribeStart = subscribe("onBeforeLoad", (r) => {
-      set(r.pathChanged);
+    const unsubscribeStart = subscribe("onBeforeLoad", ({ pathChanged }) => {
+      setTransition(pathChanged);
     });
 
     const unsubscribeResolved = subscribe("onResolved", () => {
-      set(false);
+      setTransition(false);
     });
 
     return () => {

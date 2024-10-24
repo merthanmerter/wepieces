@@ -133,3 +133,20 @@ export type SelectPostWithUser = Omit<SelectPost, "createdBy" | "updatedBy"> & {
   createdBy: SelectPublicUser;
   updatedBy: SelectPublicUser;
 };
+
+export const todo = pgTable("todo", {
+  ...baseSchema,
+  title: t.varchar("title", { length: 100 }).notNull(),
+  completed: t.boolean("completed").default(false),
+  type: t
+    .varchar("type", { enum: ["personal", "team"] })
+    .default("personal")
+    .notNull(),
+});
+
+export type InsertTodo = typeof todo.$inferInsert;
+export type SelectTodo = typeof todo.$inferSelect;
+export type SelectTodoWithUser = Omit<SelectTodo, "createdBy" | "updatedBy"> & {
+  createdBy: SelectPublicUser;
+  updatedBy: SelectPublicUser;
+};

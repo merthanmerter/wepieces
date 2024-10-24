@@ -4,6 +4,7 @@ import Breadcrumbs from "@/components/shared/breadcrumbs";
 import { Separator } from "@/components/ui/separator";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { authAtom } from "@/store/auth";
+import { $catch } from "@app/server/src/lib/catch-error";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { RootContext } from "./__root";
 
@@ -15,14 +16,9 @@ import { RootContext } from "./__root";
  * @see https://github.com/TanStack/router/issues/1295#issuecomment-2005280746
  */
 const beforeLoad = async ({ context }: { context: RootContext }) => {
-  try {
-    const res = await context.proxy.auth.refresh.mutate();
-    const isAuth = res?.success ? res?.credentials : null;
-    context.store.set(authAtom, isAuth);
-  } catch (error) {
-    context.store.set(authAtom, null);
-    throw redirect({ to: "/login" });
-  }
+  const [err, res] = await $catch(context.proxy.auth.refresh.mutate());
+  context.store.set(authAtom, err ? null : res.credentials);
+  if (err) throw redirect({ to: "/login" });
 };
 
 export const Route = createFileRoute("/hub")({

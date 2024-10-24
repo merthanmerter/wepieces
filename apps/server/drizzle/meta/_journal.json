@@ -57,6 +57,20 @@
       "when": 1729702517496,
       "tag": "0007_burly_chimera",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1729793739463,
+      "tag": "0008_wandering_monster_badoon",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1729804435527,
+      "tag": "0009_curly_trauma",
+      "breakpoints": true
     }
   ]
 }

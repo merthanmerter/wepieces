@@ -15,13 +15,9 @@ export default function useParentRoute() {
 
   const navigateToParent = React.useCallback(
     async ({ invalidate = true } = {}) => {
-      try {
-        await navigate({ to: parentRoute });
-        if (invalidate) {
-          await router.invalidate();
-        }
-      } catch (error) {
-        console.error("Navigation failed", error);
+      await navigate({ to: parentRoute });
+      if (invalidate) {
+        await router.invalidate();
       }
     },
     [navigate, parentRoute, router],

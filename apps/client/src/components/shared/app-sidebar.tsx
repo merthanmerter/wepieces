@@ -12,7 +12,13 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { Link, LinkProps, useLocation } from "@tanstack/react-router";
-import { HomeIcon, LucideIcon, RssIcon, UsersRoundIcon } from "lucide-react";
+import {
+  CalendarCheckIcon,
+  HomeIcon,
+  LucideIcon,
+  RssIcon,
+  UsersRoundIcon,
+} from "lucide-react";
 import React from "react";
 import { CompanySwitcher } from "./company-switcher";
 import { NavUser } from "./nav-user";
@@ -29,6 +35,11 @@ const items: SidebarItem[] = [
     title: "Posts",
     to: "/hub/posts",
     icon: RssIcon,
+  },
+  {
+    title: "Todo",
+    to: "/hub/todo",
+    icon: CalendarCheckIcon,
   },
   {
     title: "Users",

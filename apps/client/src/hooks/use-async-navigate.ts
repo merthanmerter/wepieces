@@ -11,6 +11,7 @@ import { LinkProps, useRouter } from "@tanstack/react-router";
 
 type AsyncNavigateOptions = {
   to: LinkProps["to"];
+  search?: LinkProps["search"];
   invalidate?: boolean;
   clearCache?: {
     before?: boolean;
@@ -18,10 +19,12 @@ type AsyncNavigateOptions = {
   };
   callback?: () => void;
 };
+
 export default function useAsyncNavigate() {
   const router = useRouter();
   const navigateAsync = async ({
     to,
+    search,
     invalidate = false,
     clearCache = { before: false, after: false },
     callback,
@@ -31,7 +34,7 @@ export default function useAsyncNavigate() {
       router.clearExpiredCache();
     }
 
-    await router.navigate({ to }).then(() => {
+    await router.navigate({ to, search }).then(() => {
       if (invalidate) router.invalidate();
       if (clearCache.after) {
         router.clearCache();

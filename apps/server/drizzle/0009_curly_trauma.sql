@@ -1,0 +1,1 @@
+ALTER TABLE "wepieces_todo" ALTER COLUMN "title" SET DATA TYPE varchar(100);

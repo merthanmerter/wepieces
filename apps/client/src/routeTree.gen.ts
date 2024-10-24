@@ -17,6 +17,7 @@ import { Route as HubIndexImport } from './routes/hub/index'
 import { Route as authMeImport } from './routes/(auth)/me'
 import { Route as authLoginImport } from './routes/(auth)/login'
 import { Route as HubUsersIndexImport } from './routes/hub/users/index'
+import { Route as HubTodoIndexImport } from './routes/hub/todo/index'
 import { Route as HubTenantsIndexImport } from './routes/hub/tenants/index'
 import { Route as HubPostsIndexImport } from './routes/hub/posts/index'
 import { Route as HubPostsIdImport } from './routes/hub/posts/$id'
@@ -56,6 +57,12 @@ const authLoginRoute = authLoginImport.update({
 const HubUsersIndexRoute = HubUsersIndexImport.update({
   id: '/users/',
   path: '/users/',
+  getParentRoute: () => HubRoute,
+} as any)
+
+const HubTodoIndexRoute = HubTodoIndexImport.update({
+  id: '/todo/',
+  path: '/todo/',
   getParentRoute: () => HubRoute,
 } as any)
 
@@ -137,6 +144,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HubTenantsIndexImport
       parentRoute: typeof HubImport
     }
+    '/hub/todo/': {
+      id: '/hub/todo/'
+      path: '/todo'
+      fullPath: '/hub/todo'
+      preLoaderRoute: typeof HubTodoIndexImport
+      parentRoute: typeof HubImport
+    }
     '/hub/users/': {
       id: '/hub/users/'
       path: '/users'
@@ -154,6 +168,7 @@ interface HubRouteChildren {
   HubPostsIdRoute: typeof HubPostsIdRoute
   HubPostsIndexRoute: typeof HubPostsIndexRoute
   HubTenantsIndexRoute: typeof HubTenantsIndexRoute
+  HubTodoIndexRoute: typeof HubTodoIndexRoute
   HubUsersIndexRoute: typeof HubUsersIndexRoute
 }
 
@@ -162,6 +177,7 @@ const HubRouteChildren: HubRouteChildren = {
   HubPostsIdRoute: HubPostsIdRoute,
   HubPostsIndexRoute: HubPostsIndexRoute,
   HubTenantsIndexRoute: HubTenantsIndexRoute,
+  HubTodoIndexRoute: HubTodoIndexRoute,
   HubUsersIndexRoute: HubUsersIndexRoute,
 }
 
@@ -176,6 +192,7 @@ export interface FileRoutesByFullPath {
   '/hub/posts/$id': typeof HubPostsIdRoute
   '/hub/posts': typeof HubPostsIndexRoute
   '/hub/tenants': typeof HubTenantsIndexRoute
+  '/hub/todo': typeof HubTodoIndexRoute
   '/hub/users': typeof HubUsersIndexRoute
 }
 
@@ -187,6 +204,7 @@ export interface FileRoutesByTo {
   '/hub/posts/$id': typeof HubPostsIdRoute
   '/hub/posts': typeof HubPostsIndexRoute
   '/hub/tenants': typeof HubTenantsIndexRoute
+  '/hub/todo': typeof HubTodoIndexRoute
   '/hub/users': typeof HubUsersIndexRoute
 }
 
@@ -200,6 +218,7 @@ export interface FileRoutesById {
   '/hub/posts/$id': typeof HubPostsIdRoute
   '/hub/posts/': typeof HubPostsIndexRoute
   '/hub/tenants/': typeof HubTenantsIndexRoute
+  '/hub/todo/': typeof HubTodoIndexRoute
   '/hub/users/': typeof HubUsersIndexRoute
 }
 
@@ -214,6 +233,7 @@ export interface FileRouteTypes {
     | '/hub/posts/$id'
     | '/hub/posts'
     | '/hub/tenants'
+    | '/hub/todo'
     | '/hub/users'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -224,6 +244,7 @@ export interface FileRouteTypes {
     | '/hub/posts/$id'
     | '/hub/posts'
     | '/hub/tenants'
+    | '/hub/todo'
     | '/hub/users'
   id:
     | '__root__'
@@ -235,6 +256,7 @@ export interface FileRouteTypes {
     | '/hub/posts/$id'
     | '/hub/posts/'
     | '/hub/tenants/'
+    | '/hub/todo/'
     | '/hub/users/'
   fileRoutesById: FileRoutesById
 }
@@ -281,6 +303,7 @@ export const routeTree = rootRoute
         "/hub/posts/$id",
         "/hub/posts/",
         "/hub/tenants/",
+        "/hub/todo/",
         "/hub/users/"
       ]
     },
@@ -304,6 +327,10 @@ export const routeTree = rootRoute
     },
     "/hub/tenants/": {
       "filePath": "hub/tenants/index.tsx",
+      "parent": "/hub"
+    },
+    "/hub/todo/": {
+      "filePath": "hub/todo/index.tsx",
       "parent": "/hub"
     },
     "/hub/users/": {
