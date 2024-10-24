@@ -53,7 +53,7 @@ export const todoRouter = createTRPCRouter({
         .returning()
         .execute();
 
-      return { action: "insert", id: res.id };
+      return { action: "insert", data: res };
     }),
 
   complete: userProcedure
@@ -68,11 +68,11 @@ export const todoRouter = createTRPCRouter({
         .returning()
         .execute();
 
-      return { action: "update", id: res.id };
+      return { action: "update", data: res };
     }),
 
   delete: adminProcedure.input(idSchema).mutation(async ({ ctx, input }) => {
     await ctx.db.delete(todo).where(eq(todo.id, input.id)).execute();
-    return { action: "delete" };
+    return { action: "delete", id: input.id };
   }),
 });

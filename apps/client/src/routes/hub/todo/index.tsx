@@ -1,3 +1,4 @@
+import { ButtonGroup } from "@/components/shared/button-group";
 import Helmet from "@/components/shared/helmet";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -29,12 +30,12 @@ import {
   todoInsertSchema,
   todoQuerySchema,
 } from "@app/server/src/api/routers/todo/definitions";
+import { nanoid } from "@app/server/src/database/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import {
   createFileRoute,
   useLocation,
-  useNavigate,
   useRouter,
 } from "@tanstack/react-router";
 import { zodSearchValidator } from "@tanstack/router-zod-adapter";
@@ -51,11 +52,11 @@ export const Route = createFileRoute("/hub/todo/")({
 
 function Page() {
   const data = Route.useLoaderData();
-  const router = useRouter();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const { search } = useLocation();
+  const navigate = Route.useNavigate();
   const { proxy } = useRootContext();
   const { width, height } = useContainerViewport({ id: "todo-list" });
+  const router = useRouter();
 
   const form = useForm({
     resolver: zodResolver(todoInsertSchema),
@@ -67,6 +68,15 @@ function Page() {
 
   const addMutation = useMutation({
     mutationFn: () => {
+      // optimistic update
+      data.unshift({
+        ...data[0],
+        ...form.getValues(),
+        id: nanoid(),
+        completed: false,
+      });
+
+      // actual add
       const values = form.getValues();
       return proxy.todo.add.mutate({
         title: values.title,
@@ -75,26 +85,39 @@ function Page() {
     },
     onSuccess: () => {
       form.reset();
-      router.invalidate();
+      router.invalidate(); // or we won't be able to update/delete
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => {
+      // optimistic update
+      data.splice(
+        data.findIndex((todo) => todo.id === id),
+        1,
+      );
+      // actual delete
       return proxy.todo.delete.mutate({ id });
     },
-    onSuccess: () => {
-      router.invalidate();
-    },
+    // onSuccess: () => {
+    // router.invalidate(); // we don't need this
+    // },
   });
 
   const completeMutation = useMutation({
     mutationFn: ({ id, completed }: { id: string; completed: boolean }) => {
+      // optimistic update
+      data.forEach((todo) => {
+        if (todo.id === id) {
+          todo.completed = completed;
+        }
+      });
+      // actual update
       return proxy.todo.complete.mutate({ id, completed });
     },
-    onSuccess: () => {
-      router.invalidate();
-    },
+    // onSuccess: () => {
+    // router.invalidate(); // we don't need this
+    // },
   });
 
   const handleSubmit = form.handleSubmit(() => addMutation.mutate());
@@ -173,36 +196,52 @@ function Page() {
       {data?.length > 0 && (
         <React.Fragment>
           <div className='mt-8 mb-2 flex gap-2 items-center justify-end text-xs'>
-            <Button
-              variant={location.search.type ? "ghost" : "default"}
-              size='sm'
-              onClick={() =>
-                navigate({
-                  to: "/hub/todo",
-                  search: { type: undefined },
-                })
-              }>
-              All
-            </Button>
-            <Button
-              variant={location.search.type == "team" ? "default" : "ghost"}
-              size='sm'
-              onClick={() =>
-                navigate({
-                  to: "/hub/todo",
-                  search: { type: "team" },
-                })
-              }>
-              Team
-            </Button>
-            <Button
-              variant={location.search.type == "personal" ? "default" : "ghost"}
-              size='sm'
-              onClick={() =>
-                navigate({ to: "/hub/todo", search: { type: "personal" } })
-              }>
-              Personal
-            </Button>
+            <ButtonGroup>
+              <Button
+                variant='outline'
+                className={cn(
+                  search.type ? "text-muted-foreground" : "bg-muted",
+                  "w-[5rem]",
+                )}
+                size='sm'
+                onClick={() =>
+                  navigate({
+                    to: "/hub/todo",
+                    search: { type: undefined },
+                  })
+                }>
+                All
+              </Button>
+              <Button
+                variant='outline'
+                className={cn(
+                  search.type !== "team" ? "text-muted-foreground" : "bg-muted",
+                  "w-[5rem]",
+                )}
+                size='sm'
+                onClick={() =>
+                  navigate({
+                    to: "/hub/todo",
+                    search: { type: "team" },
+                  })
+                }>
+                Team
+              </Button>
+              <Button
+                variant='outline'
+                className={cn(
+                  search.type !== "personal"
+                    ? "text-muted-foreground"
+                    : "bg-muted",
+                  "w-[5rem]",
+                )}
+                size='sm'
+                onClick={() =>
+                  navigate({ to: "/hub/todo", search: { type: "personal" } })
+                }>
+                Personal
+              </Button>
+            </ButtonGroup>
           </div>
 
           <ul
