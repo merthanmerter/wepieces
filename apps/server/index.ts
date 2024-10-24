@@ -1,8 +1,12 @@
 import pkg from "./package.json";
 import app from "./src/app";
+import { migrate } from "./src/database/migrate";
+import { $catch } from "./src/lib/catch-error";
 
 const port = 5000;
 const server = Bun.serve({ port, fetch: app.fetch });
+
+await $catch(migrate());
 
 if (server) {
   console.log(`
