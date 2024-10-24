@@ -348,6 +348,8 @@ export const usersRouter = createTRPCRouter({
       .from(sessions)
       .innerJoin(users, eq(sessions.userId, users.id))
       .where(eq(users.activeTenantId, ctx.session.activeTenant.id))
+      .groupBy(users.id)
+      .orderBy(users.username)
       .execute();
 
     return activeUsers;
