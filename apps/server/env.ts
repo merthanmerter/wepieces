@@ -5,6 +5,7 @@ export const env = createEnv({
   server: {
     DOMAIN: z.string(),
     SECRET: z.string(),
+    NODE_ENV: z.enum(["development", "production"]),
     SUPERADMIN_USERNAME: z.string(),
     SUPERADMIN_EMAIL: z.string(),
     SUPERADMIN_PASSWORD: z.string(),
@@ -13,14 +14,12 @@ export const env = createEnv({
     DATABASE_PASSWORD: z.string(),
     DATABASE_SCHEMA: z.string(),
     DATABASE_PORT: z.coerce.number().min(1).max(65535),
-    REDIS_HOST: z.string(),
-    REDIS_PORT: z.coerce.number().min(1).max(65535),
-    NODE_ENV: z.enum(["development", "production"]),
   },
   runtimeEnv: {
     // Server settings
     DOMAIN: Bun.env.DOMAIN,
     SECRET: Bun.env.SECRET,
+    NODE_ENV: Bun.env.NODE_ENV,
 
     // Super admin credentials
     SUPERADMIN_USERNAME: Bun.env.SUPERADMIN_USERNAME,
@@ -33,11 +32,6 @@ export const env = createEnv({
     DATABASE_PASSWORD: Bun.env.DATABASE_PASSWORD,
     DATABASE_SCHEMA: Bun.env.DATABASE_SCHEMA,
     DATABASE_PORT: Bun.env.DATABASE_PORT,
-
-    // Redis settings
-    REDIS_HOST: Bun.env.REDIS_HOST,
-    REDIS_PORT: Bun.env.REDIS_PORT,
-    NODE_ENV: Bun.env.NODE_ENV,
   },
   skipValidation: !!Bun.env.SKIP_ENV_VALIDATION,
   emptyStringAsUndefined: true,
