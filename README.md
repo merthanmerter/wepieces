@@ -106,6 +106,33 @@ bun run migrate
 
 3. Open your browser and navigate to `http://localhost`.
 
+## How to deploy to Render
+
+1. Create a new project on Render.com
+2. Create a postgres database
+3. Create a new web service
+4. Import environment variables from `.env.example` file
+5. Update `DATABASE` environment variable with your render database credentials
+6. Update `SUPERADMIN` environment variables with your render credentials
+7. Update `SECRET` environment variable with a random string (e.g.
+   `openssl rand -hex 32`)
+8. Update `NODE_ENV` environment variable with `production`
+9. Deploy the project from your git repository
+10. Similar steps can be followed to deploy to other platforms.
+
+## How to deploy to VPS or Cloud
+
+1. Create an instance on your provider.
+2. Install bun and docker.
+3. Clone the repository.
+4. Create a `.env` file based on the `.env.example` file.
+5. Build the docker image.
+6. Run database migrations.
+
+## Example project
+
+https://wepieces.com username: superadmin password: superadmin
+
 ## Contributing
 
 Contributions are welcome!
