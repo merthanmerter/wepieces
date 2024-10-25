@@ -26,7 +26,7 @@ export const AUTH_COOKIE_OPTS: CookieOptions = {
   sameSite: "Strict",
   path: "/",
   expires: new Date(Date.now() + SESSION_EXPIRY),
-  secure: true,
+  secure: env.NODE_ENV === "production",
   domain: env.NODE_ENV === "development" ? undefined : env.DOMAIN,
 };
 
