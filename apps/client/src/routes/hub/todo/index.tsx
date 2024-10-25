@@ -24,10 +24,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useRootContext } from "@/hooks";
 import { cn } from "@/lib/utils";
-import {
-  todoInsertSchema,
-  todoQuerySchema,
-} from "@app/server/src/api/routers/todo/definitions";
+import { todoInsertSchema } from "@app/server/src/api/routers/todo/definitions";
 import { nanoid } from "@app/server/src/database/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -36,7 +33,6 @@ import {
   useLocation,
   useRouter,
 } from "@tanstack/react-router";
-import { zodSearchValidator } from "@tanstack/router-zod-adapter";
 import {
   CheckSquareIcon,
   Loader2Icon,
@@ -49,7 +45,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 
 export const Route = createFileRoute("/hub/todo/")({
-  validateSearch: zodSearchValidator(todoQuerySchema),
+  validateSearch: (search: { type?: "personal" | "team" }) => search,
   component: Page,
   loader: ({ context, location }) =>
     context.proxy.todo.list.query(location.search),
