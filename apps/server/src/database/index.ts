@@ -13,7 +13,7 @@ export const DATABASE_OPTIONS: postgres.Options<{}> = {
   // idle_timeout: 10000,
   // keep_alive: true,
   // max: 10,
-  // ssl: true,
+  ssl: true,
   onnotice: () => {}, // Suppress Postgres notices
 };
 
