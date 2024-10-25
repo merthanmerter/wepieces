@@ -13,7 +13,7 @@ export default function TransitionProvider({
   const [key] = React.useState(state.location.state.key);
   const [transition, setTransition] = React.useState(false);
 
-  const previousPath = React.useRef<ParsedLocation<{}>>(state.location);
+  const previousPath = React.useRef<ParsedLocation>(state.location);
 
   React.useEffect(() => {
     const unsubscribeStart = subscribe("onBeforeLoad", ({ toLocation }) => {
@@ -33,7 +33,7 @@ export default function TransitionProvider({
       unsubscribeStart();
       unsubscribeResolved();
     };
-  }, [state]);
+  }, [state, subscribe]);
 
   return (
     <motion.div

@@ -56,7 +56,7 @@ const SidebarProvider = React.forwardRef<
 >(
   (
     {
-      defaultOpen = true,
+      // defaultOpen = true,
       open: openProp,
       onOpenChange: setOpenProp,
       className,
@@ -89,7 +89,7 @@ const SidebarProvider = React.forwardRef<
         // This sets the cookie to keep the sidebar state.
         // document.cookie = `${SIDEBAR_COOKIE_NAME}=${open}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
       },
-      [setOpenProp, open],
+      [setOpenProp, open, _setOpen],
     );
 
     // Helper to toggle the sidebar.
@@ -770,5 +770,6 @@ export {
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
+  // eslint-disable-next-line react-refresh/only-export-components
   useSidebar,
 };

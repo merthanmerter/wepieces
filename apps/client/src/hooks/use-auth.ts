@@ -1,7 +1,7 @@
 import { useRootContext } from "@/hooks";
 import { authAtom } from "@/store/auth";
 import { MESSAGES } from "@app/server/src/constants";
-import { Credentials } from "@app/server/src/lib/auth";
+import { SelectUser } from "@app/server/src/database/schema";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useAtomValue, useSetAtom } from "jotai/react";
@@ -17,9 +17,9 @@ export default function useAuth() {
   const setAuth = useSetAtom(authAtom);
 
   const login = useMutation({
-    mutationFn: async (data: Partial<Credentials> & { password: string }) => {
+    mutationFn: async (data: Pick<SelectUser, "username" | "password">) => {
       return await proxy.auth.login
-        .mutate({ username: data?.username!, password: data?.password! })
+        .mutate({ username: data.username, password: data.password })
         .catch((err) => {
           throw err;
         });

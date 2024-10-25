@@ -36,7 +36,7 @@ export default function Root() {
   );
 }
 
-export const ErrorBoundary = (props?: ErrorComponentProps | {}) => {
+export const ErrorBoundary = (props?: ErrorComponentProps | object) => {
   const { navigateToParent } = useParentRoute();
   const error =
     props && "error" in props
