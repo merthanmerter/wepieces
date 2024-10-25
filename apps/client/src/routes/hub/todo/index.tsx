@@ -1,7 +1,6 @@
 import { ButtonGroup } from "@/components/shared/button-group";
 import Helmet from "@/components/shared/helmet";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -38,7 +37,14 @@ import {
   useRouter,
 } from "@tanstack/react-router";
 import { zodSearchValidator } from "@tanstack/router-zod-adapter";
-import { Loader2Icon, TrashIcon, UserIcon, UsersIcon } from "lucide-react";
+import {
+  CheckSquareIcon,
+  Loader2Icon,
+  SquareIcon,
+  TrashIcon,
+  UserIcon,
+  UsersIcon,
+} from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
 
@@ -248,7 +254,7 @@ function Page() {
                 key={todo.id}
                 className='flex items-center gap-4 border-b border-dashed py-1.5 last:border-b-0'>
                 <div className='grid items-center'>
-                  <Checkbox
+                  {/* <Checkbox
                     disabled={completeMutation.isPending}
                     checked={todo?.completed ?? false}
                     onCheckedChange={() => {
@@ -257,7 +263,23 @@ function Page() {
                         completed: !todo.completed,
                       });
                     }}
-                  />
+                  /> */}
+                  <Button
+                    size='icon'
+                    variant='ghost'
+                    className='ml-auto'
+                    onClick={() => {
+                      completeMutation.mutate({
+                        id: todo.id,
+                        completed: !todo.completed,
+                      });
+                    }}>
+                    {todo.completed ? (
+                      <CheckSquareIcon className='size-5' />
+                    ) : (
+                      <SquareIcon className='size-5' />
+                    )}
+                  </Button>
                 </div>
                 <span>
                   {todo.type === "personal" ? (
@@ -266,10 +288,14 @@ function Page() {
                     <UsersIcon className='size-5' />
                   )}
                 </span>
-                <span className={cn(todo.completed ? "line-through" : "")}>
+                <span className={cn(todo.completed && "line-through")}>
                   {todo.title.length > 20 ? (
                     <Popover>
-                      <PopoverTrigger className='text-left whitespace-nowrap overflow-hidden max-w-[20ch] text-ellipsis'>
+                      <PopoverTrigger
+                        className={cn(
+                          todo.completed && "line-through",
+                          "text-left whitespace-nowrap overflow-hidden max-w-[20ch] text-ellipsis",
+                        )}>
                         {todo.title}
                       </PopoverTrigger>
                       <PopoverContent className='text-sm'>
@@ -283,7 +309,6 @@ function Page() {
                 <Button
                   size='icon'
                   variant='ghost'
-                  disabled={deleteMutation.isPending}
                   className='ml-auto flex-shrink-0'
                   type='button'
                   onClick={() => deleteMutation.mutate(todo.id)}>
