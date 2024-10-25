@@ -128,7 +128,7 @@ bun run migrate
 4. Create a `.env` file based on the `.env.example` file.
 5. Build the docker image.
 6. Make sure to apply all security best practices to your server.
-   `https://www.youtube.com/watch?v=F-9KWQByeU0&ab_channel=DreamsofCode`
+   [DreamsofCode](https://www.youtube.com/watch?v=F-9KWQByeU0&ab_channel=DreamsofCode)
 
 ## Example project
 
