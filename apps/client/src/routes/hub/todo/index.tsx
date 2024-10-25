@@ -246,15 +246,20 @@ function Page() {
             </ButtonGroup>
           </div>
 
-          <ul
-            id='todo-list'
-            className='border p-2 rounded-md relative'>
-            {data.map((todo) => (
-              <li
-                key={todo.id}
-                className='flex items-center gap-4 border-b border-dashed py-1.5 last:border-b-0'>
-                <div className='grid items-center'>
-                  {/* <Checkbox
+          {router.state.isLoading ? (
+            <div className='flex items-center justify-center h-16'>
+              <Loader2Icon className='size-5 animate-spin text-muted-foreground' />
+            </div>
+          ) : (
+            <ul
+              id='todo-list'
+              className='border p-2 rounded-md relative'>
+              {data.map((todo) => (
+                <li
+                  key={todo.id}
+                  className='flex items-center gap-4 border-b border-dashed py-1.5 last:border-b-0'>
+                  <div className='grid items-center'>
+                    {/* <Checkbox
                     disabled={completeMutation.isPending}
                     checked={todo?.completed ?? false}
                     onCheckedChange={() => {
@@ -264,59 +269,60 @@ function Page() {
                       });
                     }}
                   /> */}
+                    <Button
+                      size='icon'
+                      variant='ghost'
+                      className='ml-auto'
+                      onClick={() => {
+                        completeMutation.mutate({
+                          id: todo.id,
+                          completed: !todo.completed,
+                        });
+                      }}>
+                      {todo.completed ? (
+                        <CheckSquareIcon className='size-5' />
+                      ) : (
+                        <SquareIcon className='size-5' />
+                      )}
+                    </Button>
+                  </div>
+                  <span>
+                    {todo.type === "personal" ? (
+                      <UserIcon className='size-5' />
+                    ) : (
+                      <UsersIcon className='size-5' />
+                    )}
+                  </span>
+                  <span className={cn(todo.completed && "line-through")}>
+                    {todo.title.length > 20 ? (
+                      <Popover>
+                        <PopoverTrigger
+                          className={cn(
+                            todo.completed && "line-through",
+                            "text-left whitespace-nowrap overflow-hidden max-w-[20ch] text-ellipsis",
+                          )}>
+                          {todo.title}
+                        </PopoverTrigger>
+                        <PopoverContent className='text-sm'>
+                          {todo.title}
+                        </PopoverContent>
+                      </Popover>
+                    ) : (
+                      todo.title
+                    )}
+                  </span>
                   <Button
                     size='icon'
                     variant='ghost'
-                    className='ml-auto'
-                    onClick={() => {
-                      completeMutation.mutate({
-                        id: todo.id,
-                        completed: !todo.completed,
-                      });
-                    }}>
-                    {todo.completed ? (
-                      <CheckSquareIcon className='size-5' />
-                    ) : (
-                      <SquareIcon className='size-5' />
-                    )}
+                    className='ml-auto flex-shrink-0'
+                    type='button'
+                    onClick={() => deleteMutation.mutate(todo.id)}>
+                    <TrashIcon className='size-5' />
                   </Button>
-                </div>
-                <span>
-                  {todo.type === "personal" ? (
-                    <UserIcon className='size-5' />
-                  ) : (
-                    <UsersIcon className='size-5' />
-                  )}
-                </span>
-                <span className={cn(todo.completed && "line-through")}>
-                  {todo.title.length > 20 ? (
-                    <Popover>
-                      <PopoverTrigger
-                        className={cn(
-                          todo.completed && "line-through",
-                          "text-left whitespace-nowrap overflow-hidden max-w-[20ch] text-ellipsis",
-                        )}>
-                        {todo.title}
-                      </PopoverTrigger>
-                      <PopoverContent className='text-sm'>
-                        {todo.title}
-                      </PopoverContent>
-                    </Popover>
-                  ) : (
-                    todo.title
-                  )}
-                </span>
-                <Button
-                  size='icon'
-                  variant='ghost'
-                  className='ml-auto flex-shrink-0'
-                  type='button'
-                  onClick={() => deleteMutation.mutate(todo.id)}>
-                  <TrashIcon className='size-5' />
-                </Button>
-              </li>
-            ))}
-          </ul>
+                </li>
+              ))}
+            </ul>
+          )}
         </React.Fragment>
       )}
     </section>
