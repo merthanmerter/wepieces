@@ -2,7 +2,6 @@ import { migrate as migrator } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 import { env } from "../../env";
 import { hashPassword } from "../lib/auth";
-import { $catch } from "../lib/catch-error";
 import { DATABASE_OPTIONS, db } from "./";
 import { tenants, users, usersTenants } from "./schema";
 
@@ -10,26 +9,29 @@ export const migrate = async () => {
   /**
    * 1. Create the `database` if it doesn't exist.
    */
-  await $catch(
-    postgres({ ...DATABASE_OPTIONS, database: undefined }).unsafe(
+  try {
+    await postgres({ ...DATABASE_OPTIONS, database: undefined }).unsafe(
       `CREATE DATABASE ${env.DATABASE_SCHEMA};`,
-    ),
-  );
+    );
+  } catch (error) {}
 
   /**
    * 2. Migrate the database.
    */
-  await $catch(
-    migrator(db, {
+  try {
+    await migrator(db, {
       migrationsFolder: "drizzle",
-    }),
-  );
+    });
+  } catch (error) {
+    console.error("Error during migration:", error);
+    process.exit(1);
+  }
 
   /**
    * 3. Create the superadmin user if it doesn't exist.
    */
-  await $catch(
-    db.transaction(async (trx) => {
+  try {
+    await db.transaction(async (trx) => {
       const [tenant] = await trx
         .insert(tenants)
         .values({
@@ -52,25 +54,20 @@ export const migrate = async () => {
           password: await hashPassword(env.SUPERADMIN_PASSWORD),
           activeTenantId: tenant.id,
         })
-        .onConflictDoNothing({
-          target: users.username,
-        })
         .returning()
         .execute();
 
-      await trx
-        .insert(usersTenants)
-        .values({
-          userId: user.id,
-          tenantId: tenant.id,
-          role: "superadmin",
-        })
-        .onConflictDoNothing({
-          target: [usersTenants.userId, usersTenants.tenantId],
-        })
-        .execute();
-    }),
-  );
+      await trx.insert(usersTenants).values({
+        userId: user.id,
+        tenantId: tenant.id,
+        role: "superadmin",
+      });
+      // .onConflictDoNothing({
+      //   target: [usersTenants.userId, usersTenants.tenantId],
+      // })
+      // .execute();
+    });
+  } catch (error) {}
 
   console.log(`  [\x1b[32m✓\x1b[0m] Database migration completed`);
   // process.exit(0);
