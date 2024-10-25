@@ -127,7 +127,8 @@ bun run migrate
 3. Clone the repository.
 4. Create a `.env` file based on the `.env.example` file.
 5. Build the docker image.
-6. Run database migrations.
+6. Make sure to apply all security best practices to your server.
+   `https://www.youtube.com/watch?v=F-9KWQByeU0&ab_channel=DreamsofCode`
 
 ## Example project
 
