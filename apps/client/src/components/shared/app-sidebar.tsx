@@ -97,6 +97,7 @@ interface SidebarItem extends LinkProps {
 }
 
 function Item({ item, name }: { item: SidebarItem; name: string }) {
+  const { isMobile, toggleSidebar } = useSidebar();
   const location = useLocation();
 
   const path = location.pathname.split("/").filter(Boolean);
@@ -113,6 +114,7 @@ function Item({ item, name }: { item: SidebarItem; name: string }) {
       {(props) => (
         <SidebarMenuItem key={item.title}>
           <SidebarMenuButton
+            onClick={() => (isMobile ? toggleSidebar() : null)} // Close the sidebar on mobile
             tooltip={item.title}
             asChild>
             <span className={cn((props.isActive || isActive) && "bg-muted")}>
