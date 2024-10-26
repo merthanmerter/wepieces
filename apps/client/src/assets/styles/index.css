@@ -82,14 +82,11 @@
   body {
     @apply bg-background text-foreground;
   }
-  #root {
-    @apply flex min-h-screen relative;
-  }
   .text-animated-rpb {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-red-500 via-purple-500 to-blue-500 animate-bg;
   }
   main {
-    @apply flex flex-col w-full relative h-screen overflow-hidden;
+    @apply w-full;
   }
 }
 

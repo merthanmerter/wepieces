@@ -1,14 +1,17 @@
 import DataTable from "@/components/shared/data-table";
 import Helmet from "@/components/shared/helmet";
+import { postQuerySchema } from "@app/server/src/api/routers/posts/definitions";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { zodSearchValidator } from "@tanstack/router-zod-adapter";
 import { ArrowUpRightIcon } from "lucide-react";
 import React from "react";
 import PostsForm from "../../../components/forms/posts";
 
 export const Route = createFileRoute("/hub/posts/")({
+  validateSearch: zodSearchValidator(postQuerySchema),
+  loaderDeps: ({ search }) => search,
+  loader: ({ context, deps }) => context.proxy.posts.list.query(deps),
   component: Page,
-  loader: ({ context, location }) =>
-    context.proxy.posts.list.query(location.search),
 });
 
 function Page() {

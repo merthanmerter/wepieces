@@ -29,7 +29,7 @@ export default function Root() {
   return (
     <React.Fragment>
       <Helmet />
-      <div className='flex flex-col w-full relative h-screen overflow-hidden'>
+      <div className='flex flex-col w-full relative overflow-hidden'>
         <Outlet />
       </div>
     </React.Fragment>

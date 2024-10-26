@@ -38,7 +38,7 @@ export default function Login() {
 
   return (
     <>
-      <div className='flex flex-col gap-3 items-center justify-center h-screen max-w-sm w-full mx-auto'>
+      <div className='flex flex-col gap-3 items-center justify-center h-dvh max-w-sm w-full mx-auto'>
         <form
           className='w-full space-y-3 text-center'
           onSubmit={onSubmit}>

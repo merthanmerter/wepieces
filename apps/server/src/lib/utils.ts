@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { DEFAULT_PAGINATION_LIMIT } from "../constants/misc";
 
 export const idSchema = z.object({ id: z.string() });
 
@@ -7,9 +6,10 @@ export const paramsSchema = z.object({
   id: z.string(),
 });
 
+export const DEFAULT_PAGINATION_LIMIT = 20;
 export const paginationSchema = z.object({
-  page: z.string().default("1"),
-  limit: z.string().default(DEFAULT_PAGINATION_LIMIT),
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).default(DEFAULT_PAGINATION_LIMIT),
   orderDir: z.enum(["asc", "desc"]).optional(),
 });
 

@@ -22,9 +22,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { useCopyToClipboard, useRootContext } from "@/hooks";
 import { ActionDispatch } from "@/lib/dispatches";
+import { userQuerySchema } from "@app/server/src/api/routers/users/definitions";
 import { MESSAGES } from "@app/server/src/constants";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { zodSearchValidator } from "@tanstack/router-zod-adapter";
 import {
   CopyCheckIcon,
   CopyIcon,
@@ -37,9 +39,10 @@ import React from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/hub/users/")({
+  validateSearch: zodSearchValidator(userQuerySchema),
+  loaderDeps: ({ search }) => search,
+  loader: ({ context, deps }) => context.proxy.users.list.query(deps),
   component: Page,
-  loader: ({ context, location }) =>
-    context.proxy.users.list.query(location.search),
 });
 
 type Actions = {

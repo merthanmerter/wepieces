@@ -21,17 +21,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRootContext } from "@/hooks";
 import { ActionDispatch } from "@/lib/dispatches";
+import { tenantQuerySchema } from "@app/server/src/api/routers/tenants/definitions";
 import { MESSAGES } from "@app/server/src/constants";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { zodSearchValidator } from "@tanstack/router-zod-adapter";
 import { EllipsisIcon, SquarePenIcon, Trash2Icon } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/hub/tenants/")({
+  validateSearch: zodSearchValidator(tenantQuerySchema),
+  loaderDeps: ({ search }) => search,
+  loader: ({ context, deps }) => context.proxy.tenants.list.query(deps),
   component: Page,
-  loader: ({ context, location }) =>
-    context.proxy.tenants.list.query(location.search),
 });
 
 type Actions = {

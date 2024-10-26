@@ -8,8 +8,8 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <div className='grid h-dvh w-full justify-center items-center p-6 overflow-y-auto'>
-      <div className='mx-auto container space-y-12'>
+    <div className='grid h-dvh w-full justify-center items-center overflow-y-auto'>
+      <div className='mx-auto px-6 space-y-12'>
         <div className='block text-center'>
           <p
             className='text-6xl md:text-8xl font-bold bg-clip-text text-transparent bg-gradient-to-r 

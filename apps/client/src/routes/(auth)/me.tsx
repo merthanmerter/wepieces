@@ -25,7 +25,7 @@ export default function Login() {
   const { auth, validate, refresh, logout } = useAuth();
 
   return (
-    <div className='flex flex-col gap-4 items-center justify-center w-full h-screen mx-auto'>
+    <div className='flex flex-col gap-4 items-center justify-center w-full h-dvh mx-auto'>
       <div className='space-y-2'>
         <pre className='border font-mono p-3 rounded-md bg-background text-sm'>
           {JSON.stringify(auth, null, 2)}

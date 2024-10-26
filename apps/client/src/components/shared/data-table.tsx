@@ -41,7 +41,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { DEFAULT_PAGINATION_LIMIT } from "@app/server/src/constants/misc";
+import { DEFAULT_PAGINATION_LIMIT } from "@app/server/src/lib/utils";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import {
   flexRender,
@@ -105,9 +105,9 @@ export default function DataTable<TData, TValue>({
 
   return (
     <React.Fragment>
-      <div className='flex mb-4 items-center justify-between gap-2 h-8'>
+      <div className='flex flex-col sm:flex-row mb-4 sm:items-center justify-between gap-2 sm:h-8'>
         {title}
-        <div className='ml-auto space-x-2'>
+        <div className='sm:ml-auto flex items-center gap-2 flex-wrap'>
           {nav?.start}
           <DataTableFilters
             columns={columns}
@@ -228,31 +228,36 @@ const DEFAULT_LIMIT_OPTIONS = (params: URLSearchParams) =>
 function DataTablePagination(props: Partial<DataTablePaginationProps>) {
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
-  const params = React.useMemo(() => new URLSearchParams(search), [search]);
+  const params = React.useMemo(
+    () => new URLSearchParams(search as [string, string][]),
+    [search],
+  );
 
   const handlePageChange = (page: number | undefined) => {
     navigate({
       to: `${pathname}`,
       search: {
         ...Object.fromEntries(params.entries()),
-        page: page?.toString(),
+        limit,
+        page,
       },
     });
   };
 
-  const handleLimitChange = (limit: string) => {
+  const handleLimitChange = (limit: number) => {
     navigate({
       to: `${pathname}`,
       search: {
         ...Object.fromEntries(params.entries()),
         limit,
+        page: 1,
       },
     });
   };
 
   const {
     page = 1,
-    limit = +DEFAULT_PAGINATION_LIMIT,
+    limit = DEFAULT_PAGINATION_LIMIT,
     total = 0,
     totalPages = 1,
   } = props;
@@ -261,8 +266,8 @@ function DataTablePagination(props: Partial<DataTablePaginationProps>) {
     <div className='flex mt-3 items-center justify-between'>
       <div className='flex-1 text-xs text-muted-foreground flex items-center gap-2'>
         <Select
-          value={params.get("limit") ?? DEFAULT_PAGINATION_LIMIT}
-          onValueChange={(value) => handleLimitChange(value)}>
+          value={params.get("limit") ?? DEFAULT_PAGINATION_LIMIT?.toString()}
+          onValueChange={(value) => handleLimitChange(+value)}>
           <SelectTrigger className='w-min p-0 px-1.5 h-8 bg-background text-xs'>
             <SelectValue placeholder={DEFAULT_PAGINATION_LIMIT} />
           </SelectTrigger>
@@ -279,7 +284,7 @@ function DataTablePagination(props: Partial<DataTablePaginationProps>) {
           </SelectContent>
         </Select>
 
-        <p>{`Showing ${(page - 1) * limit + 1} to ${Math.min(page * Number(limit), total)} of ${total} results`}</p>
+        <p className='hidden sm:block'>{`Showing ${(page - 1) * limit + 1} to ${Math.min(page * Number(limit), total)} of ${total} results`}</p>
       </div>
 
       <BasePagination className='flex-1 justify-end'>
@@ -401,7 +406,10 @@ export function DataTableFilters<TData, TValue>({
 }: DataTableFilterProps<TData, TValue>) {
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
-  const params = React.useMemo(() => new URLSearchParams(search), [search]);
+  const params = React.useMemo(
+    () => new URLSearchParams(search as [string, string][]),
+    [search],
+  );
   const currentParams = React.useMemo(
     () => Object.fromEntries(params.entries()),
     [params],
@@ -745,7 +753,7 @@ export function DataTableFilters<TData, TValue>({
               type='button'
               variant='destructive'
               size='sm'
-              className='ml-auto'
+              className='mt-2 sm:mt-0 sm:ml-auto'
               onClick={handleReset}>
               Clear All
             </Button>

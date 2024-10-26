@@ -24,7 +24,10 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useRootContext } from "@/hooks";
 import { cn } from "@/lib/utils";
-import { todoInsertSchema } from "@app/server/src/api/routers/todo/definitions";
+import {
+  todoInsertSchema,
+  todoQuerySchema,
+} from "@app/server/src/api/routers/todo/definitions";
 import { nanoid } from "@app/server/src/database/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -33,6 +36,7 @@ import {
   useLocation,
   useRouter,
 } from "@tanstack/react-router";
+import { zodSearchValidator } from "@tanstack/router-zod-adapter";
 import {
   CheckSquareIcon,
   Loader2Icon,
@@ -45,10 +49,10 @@ import React from "react";
 import { useForm } from "react-hook-form";
 
 export const Route = createFileRoute("/hub/todo/")({
-  validateSearch: (search: { type?: "personal" | "team" }) => search,
+  validateSearch: zodSearchValidator(todoQuerySchema),
+  loaderDeps: ({ search }) => search,
+  loader: ({ context, deps }) => context.proxy.todo.list.query(deps),
   component: Page,
-  loader: ({ context, location }) =>
-    context.proxy.todo.list.query(location.search),
 });
 
 function Page() {
@@ -191,62 +195,63 @@ function Page() {
         </form>
       </Form>
 
-      {data?.length > 0 && (
-        <React.Fragment>
-          <div className='mt-8 mb-2 flex gap-2 items-center justify-end text-xs'>
-            <ButtonGroup>
-              <Button
-                variant='outline'
-                className={cn(
-                  search.type ? "text-muted-foreground" : "bg-muted",
-                  "w-[5rem]",
-                )}
-                size='sm'
-                onClick={() =>
-                  navigate({
-                    to: "/hub/todo",
-                    search: { type: undefined },
-                  })
-                }>
-                All
-              </Button>
-              <Button
-                variant='outline'
-                className={cn(
-                  search.type !== "team" ? "text-muted-foreground" : "bg-muted",
-                  "w-[5rem]",
-                )}
-                size='sm'
-                onClick={() =>
-                  navigate({
-                    to: "/hub/todo",
-                    search: { type: "team" },
-                  })
-                }>
-                Team
-              </Button>
-              <Button
-                variant='outline'
-                className={cn(
-                  search.type !== "personal"
-                    ? "text-muted-foreground"
-                    : "bg-muted",
-                  "w-[5rem]",
-                )}
-                size='sm'
-                onClick={() =>
-                  navigate({ to: "/hub/todo", search: { type: "personal" } })
-                }>
-                Personal
-              </Button>
-            </ButtonGroup>
-          </div>
+      <React.Fragment>
+        <div className='mt-8 mb-2 flex gap-2 items-center justify-end text-xs'>
+          <ButtonGroup>
+            <Button
+              variant='outline'
+              className={cn(
+                search.type ? "text-muted-foreground" : "bg-muted",
+                "w-[5rem]",
+              )}
+              size='sm'
+              onClick={() =>
+                navigate({
+                  to: "/hub/todo",
+                  search: { type: undefined },
+                })
+              }>
+              All
+            </Button>
+            <Button
+              variant='outline'
+              className={cn(
+                search.type !== "team" ? "text-muted-foreground" : "bg-muted",
+                "w-[5rem]",
+              )}
+              size='sm'
+              onClick={() =>
+                navigate({
+                  to: "/hub/todo",
+                  search: { type: "team" },
+                })
+              }>
+              Team
+            </Button>
+            <Button
+              variant='outline'
+              className={cn(
+                search.type !== "personal"
+                  ? "text-muted-foreground"
+                  : "bg-muted",
+                "w-[5rem]",
+              )}
+              size='sm'
+              onClick={() =>
+                navigate({ to: "/hub/todo", search: { type: "personal" } })
+              }>
+              Personal
+            </Button>
+          </ButtonGroup>
+        </div>
 
-          {router.state.isLoading ? (
-            <div className='flex items-center justify-center h-16'>
-              <Loader2Icon className='size-5 animate-spin text-muted-foreground' />
-            </div>
-          ) : (
+        {router.state.location.pathname === location.pathname && // to prevent loading on page change
+        router.state.isLoading ? (
+          <div className='flex items-center justify-center h-16'>
+            <Loader2Icon className='size-5 animate-spin text-muted-foreground' />
+          </div>
+        ) : (
+          data?.length > 0 && (
             <ul
               id='todo-list'
               className='border p-2 rounded-md relative'>
@@ -318,9 +323,9 @@ function Page() {
                 </li>
               ))}
             </ul>
-          )}
-        </React.Fragment>
-      )}
+          )
+        )}
+      </React.Fragment>
     </section>
   );
 }
