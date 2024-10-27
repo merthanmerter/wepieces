@@ -38,6 +38,7 @@ import { Loader2Icon, UserRoundPlusIcon } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { PasswordInput } from "../shared/password-input";
 
 export default function UsersForm({
   initialValues,
@@ -152,10 +153,7 @@ export default function UsersForm({
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input
-                        type='password'
-                        {...field}
-                      />
+                      <PasswordInput {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

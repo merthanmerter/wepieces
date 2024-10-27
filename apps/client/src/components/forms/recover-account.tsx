@@ -26,6 +26,7 @@ import { KeyRoundIcon, Loader2Icon } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { PasswordInput } from "../shared/password-input";
 
 export default function RecoverAccountForm() {
   const { proxy } = useRootContext();
@@ -109,10 +110,7 @@ export default function RecoverAccountForm() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input
-                      type='password'
-                      {...field}
-                    />
+                    <PasswordInput {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -126,10 +124,7 @@ export default function RecoverAccountForm() {
                 <FormItem>
                   <FormLabel>Confirm Password</FormLabel>
                   <FormControl>
-                    <Input
-                      type='password'
-                      {...field}
-                    />
+                    <PasswordInput {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -143,10 +138,7 @@ export default function RecoverAccountForm() {
                 <FormItem>
                   <FormLabel>Recovery Key</FormLabel>
                   <FormControl>
-                    <Input
-                      type='password'
-                      {...field}
-                    />
+                    <PasswordInput {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
