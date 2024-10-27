@@ -2,11 +2,13 @@ import { TRPCError } from "@trpc/server";
 import {
   and,
   asc,
+  count,
   desc,
   eq,
   getTableColumns,
   gte,
   ilike,
+  lt,
   sql,
 } from "drizzle-orm";
 import {
@@ -26,6 +28,7 @@ import {
 import {
   postInsertSchema,
   postQuerySchema,
+  postReportQuerySchema,
   postUpdateSchema,
 } from "./definitions";
 
@@ -130,28 +133,25 @@ export const postsRouter = createTRPCRouter({
     return { action: "delete" };
   }),
 
-  chart: userProcedure.query(async ({ ctx }) => {
-    return await ctx.db
-      .select({
-        day: posts.createdAt,
-        total: sql<number>`count(*)`,
-      })
-      .from(posts)
-      .where(
-        and(
-          eq(posts.tenantId, ctx.session.activeTenant.id),
-          gte(
-            posts.createdAt,
-            new Date(
-              new Date().getFullYear(),
-              new Date().getMonth() - 7,
-              new Date().getDate() - 7,
-            ),
+  chart: userProcedure
+    .input(postReportQuerySchema)
+    .query(async ({ ctx, input }) => {
+      const { year, month } = input;
+      return await ctx.db
+        .select({
+          day: sql<string>`DATE_TRUNC('day', ${posts.createdAt})`.as("day"),
+          total: count(),
+        })
+        .from(posts)
+        .where(
+          and(
+            eq(posts.tenantId, ctx.session.activeTenant.id),
+            gte(posts.createdAt, new Date(year, month - 1, 1)), // Start of the month
+            lt(posts.createdAt, new Date(year, month, 1)), // Start of the next month
           ),
-        ),
-      )
-      .groupBy(posts.createdAt)
-      .orderBy(posts.createdAt)
-      .execute();
-  }),
+        )
+        .groupBy(sql`DATE_TRUNC('day', ${posts.createdAt})`)
+        .orderBy(sql`DATE_TRUNC('day', ${posts.createdAt})`)
+        .execute();
+    }),
 });

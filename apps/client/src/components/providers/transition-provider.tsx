@@ -16,7 +16,12 @@ export default function TransitionProvider({
   const previousPath = React.useRef<ParsedLocation>(state.location);
 
   React.useEffect(() => {
+    /**
+     * Now we can use pathChange
+     * @see https://github.com/TanStack/router/discussions/2638#discussion-7364807
+     */
     const unsubscribeStart = subscribe("onBeforeLoad", ({ toLocation }) => {
+      // console.log(pathChanged);
       if (previousPath.current.pathname !== toLocation.pathname) {
         setTransition(true);
         previousPath.current = toLocation;
@@ -33,7 +38,7 @@ export default function TransitionProvider({
       unsubscribeStart();
       unsubscribeResolved();
     };
-  }, [state, subscribe]);
+  }, [previousPath, subscribe]);
 
   return (
     <motion.div

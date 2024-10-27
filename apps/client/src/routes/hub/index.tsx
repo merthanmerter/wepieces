@@ -1,3 +1,4 @@
+import MonthPicker from "@/components/shared/month-picker";
 import {
   Card,
   CardContent,
@@ -12,20 +13,25 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { createFileRoute, useLoaderData } from "@tanstack/react-router";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useRootContext } from "@/hooks";
+import { postReportAtom } from "@/store/post-report";
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { useAtom } from "jotai/react";
 import { TrendingUpIcon, UsersRoundIcon } from "lucide-react";
 import React from "react";
 import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts";
 
 export const Route = createFileRoute("/hub/")({
-  component: Page,
   loader: async ({ context }) => {
-    const [posts, users] = await Promise.all([
-      context.proxy.posts.chart.query(),
-      context.proxy.users.activeUsers.query(),
-    ]);
-    return { posts, users };
+    const { year, month } = context.store.get(postReportAtom);
+    return await context.proxy.posts.chart.query({
+      year,
+      month,
+    });
   },
+  component: Page,
 });
 
 export default function Page() {
@@ -40,37 +46,76 @@ export default function Page() {
   );
 }
 
-function BarChartComponent() {
-  const { posts: data } = useLoaderData({ from: "/hub/" });
+const chartConfig = {
+  total: {
+    label: "Total",
+    color: "hsl(var(--chart-1))",
+  },
+} satisfies ChartConfig;
 
-  const chartConfig = {
-    total: {
-      label: "Total",
-      color: "hsl(var(--chart-1))",
-    },
-  } satisfies ChartConfig;
-
-  const chartData = data?.map((item) => ({
+const getChartData = (
+  data: /* this is how we infer types from loader data */ typeof Route.types.loaderData,
+) => {
+  return data?.map((item) => ({
     day: new Date(item.day).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
     }),
     total: item.total,
   }));
+};
 
+function BarChartComponent() {
+  const router = useRouter();
+  const data = Route.useLoaderData();
   const total = Number(data?.reduce((acc, curr) => acc + +curr.total, 0));
+
+  /**
+   * Demonstrates how to send custom
+   * parameters to the loader function.
+   *
+   * - `postReportAtom` is subscribed to the store
+   *   to track state changes.
+   * - Subscription happens in: `./src/store/index.ts`
+   * - Example use case: Instead of using query parameters,
+   *   this approach allows stateful updates for
+   *   tracking `month` and `year` data.
+   *   In this example, we don't want to show user
+   *   the query parameters in the URL and provide a
+   *   global state management.
+   *
+   * @file './src/store/post-report.ts'
+   */
+  const [{ month, year }, setDate] = useAtom(postReportAtom);
+  const onMonthChange = (newMonth: Date) => {
+    setDate({
+      month: newMonth.getMonth() + 1,
+      year: newMonth.getFullYear(),
+    });
+    router.invalidate();
+  };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Total Posts</CardTitle>
-        <CardDescription>Total number of posts created</CardDescription>
+        <div className='flex items-center justify-between gap-2'>
+          <div>
+            <CardTitle className='flex items-center gap-2'>
+              Total Posts
+            </CardTitle>
+            <CardDescription>Total number of posts created</CardDescription>
+          </div>
+          <MonthPicker
+            currentMonth={new Date(year, month - 1, 1)}
+            onMonthChange={onMonthChange}
+          />
+        </div>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
           <BarChart
             accessibilityLayer
-            data={chartData}
+            data={getChartData(data)}
             margin={{
               top: 20,
             }}>
@@ -101,11 +146,11 @@ function BarChartComponent() {
       </CardContent>
       <CardFooter className='flex-col items-start gap-2 text-sm'>
         <div className='flex gap-2 font-medium leading-none'>
-          Total {total} {total > 1 ? "posts" : "post"} created this week.{" "}
+          Total {total} {total > 1 ? "posts" : "post"} created this month.{" "}
           <TrendingUpIcon className='size-4' />
         </div>
         <div className='leading-none text-muted-foreground'>
-          Showing data for the last 7 days
+          Showing data for {month} / {year}
         </div>
       </CardFooter>
     </Card>
@@ -113,7 +158,13 @@ function BarChartComponent() {
 }
 
 function ActiveUsersComponent() {
-  const { users: data } = useLoaderData({ from: "/hub/" });
+  const context = useRootContext();
+  const { data, status } = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      return await context.proxy.users.activeUsers.query();
+    },
+  });
 
   return (
     <Card>
@@ -125,20 +176,39 @@ function ActiveUsersComponent() {
       </CardHeader>
       <CardContent>
         <ul className='flex flex-col gap-2'>
-          {data.map((user) => (
-            <li
-              key={user.id}
-              className='flex items-center gap-2'>
-              <div className='bg-green-500 rounded-full size-3 animate-pulse' />
-              <span className='leading-none text-sm font-medium'>
-                {user.username}
-              </span>
-            </li>
-          ))}
+          {status === "success" ? (
+            data.map((user) => (
+              <li
+                key={user.id}
+                className='flex items-center gap-2'>
+                <div className='bg-green-500 rounded-full size-3 animate-pulse' />
+                <span className='leading-none text-sm font-medium'>
+                  {user.username}
+                </span>
+              </li>
+            ))
+          ) : (
+            <div className='flex flex-col gap-2'>
+              {Array.from({ length: 3 }).map((_, idx) => (
+                <div
+                  className='flex items-center gap-2'
+                  key={idx}>
+                  <Skeleton className='size-3 rounded-full' />
+                  <Skeleton className='h-3 w-32 rounded-md' />
+                </div>
+              ))}
+            </div>
+          )}
         </ul>
       </CardContent>
       <CardFooter className='flex-col items-start gap-2 text-sm'>
-        Total {data.length} active {data.length > 1 ? "users" : "user"}
+        {status === "success" && data?.length > 0 ? (
+          <>
+            Total {data?.length} active {data.length > 1 ? "users" : "user"}
+          </>
+        ) : (
+          <Skeleton className='h-3 w-32 rounded-md' />
+        )}
       </CardFooter>
     </Card>
   );

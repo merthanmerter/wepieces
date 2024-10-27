@@ -22,3 +22,21 @@ export const postUpdateSchema = postInsertSchema
     id: z.string(),
   })
   .omit({});
+
+export const postReportQuerySchema = z
+  .object({
+    year: z.coerce
+      .number()
+      .min(1970)
+      .max(2100)
+      .optional()
+      .default(new Date().getFullYear()),
+    month: z.coerce
+      .number()
+      .min(1)
+      .max(12)
+      .optional()
+      .default(new Date().getMonth() + 1),
+  })
+  .optional()
+  .default({});
