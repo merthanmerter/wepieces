@@ -49,7 +49,7 @@ export default function Page() {
   return (
     <React.Fragment>
       <h1 className='font-bold text-xl mb-4'>Hub Dashboard</h1>
-      <div className='grid lg:grid-cols-[1fr_1fr] gap-4 items-start'>
+      <div className='grid lg:grid-cols-[3fr_1fr] gap-4 items-start'>
         <Await
           promise={data}
           fallback={<BarChartSkeleton />}>
