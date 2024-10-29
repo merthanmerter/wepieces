@@ -17,14 +17,14 @@ export default function useAuth() {
   const setAuth = useSetAtom(authAtom);
 
   const login = useMutation({
-    mutationFn: async (data: Pick<SelectUser, "username" | "password">) => {
-      return await proxy.auth.login
+    mutationFn: (data: Pick<SelectUser, "username" | "password">) => {
+      return proxy.auth.login
         .mutate({ username: data.username, password: data.password })
         .catch((err) => {
           throw err;
         });
     },
-    onSuccess: async (data) => {
+    onSuccess: (data) => {
       setAuth(data.credentials);
       router.invalidate();
       router.clearCache();
@@ -40,10 +40,8 @@ export default function useAuth() {
   });
 
   const validate = useMutation({
-    mutationFn: async () => {
-      return await proxy.auth.validate.mutate();
-    },
-    onSuccess: async (data) => setAuth(data.credentials),
+    mutationFn: () => proxy.auth.validate.mutate(),
+    onSuccess: (data) => setAuth(data.credentials),
     onError: () => {
       setAuth(null);
       navigate({ to: NAVIGATE_TO.login });
@@ -51,10 +49,8 @@ export default function useAuth() {
   });
 
   const refresh = useMutation({
-    mutationFn: async () => {
-      return await proxy.auth.refresh.mutate();
-    },
-    onSuccess: async (data) => {
+    mutationFn: () => proxy.auth.refresh.mutate(),
+    onSuccess: (data) => {
       setAuth(data.credentials);
     },
     onError: () => {
@@ -64,16 +60,12 @@ export default function useAuth() {
   });
 
   const logout = useMutation({
-    mutationFn: async ({ allDevices }: { allDevices: boolean }) => {
-      return await proxy.auth.logout
-        .mutate({
-          allDevices,
-        })
-        .catch((err) => {
-          throw err;
-        });
+    mutationFn: ({ allDevices }: { allDevices: boolean }) => {
+      return proxy.auth.logout.mutate({
+        allDevices,
+      });
     },
-    onSuccess: async () => {
+    onSuccess: () => {
       setAuth(null);
       navigate({ to: NAVIGATE_TO.login });
       toast.success("Logged out successfully");

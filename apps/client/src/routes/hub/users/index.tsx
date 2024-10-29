@@ -41,7 +41,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/hub/users/")({
   validateSearch: zodSearchValidator(userQuerySchema),
   loaderDeps: ({ search }) => search,
-  loader: ({ context, deps }) => context.proxy.users.list.query(deps),
+  loader: ({ context: { proxy }, deps }) => proxy.users.list.query(deps),
   component: Page,
 });
 
@@ -65,10 +65,10 @@ function Page() {
   });
 
   const dismissFn = useMutation({
-    mutationFn: async (id: string) => {
-      return await proxy.users.dismiss.mutate({ id });
+    mutationFn: (id: string) => {
+      return proxy.users.dismiss.mutate({ id });
     },
-    onSuccess: async () => {
+    onSuccess: () => {
       invalidate();
       updateAction({ dismiss: false });
       toast.success(MESSAGES.success);
@@ -79,10 +79,10 @@ function Page() {
   });
 
   const resetPasswordFn = useMutation({
-    mutationFn: async (id: string) => {
-      return await proxy.users.resetPassword.mutate({ id });
+    mutationFn: (id: string) => {
+      return proxy.users.resetPassword.mutate({ id });
     },
-    onSuccess: async (res) => {
+    onSuccess: (res) => {
       if (res.recoveryId) {
         updateAction({ recoveryCode: res.recoveryId });
       }

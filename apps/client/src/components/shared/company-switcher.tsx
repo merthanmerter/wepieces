@@ -36,17 +36,17 @@ export function CompanySwitcher() {
   const [workspace, setWorkspace] = React.useState(auth?.activeTenant);
 
   const changeActiveTenant = useMutation({
-    mutationFn: async (data: Pick<SelectTenant, "id">) => {
-      return await proxy.auth.changeActiveTenant.mutate(data);
+    mutationFn: (data: Pick<SelectTenant, "id">) => {
+      return proxy.auth.changeActiveTenant.mutate(data);
     },
-    onSuccess: async (res) => {
+    onSuccess: (res) => {
       /**
        * Empty all cached matches since
        * we are changing the active tenant
        * and we don't want to show the stale data.
        * @see https://github.com/TanStack/router/discussions/2567
        */
-      await navigate({
+      navigate({
         to: "/hub",
         invalidate: false,
         clearCache: {

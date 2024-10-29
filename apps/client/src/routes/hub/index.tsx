@@ -17,29 +17,46 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useRootContext } from "@/hooks";
 import { postReportAtom } from "@/store/post-report";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import {
+  Await,
+  createFileRoute,
+  defer,
+  useRouter,
+} from "@tanstack/react-router";
 import { useAtom } from "jotai/react";
 import { TrendingUpIcon, UsersRoundIcon } from "lucide-react";
 import React from "react";
 import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts";
 
 export const Route = createFileRoute("/hub/")({
-  loader: async ({ context }) => {
-    const { year, month } = context.store.get(postReportAtom);
-    return await context.proxy.posts.chart.query({
-      year,
-      month,
-    });
+  loader: ({ context: { proxy, store } }) => {
+    const { year, month } = store.get(postReportAtom);
+    return {
+      data: defer(
+        proxy.posts.chart.query({
+          year,
+          month,
+        }),
+      ),
+    };
   },
   component: Page,
 });
 
 export default function Page() {
+  const { data } = Route.useLoaderData();
+
   return (
     <React.Fragment>
       <h1 className='font-bold text-xl mb-4'>Hub Dashboard</h1>
       <div className='grid lg:grid-cols-[3fr_1fr] gap-4 items-start'>
-        <BarChartComponent />
+        <Await
+          promise={data}
+          fallback={<></>}>
+          {(data) => {
+            return <BarChartComponent data={data} />;
+          }}
+        </Await>
         <ActiveUsersComponent />
       </div>
     </React.Fragment>
@@ -53,9 +70,9 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const getChartData = (
-  data: /* this is how we infer types from loader data */ typeof Route.types.loaderData,
-) => {
+type ChartData = Awaited<typeof Route.types.loaderData.data>; // this is how we infer types from loader data
+
+const getChartData = (data: ChartData) => {
   return data?.map((item) => ({
     day: new Date(item.day).toLocaleDateString("en-US", {
       month: "short",
@@ -65,9 +82,8 @@ const getChartData = (
   }));
 };
 
-function BarChartComponent() {
+function BarChartComponent({ data }: { data: ChartData }) {
   const router = useRouter();
-  const data = Route.useLoaderData();
   const total = Number(data?.reduce((acc, curr) => acc + +curr.total, 0));
 
   /**
@@ -161,9 +177,7 @@ function ActiveUsersComponent() {
   const context = useRootContext();
   const { data, status } = useQuery({
     queryKey: ["users"],
-    queryFn: async () => {
-      return await context.proxy.users.activeUsers.query();
-    },
+    queryFn: () => context.proxy.users.activeUsers.query(),
   });
 
   return (

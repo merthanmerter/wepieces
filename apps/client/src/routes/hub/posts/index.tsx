@@ -10,7 +10,7 @@ import PostsForm from "../../../components/forms/posts";
 export const Route = createFileRoute("/hub/posts/")({
   validateSearch: zodSearchValidator(postQuerySchema),
   loaderDeps: ({ search }) => search,
-  loader: ({ context, deps }) => context.proxy.posts.list.query(deps),
+  loader: ({ context: { proxy }, deps }) => proxy.posts.list.query(deps),
   component: Page,
 });
 

@@ -51,7 +51,7 @@ import { useForm } from "react-hook-form";
 export const Route = createFileRoute("/hub/todo/")({
   validateSearch: zodSearchValidator(todoQuerySchema),
   loaderDeps: ({ search }) => search,
-  loader: ({ context, deps }) => context.proxy.todo.list.query(deps),
+  loader: ({ context: { proxy }, deps }) => proxy.todo.list.query(deps),
   component: Page,
 });
 

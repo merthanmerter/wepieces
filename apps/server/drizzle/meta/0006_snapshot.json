@@ -64,12 +64,8 @@
           "name": "wepieces_posts_created_by_wepieces_users_id_fk",
           "tableFrom": "wepieces_posts",
           "tableTo": "wepieces_users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -77,12 +73,8 @@
           "name": "wepieces_posts_updated_by_wepieces_users_id_fk",
           "tableFrom": "wepieces_posts",
           "tableTo": "wepieces_users",
-          "columnsFrom": [
-            "updated_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -90,12 +82,8 @@
           "name": "wepieces_posts_tenant_wepieces_tenants_id_fk",
           "tableFrom": "wepieces_posts",
           "tableTo": "wepieces_tenants",
-          "columnsFrom": [
-            "tenant"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -134,9 +122,7 @@
         "wepieces_tenants_name_unique": {
           "name": "wepieces_tenants_name_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
+          "columns": ["name"]
         }
       }
     },
@@ -188,12 +174,8 @@
           "name": "wepieces_users_active_tenant_wepieces_tenants_id_fk",
           "tableFrom": "wepieces_users",
           "tableTo": "wepieces_tenants",
-          "columnsFrom": [
-            "active_tenant"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["active_tenant"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -203,16 +185,12 @@
         "wepieces_users_username_unique": {
           "name": "wepieces_users_username_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "username"
-          ]
+          "columns": ["username"]
         },
         "wepieces_users_email_unique": {
           "name": "wepieces_users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       }
     },
@@ -246,12 +224,8 @@
           "name": "wepieces_users_tenants_user_id_wepieces_users_id_fk",
           "tableFrom": "wepieces_users_tenants",
           "tableTo": "wepieces_users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -259,12 +233,8 @@
           "name": "wepieces_users_tenants_tenant_id_wepieces_tenants_id_fk",
           "tableFrom": "wepieces_users_tenants",
           "tableTo": "wepieces_tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }

@@ -18,8 +18,8 @@ import PostsForm from "../../../components/forms/posts";
 
 export const Route = createFileRoute("/hub/posts/$id")({
   component: Page,
-  loader: ({ context, params: { id } }) =>
-    context.proxy.posts.find.query({ id }),
+  loader: ({ context: { proxy }, params: { id } }) =>
+    proxy.posts.find.query({ id }),
 });
 
 function Page() {

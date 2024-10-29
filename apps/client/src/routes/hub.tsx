@@ -15,9 +15,13 @@ import { RootContext } from "./__root";
  * Don't use this function in root component as it will cause an infinite loop.
  * @see https://github.com/TanStack/router/issues/1295#issuecomment-2005280746
  */
-const beforeLoad = async ({ context }: { context: RootContext }) => {
-  const [err, res] = await $catch(context.proxy.auth.refresh.mutate());
-  context.store.set(authAtom, err ? null : res.credentials);
+const beforeLoad = async ({
+  context: { proxy, store },
+}: {
+  context: RootContext;
+}) => {
+  const [err, res] = await $catch(proxy.auth.refresh.mutate());
+  store.set(authAtom, err ? null : res.credentials);
   if (err) throw redirect({ to: "/login" });
 };
 

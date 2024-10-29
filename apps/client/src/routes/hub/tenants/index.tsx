@@ -33,7 +33,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/hub/tenants/")({
   validateSearch: zodSearchValidator(tenantQuerySchema),
   loaderDeps: ({ search }) => search,
-  loader: ({ context, deps }) => context.proxy.tenants.list.query(deps),
+  loader: ({ context: { proxy }, deps }) => proxy.tenants.list.query(deps),
   component: Page,
 });
 
@@ -53,10 +53,10 @@ function Page() {
   });
 
   const deleteFn = useMutation({
-    mutationFn: async (id: string) => {
-      return await proxy.tenants.delete.mutate({ id });
+    mutationFn: (id: string) => {
+      return proxy.tenants.delete.mutate({ id });
     },
-    onSuccess: async () => {
+    onSuccess: () => {
       invalidate();
       updateAction({ remove: false });
       toast.success(MESSAGES.success);

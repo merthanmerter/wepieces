@@ -9,10 +9,12 @@
     "dev": "bun run --filter '*' dev",
     "docker:dev": "docker-compose -f docker-compose.local.yaml up -d",
     "migrate": "bun run index.ts --migrate",
-    "clean": "rm -f bun.lockb && bun install"
+    "clean": "rm -f bun.lockb && bun install",
+    "format": "prettier --write ."
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "prettier": "3.3.3"
   },
   "peerDependencies": {
     "typescript": "^5.6.3"
