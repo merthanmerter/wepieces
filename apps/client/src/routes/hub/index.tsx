@@ -49,10 +49,10 @@ export default function Page() {
   return (
     <React.Fragment>
       <h1 className='font-bold text-xl mb-4'>Hub Dashboard</h1>
-      <div className='grid lg:grid-cols-[3fr_1fr] gap-4 items-start'>
+      <div className='grid lg:grid-cols-[1fr_1fr] gap-4 items-start'>
         <Await
           promise={data}
-          fallback={<></>}>
+          fallback={<BarChartSkeleton />}>
           {(data) => {
             return <BarChartComponent data={data} />;
           }}
@@ -168,6 +168,29 @@ function BarChartComponent({ data }: { data: ChartData }) {
         <div className='leading-none text-muted-foreground'>
           Showing data for {month} / {year}
         </div>
+      </CardFooter>
+    </Card>
+  );
+}
+
+function BarChartSkeleton() {
+  return (
+    <Card>
+      <CardHeader>
+        <div className='flex items-center justify-between gap-2'>
+          <div>
+            <Skeleton className='h-4 w-24' />
+            <Skeleton className='h-4 mt-1 w-48' />
+          </div>
+          <Skeleton className='h-8 w-24' />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <Skeleton className='aspect-video w-full' />
+      </CardContent>
+      <CardFooter className='flex-col items-start gap-2 text-sm'>
+        <Skeleton className='h-4 w-48' />
+        <Skeleton className='h-3.5 w-32' />
       </CardFooter>
     </Card>
   );
