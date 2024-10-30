@@ -62,6 +62,10 @@ app.use(
 
 app.use("*", serveStatic({ root: "./dist" }));
 app.use("*", serveStatic({ path: "./dist/index.html" }));
+app.use("/assets/*", async (c, next) => {
+  c.header("Cache-Control", "public, max-age=31536000, immutable");
+  await next();
+});
 app.use("/assets/*", serveStatic({ root: "./dist/assets" }));
 app.use("/favicon.ico", serveStatic({ path: "./dist/favicon.ico" }));
 

@@ -23,7 +23,7 @@ FROM dependencies AS server-build
 WORKDIR /app/apps/server
 
 # Build the server binary
-RUN bun build --compile --target=bun-linux-x64 ./index.ts --outfile server
+RUN bun build --compile --target=bun-linux-x64 ./index.ts --outfile server --minify
 
 # Stage 4: Final runtime stage
 FROM oven/bun:latest AS runtime
