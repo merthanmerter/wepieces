@@ -59,7 +59,15 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <CompanySwitcher />
-              <SidebarSeparator className='px-0 mx-0' />
+              {/* <SidebarSeparator
+                className={cn("px-0 mx-0", sidebar.state === "collapsed" && "mt-1 w-8")}
+              /> */}
+              <SidebarSeparator
+                className={cn(
+                  "px-0 mx-0",
+                  sidebar.state === "collapsed" && "mt-1 ",
+                )}
+              />
               {sidebar.state === "expanded" && (
                 <SearchInput
                   value={search}
