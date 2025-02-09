@@ -1,10 +1,10 @@
+import { AppSidebar } from "@/components/app-sidebar";
+import Breadcrumbs from "@/components/breadcrumbs";
 import TransitionProvider from "@/components/providers/transition-provider";
-import { AppSidebar } from "@/components/shared/app-sidebar";
-import Breadcrumbs from "@/components/shared/breadcrumbs";
 import { Separator } from "@/components/ui/separator";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { authAtom } from "@/store/auth";
-import { $catch } from "@app/server/src/lib/catch-error";
+import { $catch } from "@server/lib/catch-error";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { RootContext } from "./__root";
 
@@ -36,7 +36,7 @@ export default function Root() {
       <AppSidebar />
       <main>
         <header className='flex h-12 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12'>
-          <div className='flex items-center gap-2 px-4'>
+          <div className='flex items-center gap-2 px-4 print:hidden'>
             <SidebarTrigger className='-ml-1' />
             <Separator
               orientation='vertical'

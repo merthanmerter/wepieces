@@ -1,4 +1,5 @@
 import { LinkProps, useRouter } from "@tanstack/react-router";
+import React from "react";
 
 /**
  * Asynchronously navigates to the given route, allowing us to invalidate
@@ -20,8 +21,9 @@ type AsyncNavigateOptions = {
   callback?: () => void;
 };
 
-export default function useAsyncNavigate() {
+export function useAsyncNavigate() {
   const router = useRouter();
+  const [isPending, setPending] = React.useState(false);
   const navigateAsync = async ({
     to,
     search,
@@ -34,15 +36,25 @@ export default function useAsyncNavigate() {
       router.clearExpiredCache();
     }
 
-    await router.navigate({ to, search }).then(() => {
-      if (invalidate) router.invalidate();
-      if (clearCache.after) {
-        router.clearCache();
-        router.clearExpiredCache();
-      }
-      callback?.();
-    });
+    // await router.navigate({ to, search }).then(() => {
+    //   if (invalidate) router.invalidate();
+    //   if (clearCache.after) {
+    //     router.clearCache();
+    //     router.clearExpiredCache();
+    //   }
+    //   callback?.();
+    // });
+
+    setPending(true);
+    await router.navigate({ to, search });
+    if (invalidate) router.invalidate();
+    if (clearCache.after) {
+      router.clearCache();
+      router.clearExpiredCache();
+    }
+    setPending(false);
+    callback?.();
   };
 
-  return navigateAsync;
+  return { navigate: navigateAsync, isPending };
 }

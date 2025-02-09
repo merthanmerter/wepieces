@@ -1,6 +1,6 @@
 import { useRouteContext } from "@tanstack/react-router";
 
-export default function useRootContext() {
+export function useRootContext() {
   const ctx = useRouteContext({ from: "__root__" });
   return ctx;
 }

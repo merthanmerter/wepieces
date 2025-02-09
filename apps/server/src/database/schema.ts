@@ -2,8 +2,7 @@ import { relations } from "drizzle-orm";
 import * as t from "drizzle-orm/pg-core";
 import { customAlphabet } from "nanoid";
 
-const appName = "wepieces";
-const pgTable = t.pgTableCreator((name) => `${appName}_${name}`);
+const pgTable = t.pgTableCreator((name) => `${name}`);
 export const nanoid = customAlphabet(
   "0123456789abcdefghijklmnopqrstuvwxyz",
   20,
@@ -54,10 +53,14 @@ export type SelectUserWithRole = SelectUser & {
 };
 export type SelectPublicUser = Omit<
   SelectUser,
-  "password" | "activeTenantId" | "recoveryCode"
+  "password" | "activeTenantId" | "recoveryCode" | "email"
 >;
 export type SelectPublicUserWithRole = SelectPublicUser & {
   role: SelectUsersTenants["role"];
+};
+type WithUser<T> = Omit<T, "createdBy" | "updatedBy"> & {
+  createdBy: SelectPublicUser;
+  updatedBy: SelectPublicUser;
 };
 
 export const sessions = pgTable("session", {
@@ -120,33 +123,3 @@ export const userTenantsRelations = relations(usersTenants, ({ one }) => ({
     references: [users.id],
   }),
 }));
-
-export const posts = pgTable("posts", {
-  ...baseSchema,
-  title: t.text("title").notNull(),
-  content: t.text("content").notNull(),
-});
-
-export type InsertPost = typeof posts.$inferInsert;
-export type SelectPost = typeof posts.$inferSelect;
-export type SelectPostWithUser = Omit<SelectPost, "createdBy" | "updatedBy"> & {
-  createdBy: SelectPublicUser;
-  updatedBy: SelectPublicUser;
-};
-
-export const todo = pgTable("todo", {
-  ...baseSchema,
-  title: t.varchar("title", { length: 100 }).notNull(),
-  completed: t.boolean("completed").default(false),
-  type: t
-    .varchar("type", { enum: ["personal", "team"] })
-    .default("personal")
-    .notNull(),
-});
-
-export type InsertTodo = typeof todo.$inferInsert;
-export type SelectTodo = typeof todo.$inferSelect;
-export type SelectTodoWithUser = Omit<SelectTodo, "createdBy" | "updatedBy"> & {
-  createdBy: SelectPublicUser;
-  updatedBy: SelectPublicUser;
-};

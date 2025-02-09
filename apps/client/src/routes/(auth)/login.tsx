@@ -1,5 +1,5 @@
-import RecoverAccountForm from "@/components/forms/recover-account";
-import { PasswordInput } from "@/components/shared/password-input";
+import { PasswordInput } from "@/components/password-input";
+import RecoverAccountForm from "@/components/recover-account";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -10,10 +10,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/hooks";
+import { useAuth } from "@/hooks/use-auth";
 import { authAtom } from "@/store/auth";
-import { authLoginSchema } from "@app/server/src/api/routers/auth/definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { authLoginSchema } from "@server/api/routers/auth/definitions";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";

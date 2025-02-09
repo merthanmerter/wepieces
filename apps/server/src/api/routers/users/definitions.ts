@@ -1,8 +1,8 @@
+import { MESSAGES } from "@server/constants";
+import { users } from "@server/database/schema";
+import { paginationSchema } from "@server/lib/utils";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-import { MESSAGES } from "../../../constants";
-import { users } from "../../../database/schema";
-import { paginationSchema } from "../../../lib/utils";
 
 export const passwordValidation = new RegExp(
   /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,

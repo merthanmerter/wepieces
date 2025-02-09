@@ -1,1 +1,0 @@
-ALTER TABLE "wepieces_users_tenants" ADD COLUMN "role" varchar DEFAULT 'user' NOT NULL;

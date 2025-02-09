@@ -1,13 +1,10 @@
-import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
-import { z } from "zod";
 import {
   createTRPCRouter,
   publicProcedure,
   userProcedure,
-} from "../../../api/trpc";
-import { MESSAGES } from "../../../constants";
-import { users } from "../../../database/schema";
+} from "@server/api/trpc";
+import { MESSAGES } from "@server/constants";
+import { users } from "@server/database/schema";
 import {
   AUTH_COOKIE_OPTS,
   createAuthSession,
@@ -17,7 +14,10 @@ import {
   secureCredentials,
   validateAuthSession,
   verifyPassword,
-} from "../../../lib/auth";
+} from "@server/lib/auth";
+import { TRPCError } from "@trpc/server";
+import { eq } from "drizzle-orm";
+import { z } from "zod";
 import {
   authLoginSchema,
   authLogoutSchema,
@@ -98,7 +98,7 @@ export const authRouter = createTRPCRouter({
     session.role = user.role;
     session.activeTenant = user.activeTenant;
     session.tenants = user.tenants;
-    session.exp = AUTH_COOKIE_OPTS.expires!.getTime() / 1000;
+    session.exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24;
 
     await createAuthSession(ctx.appContext, session);
 

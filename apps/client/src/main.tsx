@@ -1,3 +1,6 @@
+import { ThemeProvider } from "@/components/providers/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { proxy } from "@/trpc";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
@@ -7,9 +10,6 @@ import ReactDOM from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import "unfonts.css";
 import "./assets/styles/index.css";
-import { ThemeProvider } from "./components/providers/theme-provider";
-import { Toaster } from "./components/ui/sonner";
-import { TooltipProvider } from "./components/ui/tooltip";
 import { routeTree } from "./routeTree.gen";
 import { ErrorBoundary } from "./routes/__root";
 import store from "./store";
@@ -50,11 +50,7 @@ if (!rootElement.innerHTML) {
     <StrictMode>
       <JotaiProvider store={store}>
         <QueryClientProvider client={queryClient}>
-          <ThemeProvider
-            attribute='class'
-            defaultTheme='system'
-            enableSystem
-            disableTransitionOnChange>
+          <ThemeProvider>
             <TooltipProvider>
               <HelmetProvider>
                 <RouterProvider router={router} />

@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import { z } from "zod";
 
 export const idSchema = z.object({ id: z.string() });
@@ -6,7 +7,7 @@ export const paramsSchema = z.object({
   id: z.string(),
 });
 
-export const DEFAULT_PAGINATION_LIMIT = 20;
+export const DEFAULT_PAGINATION_LIMIT = 25;
 export const paginationSchema = z.object({
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).default(DEFAULT_PAGINATION_LIMIT),
@@ -20,6 +21,7 @@ export type TMeta = {
   totalPages: number;
   hasPrev: boolean;
   hasNext: boolean;
+  requestId?: string;
 };
 
 export const paginationMetaFactory = (pagination: {
@@ -36,6 +38,7 @@ export const paginationMetaFactory = (pagination: {
     totalPages: +totalPages,
     hasPrev: +page > 1,
     hasNext: +page < totalPages,
+    requestId: nanoid(),
   } satisfies TMeta;
 };
 
@@ -59,4 +62,9 @@ export const resolvedQueryParams = <T extends Record<string, unknown>>(
     page,
     // paramsMap,
   };
+};
+
+export const createTimestampKey = (date?: Date) => {
+  const now = date || new Date();
+  return `${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}${String(now.getFullYear()).slice(-2)}${String(now.getHours()).padStart(2, "0")}${String(now.getMinutes()).padStart(2, "0")}${String(now.getSeconds()).padStart(2, "0")}`;
 };

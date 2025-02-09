@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks";
+import { useAuth } from "@/hooks/use-auth";
 import { authAtom } from "@/store/auth";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { RootContext } from "../__root";

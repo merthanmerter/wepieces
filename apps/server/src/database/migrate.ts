@@ -70,7 +70,7 @@ export const migrate = async () => {
   } catch (error) {}
 
   console.log(`  [\x1b[32m✓\x1b[0m] Database migration completed`);
-  // process.exit(0);
+  process.exit(0);
 };
 
-// migrate();
+migrate();

@@ -1,14 +1,14 @@
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import { default as react } from "@vitejs/plugin-react";
 import path from "path";
-import Unfonts from "unplugin-fonts/vite";
+import unfonts from "unplugin-fonts/vite";
 import { defineConfig } from "vite";
 export default defineConfig(() => {
   return {
     plugins: [
       react(),
       TanStackRouterVite(),
-      Unfonts({
+      unfonts({
         custom: {
           families: [
             {
@@ -97,7 +97,7 @@ export default defineConfig(() => {
       port: 4000,
       proxy: {
         "/api": {
-          target: "http://127.0.0.1:5000",
+          target: "http://127.0.0.1:3000",
           changeOrigin: true,
           secure: true,
         },
@@ -106,10 +106,11 @@ export default defineConfig(() => {
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
+        "@server": path.resolve(__dirname, "../server/src"),
       },
     },
     optimizeDeps: {
-      include: [],
+      force: true,
     },
   };
 });

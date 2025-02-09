@@ -1,24 +1,22 @@
 {
-  "name": "@app",
+  "name": "app",
   "module": "index.ts",
-  "type": "module",
+  "devDependencies": {
+    "prettier": "3.4.2"
+  },
   "private": true,
   "scripts": {
+    "dev": "NODE_ENV=development bun run --filter '*' dev",
+    "build": "docker build -t wepieces_v1 . && docker-compose up -d --build --force-recreate",
     "up": "docker-compose up -d",
-    "build": "docker-compose up -d --build --force-recreate",
-    "dev": "bun run --filter '*' dev",
-    "docker:dev": "docker-compose -f docker-compose.local.yaml up -d",
-    "migrate": "bun run index.ts --migrate",
+    "logs": "docker-compose logs -f",
     "clean": "rm -f bun.lockb && bun install",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "generate": "drizzle-kit generate --dialect=postgresql --schema=apps/server/src/database/schema.ts --out=./drizzle",
+    "migrate": "bun --env-file=.env apps/server/src/database/migrate.ts",
+    "update": "bunx npm-check-updates -u"
   },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "prettier": "3.3.3"
-  },
-  "peerDependencies": {
-    "typescript": "^5.6.3"
-  },
+  "type": "module",
   "workspaces": [
     "apps/*",
     "packages/*"

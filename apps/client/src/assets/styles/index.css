@@ -16,6 +16,7 @@
     --secondary-foreground: 240 5.9% 10%;
     --muted: 240 5% 92%;
     --muted-foreground: 240 3.8% 46.1%;
+    --muted-hover: 240 5% 90%;
     --accent: 240 5% 92%;
     --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
@@ -28,7 +29,7 @@
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 224.3 76.3% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 5% 92%;
+    --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
@@ -52,6 +53,7 @@
     --secondary-foreground: 0 0% 98%;
     --muted: 240 10% 25%;
     --muted-foreground: 240 5% 64.9%;
+    --muted-hover: 240 10% 30%;
     --accent: 240 10% 25%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
@@ -60,12 +62,12 @@
     --input: 240 10% 25%;
     --ring: 240 4.9% 83.9%;
     --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 5% 92%;
+    --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 10% 25%;
-    --sidebar-accent-foreground: 240 5% 92%;
-    --sidebar-border: 240 10% 25%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
     --chart-1: 220 70% 50%;
     --chart-5: 160 60% 45%;
@@ -77,7 +79,7 @@
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border print:text-black;
   }
   body {
     @apply bg-background text-foreground;
@@ -108,5 +110,14 @@
 
   .scrollbar::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--muted-hover));
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }

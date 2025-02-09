@@ -1,36 +1,34 @@
 {
-  "name": "@app/server",
-  "displayName": "WEPIECES",
-  "version": "1.0.0",
-  "module": "index.ts",
-  "types": "index.ts",
-  "main": "index.ts",
-  "type": "module",
-  "scripts": {
-    "start": "bun --env-file=../../.env index.ts",
-    "dev": "bun --env-file=../../.env --watch index.ts",
-    "db:generate": "drizzle-kit generate --dialect=postgresql --schema=src/database/schema.ts --out=./drizzle",
-    "db:migrate": "bun --env-file=../../.env ./src/database/migrate.ts",
-    "db:drop": "bunx drizzle-kit drop"
+  "dependencies": {
+    "@hono/trpc-server": "^0.3.4",
+    "@hono/zod-validator": "^0.4.2",
+    "@neondatabase/serverless": "^0.10.4",
+    "@t3-oss/env-nextjs": "^0.12.0",
+    "drizzle-orm": "^0.39.2",
+    "drizzle-zod": "^0.7.0",
+    "hono": "^4.7.0",
+    "jose": "^5.9.6",
+    "nanoid": "^5.0.9",
+    "postgres": "^3.4.5",
+    "superjson": "^2.2.2",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "drizzle-kit": "^0.25.0"
+    "drizzle-kit": "^0.30.4"
   },
+  "displayName": "EIS",
+  "main": "index.ts",
+  "module": "index.ts",
+  "name": "server",
   "peerDependencies": {
-    "typescript": "^5.6.3"
+    "typescript": "^5.7.3"
   },
-  "dependencies": {
-    "@hono/trpc-server": "^0.3.2",
-    "@hono/zod-validator": "^0.2.2",
-    "@t3-oss/env-nextjs": "^0.11.1",
-    "drizzle-orm": "^0.34.1",
-    "drizzle-zod": "^0.5.1",
-    "hono": "^4.6.8",
-    "jose": "^5.9.6",
-    "nanoid": "^5.0.8",
-    "postgres": "^3.4.5",
-    "superjson": "^2.2.1",
-    "zod": "^3.23.8"
-  }
+  "scripts": {
+    "build": "bun build --env-file=../../.env index.ts --compile --outfile start",
+    "dev": "bun --env-file=../../.env --watch index.ts"
+  },
+  "type": "module",
+  "types": "index.ts",
+  "version": "3.0.0"
 }

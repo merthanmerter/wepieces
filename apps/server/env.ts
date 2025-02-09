@@ -3,9 +3,9 @@ import { z } from "zod";
 
 export const env = createEnv({
   server: {
+    PORT: z.coerce.number().min(1).max(65535),
     DOMAIN: z.string(),
     SECRET: z.string(),
-    NODE_ENV: z.enum(["development", "production"]),
     SUPERADMIN_USERNAME: z.string(),
     SUPERADMIN_EMAIL: z.string(),
     SUPERADMIN_PASSWORD: z.string(),
@@ -17,10 +17,9 @@ export const env = createEnv({
   },
   runtimeEnv: {
     // Server settings
+    PORT: Bun.env.PORT,
     DOMAIN: Bun.env.DOMAIN,
     SECRET: Bun.env.SECRET,
-    NODE_ENV: Bun.env.NODE_ENV,
-
     // Super admin credentials
     SUPERADMIN_USERNAME: Bun.env.SUPERADMIN_USERNAME,
     SUPERADMIN_EMAIL: Bun.env.SUPERADMIN_EMAIL,

@@ -8,9 +8,8 @@ import { users } from "./schema";
  */
 function getSafeUserColumns(userAlias: typeof users) {
   return {
-    id: userAlias.id,
-    username: userAlias.username,
-    email: userAlias.email,
+    id: userAlias?.id,
+    username: userAlias?.username,
   };
 }
 

@@ -1,6 +1,5 @@
-import InviteUserForm from "@/components/forms/invite-user";
-import UsersForm from "@/components/forms/users";
-import DataTable from "@/components/shared/data-table";
+import DataTable from "@/components/data-table";
+import InviteUserForm from "@/components/invite-user";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,10 +19,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { useCopyToClipboard, useRootContext } from "@/hooks";
-import { ActionDispatch } from "@/lib/dispatches";
-import { userQuerySchema } from "@app/server/src/api/routers/users/definitions";
-import { MESSAGES } from "@app/server/src/constants";
+import UsersForm from "@/components/users-form";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+import { useRootContext } from "@/hooks/use-root-context";
+import { DispatchAction } from "@/lib/dispatches";
+import { userQuerySchema } from "@server/api/routers/users/definitions";
+import { MESSAGES } from "@server/constants";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { zodSearchValidator } from "@tanstack/router-zod-adapter";
@@ -57,7 +58,7 @@ function Page() {
   const { proxy } = useRootContext();
   const { invalidate } = useRouter();
 
-  const [action, updateAction] = React.useReducer(ActionDispatch<Actions>, {
+  const [action, updateAction] = React.useReducer(DispatchAction<Actions>, {
     update: false,
     dismiss: false,
     resetPassword: false,

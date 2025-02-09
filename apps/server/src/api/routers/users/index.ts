@@ -1,3 +1,17 @@
+import {
+  adminProcedure,
+  createTRPCRouter,
+  userProcedure,
+} from "@server/api/trpc";
+import { MESSAGES } from "@server/constants";
+import { sessions, users, usersTenants } from "@server/database/schema";
+import { hashPassword } from "@server/lib/auth";
+import {
+  idSchema,
+  paginationMetaFactory,
+  paramsSchema,
+  resolvedQueryParams,
+} from "@server/lib/utils";
 import { TRPCError } from "@trpc/server";
 import {
   and,
@@ -12,20 +26,6 @@ import {
 } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import postgres from "postgres";
-import {
-  adminProcedure,
-  createTRPCRouter,
-  userProcedure,
-} from "../../../api/trpc";
-import { MESSAGES } from "../../../constants";
-import { sessions, users, usersTenants } from "../../../database/schema";
-import { hashPassword } from "../../../lib/auth";
-import {
-  idSchema,
-  paginationMetaFactory,
-  paramsSchema,
-  resolvedQueryParams,
-} from "../../../lib/utils";
 import {
   userInsertSchema,
   userInviteSchema,
@@ -101,7 +101,7 @@ export const usersRouter = createTRPCRouter({
                 role: usersTenants.role,
               }[orderBy],
             );
-          return desc(users.id);
+          return desc(users.username);
         });
     });
 

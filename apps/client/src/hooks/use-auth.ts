@@ -1,15 +1,15 @@
-import { useRootContext } from "@/hooks";
 import { authAtom } from "@/store/auth";
-import { MESSAGES } from "@app/server/src/constants";
-import { SelectUser } from "@app/server/src/database/schema";
+import { MESSAGES } from "@server/constants";
+import { SelectUser } from "@server/database/schema";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useAtomValue, useSetAtom } from "jotai/react";
 import { toast } from "sonner";
+import { useRootContext } from "./use-root-context";
 
 const NAVIGATE_TO = { login: "/login", me: "/me" };
 
-export default function useAuth() {
+export function useAuth() {
   const navigate = useNavigate();
   const router = useRouter();
   const { proxy } = useRootContext();

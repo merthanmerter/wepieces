@@ -1,6 +1,6 @@
 // import TenantsForm from '@/components/forms/tenants'
-import TenantsForm from "@/components/forms/tenants";
-import DataTable from "@/components/shared/data-table";
+import DataTable from "@/components/data-table";
+import TenantsForm from "@/components/tenants-form";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,10 +19,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useRootContext } from "@/hooks";
-import { ActionDispatch } from "@/lib/dispatches";
-import { tenantQuerySchema } from "@app/server/src/api/routers/tenants/definitions";
-import { MESSAGES } from "@app/server/src/constants";
+import { useRootContext } from "@/hooks/use-root-context";
+import { DispatchAction } from "@/lib/dispatches";
+import { tenantQuerySchema } from "@server/api/routers/tenants/definitions";
+import { MESSAGES } from "@server/constants";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { zodSearchValidator } from "@tanstack/router-zod-adapter";
@@ -47,7 +47,7 @@ function Page() {
   const { proxy } = useRootContext();
   const { invalidate } = useRouter();
 
-  const [action, updateAction] = React.useReducer(ActionDispatch<Actions>, {
+  const [action, updateAction] = React.useReducer(DispatchAction<Actions>, {
     update: false,
     remove: false,
   });

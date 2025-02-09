@@ -1,46 +1,26 @@
-# Stage 1: Install dependencies for the entire monorepo
-FROM oven/bun:latest AS dependencies
-
-WORKDIR /app
-
-# Copy the entire monorepo
+# Stage 1: Install dependencies for the entire workspace using Bun
+FROM oven/bun:latest AS base
+WORKDIR /usr/src/app
 COPY . .
-
-# Install dependencies for the entire workspace using Bun
 RUN bun install
-
 # Stage 2: Build the client
-FROM dependencies AS client-build
-
-WORKDIR /app/apps/client
-
-# Build the client
+FROM base AS client-build
+WORKDIR /usr/src/app/apps/client
 RUN bun run build
 
 # Stage 3: Build the server
-FROM dependencies AS server-build
-
-WORKDIR /app/apps/server
-
-# Build the server binary
-RUN bun build --compile --target=bun-linux-x64 ./index.ts --outfile server --minify
+FROM base AS server-build
+WORKDIR /usr/src/app/apps/server
+RUN bun build --compile --target=bun ./index.ts --outfile server --minify
 
 # Stage 4: Final runtime stage
-FROM oven/bun:latest AS runtime
+FROM base as release
+WORKDIR /usr/src/app
+COPY --from=client-build /usr/src/app/apps/client/dist ./dist
+COPY ./drizzle ./drizzle
+COPY --from=server-build /usr/src/app/apps/server/server ./server
 
-WORKDIR /app
-
-# Copy the client `dist` folder from the client build stage
-COPY --from=client-build /app/apps/client/dist ./dist
-
-# Copy drizzle migration meta
-COPY --from=server-build /app/apps/server/drizzle ./drizzle
-
-# Copy the built server binary from the server build stage
-COPY --from=server-build /app/apps/server/server ./server
-
-# Expose the port for the server
-EXPOSE 5000
-
-# Run the compiled server binary
-CMD ["./server"]
+ENV NODE_ENV=production
+USER bun
+EXPOSE 3000/tcp
+ENTRYPOINT ["./server"]

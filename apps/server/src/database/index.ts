@@ -9,11 +9,10 @@ export const DATABASE_OPTIONS: postgres.Options<{}> = {
   user: env.DATABASE_USER,
   password: env.DATABASE_PASSWORD,
   database: env.DATABASE_SCHEMA,
-  // connect_timeout: 10000,
-  // idle_timeout: 10000,
-  // keep_alive: true,
-  // max: 10,
-  // ssl: env.NODE_ENV === "production",
+  connect_timeout: 10000,
+  idle_timeout: 10000,
+  max: 10,
+  ssl: "require",
   onnotice: () => {}, // Suppress Postgres notices
 };
 

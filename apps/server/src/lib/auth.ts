@@ -18,16 +18,15 @@ import {
  * and cookie options.
  */
 const SESSION_PREFIX = "_session";
-const SESSION_EXPIRY = 7 * 24 * 60 * 60 * 1000;
 const SIGNING_KEY: Uint8Array = new TextEncoder().encode(env.SECRET);
 
 export const AUTH_COOKIE_OPTS: CookieOptions = {
   httpOnly: true,
-  sameSite: "Strict",
+  sameSite: "strict",
   path: "/",
-  expires: new Date(Date.now() + SESSION_EXPIRY),
-  secure: env.NODE_ENV === "production",
-  domain: env.NODE_ENV === "development" ? undefined : env.DOMAIN,
+  expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  secure: import.meta.env.NODE_ENV === "production",
+  domain: import.meta.env.NODE_ENV === "development" ? undefined : env.DOMAIN,
 };
 
 export const encrypt = async (payload: JWTPayload) => {

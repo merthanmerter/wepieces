@@ -1,6 +1,6 @@
 import { useLocation } from "@tanstack/react-router";
 
-export default function useBreadcrumbs() {
+export function useBreadcrumbs() {
   const current = useLocation();
 
   const routeHistory = current.pathname

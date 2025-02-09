@@ -1,7 +1,7 @@
 import { useLocation, useNavigate, useRouter } from "@tanstack/react-router";
 import React from "react";
 
-export default function useParentRoute() {
+export function useParentRoute() {
   const navigate = useNavigate();
   const location = useLocation();
   const router = useRouter();

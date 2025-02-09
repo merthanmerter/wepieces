@@ -1,7 +1,7 @@
+import { MESSAGES } from "@server/constants";
+import { users } from "@server/database/schema";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-import { MESSAGES } from "../../../constants";
-import { users } from "../../../database/schema";
 import { passwordValidation } from "../users/definitions";
 
 export const authLoginSchema = createInsertSchema(users, {

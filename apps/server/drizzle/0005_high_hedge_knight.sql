@@ -1,1 +1,0 @@
-ALTER TABLE "wepieces_users" ADD COLUMN "recovery_code" varchar(6) DEFAULT '';

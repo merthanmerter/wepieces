@@ -1,8 +1,8 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { Cross2Icon } from "@radix-ui/react-icons";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import { Cross2Icon } from "@radix-ui/react-icons";
 
 const Dialog = DialogPrimitive.Root;
 
@@ -19,7 +19,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-40 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className,
     )}
     {...props}
@@ -36,7 +36,7 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "max-h-[90vh] scrollbar overflow-y-auto fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background px-6 pb-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
+        "max-h-[90vh] scrollbar overflow-y-auto fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background px-4 pb-4 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
         className,
       )}
       {...props}>
@@ -52,7 +52,7 @@ const DialogHeader = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col space-y-1.5 text-center sm:text-left sticky top-0 z-50 bg-background pt-6 pb-2",
+      "flex flex-col space-y-1.5 text-center sm:text-left sticky top-0 z-50 bg-background pt-4 pb-2",
       className,
     )}
     {...props}
@@ -90,6 +90,15 @@ const DialogTitle = React.forwardRef<
       <Cross2Icon className='h-4 w-4' />
       <span className='sr-only'>Close</span>
     </DialogPrimitive.Close>
+    {/* <DialogPrimitive.Close>
+      <Button
+        type='button'
+        size='icon'
+        className='absolute z-50 right-0 top-4 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground'
+        variant='ghost'>
+        <XIcon />
+      </Button>
+    </DialogPrimitive.Close> */}
   </DialogPrimitive.Title>
 ));
 DialogTitle.displayName = DialogPrimitive.Title.displayName;

@@ -1,8 +1,8 @@
+import { MESSAGES } from "@server/constants";
+import { tenants } from "@server/database/schema";
+import { paginationSchema } from "@server/lib/utils";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-import { MESSAGES } from "../../../constants";
-import { tenants } from "../../../database/schema";
-import { paginationSchema } from "../../../lib/utils";
 
 export const tenantQuerySchema = paginationSchema.extend({
   name: z.string().optional(),
